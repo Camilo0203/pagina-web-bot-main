@@ -1,0 +1,29 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1060" cy="80" r="220" fill="url(#orb)" opacity="0.35"/>
+  <circle cx="180" cy="570" r="250" fill="url(#orb2)" opacity="0.3"/>
+  <rect x="90" y="120" width="120" height="120" rx="24" fill="white" fill-opacity="0.92"/>
+  <path d="M124 164c0-7.7 6.3-14 14-14h24c7.7 0 14 6.3 14 14v20c0 7.7-6.3 14-14 14h-8l-8 8v-8h-8c-7.7 0-14-6.3-14-14v-20Z" fill="url(#icon)"/>
+  <text x="250" y="190" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="700">Discord Bot Landing</text>
+  <text x="250" y="250" fill="white" fill-opacity="0.9" font-family="Segoe UI, Arial, sans-serif" font-size="34">Moderation, Automation, Dashboard and Live Stats</text>
+  <text x="90" y="560" fill="white" fill-opacity="0.75" font-family="Segoe UI, Arial, sans-serif" font-size="26">Configure with VITE_BOT_NAME and VITE_SITE_URL</text>
+  <defs>
+    <linearGradient id="bg" x1="50" y1="40" x2="1140" y2="610" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D4ED8"/>
+      <stop offset="0.48" stop-color="#6D28D9"/>
+      <stop offset="1" stop-color="#DB2777"/>
+    </linearGradient>
+    <linearGradient id="orb" x1="840" y1="-130" x2="1260" y2="290" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="orb2" x1="-120" y1="380" x2="420" y2="920" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDE68A"/>
+      <stop offset="1" stop-color="#F472B6"/>
+    </linearGradient>
+    <linearGradient id="icon" x1="120" y1="140" x2="192" y2="212" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+  </defs>
+</svg>
