@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Replace with your final production domain if needed.
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://pagina-web-bot-main.vercel.app/sitemap.xml
