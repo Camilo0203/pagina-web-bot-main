@@ -1,4 +1,5 @@
 import { Star, Quote } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const testimonials = [
   {
@@ -52,51 +53,79 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <section id="testimonials" className="py-24 bg-gradient-to-br from-purple-50 to-pink-50">
+    <section id="testimonials" className="py-24 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4"
+          >
             Loved by Server Owners Worldwide
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+          >
             Don't just take our word for it. Here's what our community has to say.
-          </p>
+          </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {testimonials.map((testimonial, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative"
+              variants={itemVariants}
+              className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative border border-gray-100 dark:border-gray-700"
             >
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-purple-200" />
+              <Quote className="absolute top-6 right-6 w-8 h-8 text-purple-200 dark:text-purple-900/40" />
 
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-6 relative z-10">
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.name}
-                  className="w-16 h-16 rounded-full object-cover border-4 border-purple-100"
+                  className="w-16 h-16 rounded-full object-cover border-4 border-purple-100 dark:border-purple-500/30"
                 />
                 <div>
-                  <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                  <p className="text-sm text-gray-600">{testimonial.role}</p>
-                  <p className="text-xs text-purple-600 font-medium">{testimonial.server}</p>
+                  <h4 className="font-bold text-gray-900 dark:text-gray-100">{testimonial.name}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</p>
+                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{testimonial.server}</p>
                 </div>
               </div>
 
-              <div className="flex gap-1 mb-4">
+              <div className="flex gap-1 mb-4 relative z-10">
                 {Array.from({ length: testimonial.rating }).map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
 
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed relative z-10">
                 "{testimonial.content}"
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
