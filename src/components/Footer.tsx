@@ -1,12 +1,16 @@
 import { Bot, Twitter, Github, MessageCircle, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { config } from '../config';
+import { Link } from 'react-router-dom';
+import { config, getDashboardUrl, isDashboardExternal } from '../config';
 
 interface FooterProps {
   onOpenLegal: (type: 'terms' | 'privacy' | 'cookies') => void;
 }
 
 export default function Footer({ onOpenLegal }: FooterProps) {
+  const dashboardHref = getDashboardUrl();
+  const dashboardExternal = isDashboardExternal();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -41,9 +45,28 @@ export default function Footer({ onOpenLegal }: FooterProps) {
           <motion.div variants={itemVariants}>
             <h3 className="font-bold text-base mb-4 text-gray-900 dark:text-white">Product</h3>
             <ul className="space-y-2 text-sm">
-              {['features','commands','pricing','dashboard'].map((href) => (
-                <li key={href}><a href={`#${href}`} className="text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors capitalize">{href}</a></li>
-              ))}
+              <li><a href="#features" className="text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors capitalize">features</a></li>
+              <li><a href="#commands" className="text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors capitalize">commands</a></li>
+              <li><a href="#pricing" className="text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors capitalize">pricing</a></li>
+              <li>
+                {dashboardExternal ? (
+                  <a
+                    href={dashboardHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors capitalize"
+                  >
+                    dashboard
+                  </a>
+                ) : (
+                  <Link
+                    to={dashboardHref}
+                    className="text-gray-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors capitalize"
+                  >
+                    dashboard
+                  </Link>
+                )}
+              </li>
             </ul>
           </motion.div>
 

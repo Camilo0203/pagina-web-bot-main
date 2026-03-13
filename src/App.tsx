@@ -1,56 +1,37 @@
-import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import LiveStats from './components/LiveStats';
-import Commands from './components/Commands';
-import Pricing from './components/Pricing';
-import DashboardSection from './components/DashboardSection';
-import DocsSection from './components/DocsSection';
-import SetupGuide from './components/SetupGuide';
-import Testimonials from './components/Testimonials';
-import FAQ from './components/FAQ';
-import SupportSection from './components/SupportSection';
-import StatusSection from './components/StatusSection';
-import Footer from './components/Footer';
-import LegalModal from './components/LegalModal';
-import { config } from './config';
+import { Suspense, lazy } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { Bot } from 'lucide-react';
+import LandingPage from './pages/LandingPage';
+import NotFoundPage from './pages/NotFoundPage';
 
-type LegalModalType = 'terms' | 'privacy' | 'cookies' | null;
+const DashboardPage = lazy(() => import('./dashboard/DashboardPage'));
+const AuthCallbackPage = lazy(() => import('./dashboard/AuthCallbackPage'));
 
-function App() {
-  const [legalModalType, setLegalModalType] = useState<LegalModalType>(null);
-  const { t } = useTranslation();
-
+function AppLoadingFallback() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      <Helmet>
-        <title>{config.botName} | {t('hero.title', 'The Ultimate Discord Bot')}</title>
-        <meta name="description" content={t('hero.description', 'Powerful moderation, engaging features, and seamless automation.')} />
-      </Helmet>
-      <Navbar />
-      <Hero />
-      <Features />
-      <LiveStats />
-      <Commands />
-      <Pricing />
-      <DashboardSection />
-      <DocsSection />
-      <SetupGuide />
-      <Testimonials />
-      <FAQ />
-      <SupportSection />
-      <StatusSection />
-      <Footer onOpenLegal={setLegalModalType} />
-      <LegalModal
-        type={legalModalType}
-        onClose={() => setLegalModalType(null)}
-        botName={config.botName}
-      />
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
+      <div className="flex flex-col items-center gap-4 rounded-[2rem] border border-white/10 bg-white/5 px-8 py-10 backdrop-blur-xl">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 shadow-lg">
+          <Bot className="h-7 w-7" />
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-semibold">Cargando experiencia</p>
+          <p className="text-sm text-slate-300">Preparando el panel y la navegación.</p>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Suspense fallback={<AppLoadingFallback />}>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
+  );
+}

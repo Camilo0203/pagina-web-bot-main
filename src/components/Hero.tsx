@@ -1,16 +1,18 @@
 import { Bot, ExternalLink, LayoutDashboard } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getDiscordInviteUrl, config } from '../config';
 import { useTranslation } from 'react-i18next';
 import { motion, Variants } from 'framer-motion';
+import { getDashboardUrl, isDashboardExternal } from '../config';
 
 export default function Hero() {
   const inviteUrl = getDiscordInviteUrl();
   const inviteEnabled = Boolean(inviteUrl);
   const { t } = useTranslation();
 
-  const dashboardHref = config.dashboardUrl || '#dashboard';
+  const dashboardHref = getDashboardUrl();
   const supportHref = config.supportServerUrl || '#support';
-  const dashboardExternal = Boolean(config.dashboardUrl);
+  const dashboardExternal = isDashboardExternal();
   const supportExternal = Boolean(config.supportServerUrl);
 
   const containerVariants: Variants = {
@@ -76,15 +78,25 @@ export default function Hero() {
             {t('hero.invite', 'Invite Bot')}
           </a>
 
-          <a
-            href={dashboardHref}
-            target={dashboardExternal ? '_blank' : undefined}
-            rel={dashboardExternal ? 'noopener noreferrer' : undefined}
-            className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-2"
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            {t('hero.dashboard', 'Open Dashboard')}
-          </a>
+          {dashboardExternal ? (
+            <a
+              href={dashboardHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-2"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              {t('hero.dashboard', 'Open Dashboard')}
+            </a>
+          ) : (
+            <Link
+              to={dashboardHref}
+              className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-2"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              {t('hero.dashboard', 'Open Dashboard')}
+            </Link>
+          )}
 
           <a
             href={supportHref}

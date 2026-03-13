@@ -1,9 +1,11 @@
 import { BarChart3, ShieldCheck, Settings2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { config } from '../config';
+import { Link } from 'react-router-dom';
+import { getDashboardUrl, isDashboardExternal } from '../config';
 
 export default function DashboardSection() {
-  const hasDashboard = Boolean(config.dashboardUrl);
+  const dashboardHref = getDashboardUrl();
+  const dashboardExternal = isDashboardExternal();
 
   return (
     <section id="dashboard" className="pt-32 pb-24 bg-brand-50 dark:bg-surface-800 transition-colors duration-300">
@@ -26,9 +28,9 @@ export default function DashboardSection() {
               <p className="flex items-center gap-3"><Settings2 className="w-5 h-5 text-brand-600 dark:text-brand-400" /> Fast feature toggles and presets</p>
             </div>
 
-            {hasDashboard ? (
+            {dashboardExternal ? (
               <a
-                href={config.dashboardUrl}
+                href={dashboardHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
@@ -36,9 +38,12 @@ export default function DashboardSection() {
                 Open Dashboard
               </a>
             ) : (
-              <span className="inline-flex px-6 py-3 rounded-xl bg-brand-100 dark:bg-surface-700 text-brand-700 dark:text-slate-400 font-semibold border border-brand-200 dark:border-surface-600">
-                Dashboard coming soon
-              </span>
+              <Link
+                to={dashboardHref}
+                className="inline-flex px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
+              >
+                Open Dashboard
+              </Link>
             )}
           </motion.div>
 

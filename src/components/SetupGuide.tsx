@@ -1,5 +1,10 @@
 import { Bot, Settings, SlidersHorizontal, PartyPopper } from 'lucide-react';
-import { getDiscordInviteUrl } from '../config';
+import { Link } from 'react-router-dom';
+import {
+  getDashboardUrl,
+  getDiscordInviteUrl,
+  isDashboardExternal,
+} from '../config';
 
 const steps = [
   {
@@ -20,7 +25,7 @@ const steps = [
     icon: SlidersHorizontal,
     title: 'Configure modules',
     description: 'Enable only the features your community needs from dashboard or commands.',
-    href: '#dashboard',
+    href: '/dashboard',
     linkLabel: 'Open dashboard',
   },
   {
@@ -34,6 +39,8 @@ const steps = [
 
 export default function SetupGuide() {
   const inviteUrl = getDiscordInviteUrl();
+  const dashboardHref = getDashboardUrl();
+  const dashboardExternal = isDashboardExternal();
 
   return (
     <section id="guide" className="py-24 bg-brand-50 dark:bg-surface-900 transition-colors duration-300">
@@ -46,8 +53,17 @@ export default function SetupGuide() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((step, index) => {
             const Icon = step.icon;
-            const href = index === 0 && inviteUrl ? inviteUrl : step.href;
-            const external = index === 0 && Boolean(inviteUrl);
+            const href = index === 0 && inviteUrl
+              ? inviteUrl
+              : index === 2
+                ? dashboardHref
+                : step.href;
+            const external = index === 0
+              ? Boolean(inviteUrl)
+              : index === 2
+                ? dashboardExternal
+                : false;
+
             return (
               <article key={step.title} className="bg-brand-100 dark:bg-surface-800 border border-brand-200 dark:border-surface-700 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center mb-4 shadow-sm">
@@ -56,15 +72,26 @@ export default function SetupGuide() {
                 <p className="text-xs uppercase tracking-wide text-brand-600 dark:text-brand-400 font-semibold mb-2">Step {index + 1}</p>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
                 <p className="text-gray-600 dark:text-slate-400 mb-5 text-sm leading-relaxed">{step.description}</p>
-                <a
-                  href={href}
-                  target={external ? '_blank' : undefined}
-                  rel={external ? 'noopener noreferrer' : undefined}
-                  className="text-brand-700 dark:text-brand-400 font-semibold hover:text-brand-900 dark:hover:text-brand-300 transition-colors inline-flex items-center gap-1 group"
-                >
-                  {step.linkLabel}
-                  <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-                </a>
+
+                {index === 2 && !external ? (
+                  <Link
+                    to={href}
+                    className="text-brand-700 dark:text-brand-400 font-semibold hover:text-brand-900 dark:hover:text-brand-300 transition-colors inline-flex items-center gap-1 group"
+                  >
+                    {step.linkLabel}
+                    <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </Link>
+                ) : (
+                  <a
+                    href={href}
+                    target={external ? '_blank' : undefined}
+                    rel={external ? 'noopener noreferrer' : undefined}
+                    className="text-brand-700 dark:text-brand-400 font-semibold hover:text-brand-900 dark:hover:text-brand-300 transition-colors inline-flex items-center gap-1 group"
+                  >
+                    {step.linkLabel}
+                    <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </a>
+                )}
               </article>
             );
           })}
