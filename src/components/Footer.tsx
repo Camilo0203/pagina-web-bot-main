@@ -1,4 +1,5 @@
 import { Bot, Twitter, Github, MessageCircle, Mail, Map } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { config } from '../config';
 
 interface FooterProps {
@@ -6,6 +7,7 @@ interface FooterProps {
 }
 
 export default function Footer({ onOpenLegal }: FooterProps) {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -23,7 +25,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
               <span className="text-3xl font-bold text-white uppercase tracking-tightest">TON618</span>
             </div>
             <p className="text-slate-500 max-w-sm font-medium leading-relaxed mb-10 text-lg">
-              The most massive Discord automation utility in the known universe. Engineered for absolute dominance and community stability.
+              {t('footer.tagline')}
             </p>
             <div className="flex gap-4">
                {[
@@ -45,13 +47,18 @@ export default function Footer({ onOpenLegal }: FooterProps) {
           <div>
              <h3 className="text-xs font-bold text-white uppercase tracking-[0.5em] mb-12 flex items-center gap-3">
                 <div className="w-5 h-px bg-indigo-500"></div>
-                Navigation
+                {t('footer.navTitle')}
              </h3>
              <ul className="space-y-6">
-                {['Features', 'Stats', 'Commands', 'Documentation'].map((item) => (
-                  <li key={item}>
-                    <a href={`#${item.toLowerCase()}`} className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 inline-block">
-                      {item}
+                {[
+                  { key: 'features', label: t('footer.nav.features') },
+                  { key: 'stats', label: t('footer.nav.stats') },
+                  { key: 'commands', label: t('footer.nav.commands') },
+                  { key: 'documentation', label: t('footer.nav.docs') }
+                ].map((item) => (
+                  <li key={item.key}>
+                    <a href={`#${item.key.toLowerCase()}`} className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 inline-block">
+                      {item.label}
                     </a>
                   </li>
                 ))}
@@ -61,14 +68,14 @@ export default function Footer({ onOpenLegal }: FooterProps) {
           <div>
              <h3 className="text-xs font-bold text-white uppercase tracking-[0.5em] mb-12 flex items-center gap-3">
                 <div className="w-5 h-px bg-purple-500"></div>
-                Governance
+                {t('footer.govTitle')}
              </h3>
              <ul className="space-y-6">
                 {(['terms','privacy','cookies'] as const).map((type) => (
                   <li key={type}>
                     <button type="button" onClick={() => onOpenLegal(type)}
                       className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 text-left">
-                      {type} protocol
+                      {t(`footer.gov.${type}`)}
                     </button>
                   </li>
                 ))}
@@ -79,20 +86,20 @@ export default function Footer({ onOpenLegal }: FooterProps) {
         <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10">
            <div className="flex flex-wrap justify-center md:justify-start items-center gap-8">
               <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em]">
-                &copy; {currentYear} TON618 PROJECT
+                {t('footer.copyright', { year: currentYear })}
               </span>
               <div className="hidden md:block w-px h-4 bg-white/10"></div>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/30"></div>
                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">
-                   VOID STABILIZED NODE
+                   {t('footer.stabilized')}
                  </span>
               </div>
            </div>
            
            <div className="flex items-center gap-3 text-[10px] font-bold text-slate-600 uppercase tracking-[0.4em] group">
               <Map className="w-3 h-3 group-hover:text-indigo-500 transition-colors" />
-              <span>COMMANDED BY MILO0DEV</span>
+              <span>{t('footer.commanded')}</span>
            </div>
         </div>
       </div>

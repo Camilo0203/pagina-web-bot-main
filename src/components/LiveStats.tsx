@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Server, Users, Zap, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { defaultBotStats, useBotStats } from '../hooks/useBotStats';
 import { motion } from 'framer-motion';
 
@@ -11,6 +12,7 @@ interface AnimatedStats {
 }
 
 export default function LiveStats() {
+  const { t } = useTranslation();
   const { stats, error } = useBotStats();
   const [animated, setAnimated] = useState<AnimatedStats>(defaultBotStats);
 
@@ -36,10 +38,10 @@ export default function LiveStats() {
   const liveUnavailable = Boolean(error);
 
   const statCards = [
-    { icon: Server, label: 'Active Clusters',     value: animated.servers.toLocaleString(),              sub: 'Across Global Nodes' },
-    { icon: Users,  label: 'Synchronized Souls',    value: animated.users.toLocaleString(),                sub: 'Verified Identities' },
-    { icon: Zap,    label: 'Operations Executed',   value: animated.commands.toLocaleString(),             sub: 'Real-time Throughput' },
-    { icon: Clock,  label: 'Stability Index',       value: `${animated.uptimePercentage.toFixed(2)}%`,     sub: 'L1 Uptime Standard' },
+    { icon: Server, label: t('stats.cards.clusters.label'), value: animated.servers.toLocaleString(), sub: t('stats.cards.clusters.sub') },
+    { icon: Users,  label: t('stats.cards.souls.label'),    value: animated.users.toLocaleString(),   sub: t('stats.cards.souls.sub') },
+    { icon: Zap,    label: t('stats.cards.ops.label'),      value: animated.commands.toLocaleString(), sub: t('stats.cards.ops.sub') },
+    { icon: Clock,  label: t('stats.cards.stability.label'), value: `${animated.uptimePercentage.toFixed(2)}%`, sub: t('stats.cards.stability.sub') },
   ];
 
   return (
@@ -56,14 +58,16 @@ export default function LiveStats() {
         >
           <div className="inline-flex items-center gap-3 px-6 py-2 cinematic-glass rounded-full border border-white/10 mb-10">
             <div className={`w-2 h-2 rounded-full ${liveUnavailable ? 'bg-red-500' : 'bg-cyan-400 animate-pulse'}`}></div>
-            <span className="text-white font-bold text-[10px] uppercase tracking-[0.4em]">{liveUnavailable ? 'Protocol Restricted' : 'Telemetry Online'}</span>
+            <span className="text-white font-bold text-[10px] uppercase tracking-[0.4em]">
+              {liveUnavailable ? t('stats.badgeOffline') : t('stats.badgeOnline')}
+            </span>
           </div>
 
           <h2 className="text-6xl md:text-8xl font-bold text-white mb-8 tracking-tightest uppercase leading-none">
-            Proven <span className="text-premium-gradient">Scale</span>
+            {t('stats.title')} <span className="text-premium-gradient">{t('stats.titleAccent')}</span>
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-            Live telemetry data verified by our global synchronization layer. Power without compromise.
+            {t('stats.description')}
           </p>
         </motion.div>
 

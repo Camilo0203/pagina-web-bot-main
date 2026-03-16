@@ -1,9 +1,11 @@
 import { ChevronRight, Sparkles, Activity } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { getDiscordInviteUrl, getDashboardUrl } from '../config';
 import { useRef } from 'react';
 
 export default function Hero() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const inviteUrl = getDiscordInviteUrl();
   const dashboardUrl = getDashboardUrl();
@@ -65,7 +67,7 @@ export default function Hero() {
           className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8 group cursor-default"
         >
           <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
-          <span className="text-[10px] font-bold text-indigo-200 uppercase tracking-[0.3em]">Quantum Protocol v2.5.0 Active</span>
+          <span className="text-[10px] font-bold text-indigo-200 uppercase tracking-[0.3em]">{t('hero.badge')}</span>
           <Activity className="w-3 h-3 text-indigo-500 opacity-50 group-hover:rotate-180 transition-transform duration-700" />
         </motion.div>
 
@@ -74,10 +76,10 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-[13vw] md:text-[8vw] lg:text-[7.5vw] font-extrabold leading-[0.85] tracking-tightest uppercase mb-6"
+          className="text-[10vw] md:text-[8vw] lg:text-[7.5vw] font-extrabold leading-[0.85] tracking-tightest uppercase mb-6"
         >
-          Beyond <br/>
-          <span className="text-premium-gradient text-shadow-glow">Gravity</span>
+          {t('hero.titleMain')} <br/>
+          <span className="text-premium-gradient text-shadow-glow">{t('hero.titleAccent')}</span>
         </motion.h1>
 
         {/* SUBHEADLINE */}
@@ -87,8 +89,8 @@ export default function Hero() {
           transition={{ duration: 1, delay: 0.4 }}
           className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 font-medium leading-relaxed tracking-tight"
         >
-          Forge your Discord ecosystem within the singularity. <br className="hidden md:block"/>
-          <span className="text-slate-600 font-normal">Massive automation, extreme precision, cosmic scale.</span>
+          {t('hero.description')} <br className="hidden md:block"/>
+          <span className="text-slate-600 font-normal">{t('hero.descriptionSub')}</span>
         </motion.p>
 
         {/* CTA BUTTONS */}
@@ -100,11 +102,11 @@ export default function Hero() {
         >
           <a href={inviteUrl} className="btn-premium-primary group">
             <Sparkles className="w-5 h-5 transition-transform duration-500 group-hover:rotate-12 text-indigo-900" />
-            <span>Launch Protocol</span>
+            <span>{t('hero.ctaPrimary')}</span>
           </a>
 
           <a href={dashboardUrl} className="btn-premium-outline group">
-            <span>Access Terminal</span>
+            <span>{t('hero.ctaSecondary')}</span>
             <ChevronRight className="w-4 h-4 transition-all duration-300 group-hover:translate-x-1" />
           </a>
         </motion.div>
@@ -117,7 +119,7 @@ export default function Hero() {
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-20 hover:opacity-100 transition-opacity duration-500 cursor-default"
       >
         <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-indigo-500/50 to-transparent"></div>
-        <span className="text-[9px] uppercase tracking-[0.5em] font-black text-indigo-200">Singular Exploration</span>
+        <span className="text-[9px] uppercase tracking-[0.5em] font-black text-indigo-200">{t('hero.scroll')}</span>
       </motion.div>
     </section>
   );

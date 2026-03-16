@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, ChevronRight, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { getDiscordLoginUrl } from '../config';
+import LanguageSelector from './LanguageSelector';
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -16,10 +19,10 @@ export default function Navbar() {
   const loginUrl = getDiscordLoginUrl();
 
   const navLinks = [
-    { name: 'Features', href: '#features' },
-    { name: 'Architecture', href: '#experience' },
-    { name: 'Why TON', href: '#why' },
-    { name: 'Network', href: '#stats' },
+    { name: t('nav.features'), href: '#features' },
+    { name: t('nav.architecture'), href: '#experience' },
+    { name: t('nav.whyTon'), href: '#why' },
+    { name: t('nav.network'), href: '#stats' },
   ];
 
   return (
@@ -27,7 +30,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6">
         <div className={`flex items-center justify-between px-6 py-3 transition-all duration-700 ${scrolled ? 'cinematic-glass rounded-2xl border-white/[0.05] shadow-2xl shadow-black/80' : ''}`}>
           
-          <div className="flex items-center gap-16">
+          <div className="flex items-center gap-10 lg:gap-16">
             <a href="/" className="flex items-center gap-3 group">
                <div className="relative w-8 h-8 flex items-center justify-center">
                   <div className="absolute inset-0 bg-indigo-500/20 blur-md group-hover:bg-indigo-500/40 transition-colors duration-500"></div>
@@ -50,12 +53,16 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 lg:gap-8">
+            <div className="hidden sm:block">
+              <LanguageSelector />
+            </div>
+
             <a
               href={loginUrl}
               className="hidden md:flex btn-premium-primary !px-6 !py-2.5 !text-[10px] !rounded-lg"
             >
-              <span>Initialize HUD</span>
+              <span>{t('nav.cta')}</span>
               <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </a>
 
@@ -78,6 +85,11 @@ export default function Navbar() {
             className="lg:hidden absolute top-full left-0 right-0 px-6 pt-2 overflow-hidden"
           >
             <div className="cinematic-glass rounded-2xl border-white/5 p-8 flex flex-col gap-8 shadow-3xl shadow-black">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Regional Protocol</span>
+                <LanguageSelector />
+              </div>
+
               {navLinks.map((link) => (
                 <a
                   key={link.name}
@@ -93,7 +105,7 @@ export default function Navbar() {
                 href={loginUrl}
                 className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest shadow-xl"
               >
-                <span>Initialize Dashboard</span>
+                <span>{t('nav.mobileCta')}</span>
                 <ChevronRight className="w-4 h-4" />
               </a>
             </div>

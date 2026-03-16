@@ -1,30 +1,33 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Target, Zap, ShieldCheck, Cpu, ArrowUpRight } from 'lucide-react';
 
-const reasons = [
-  {
-    icon: Target,
-    title: "Unmatched Precision",
-    description: "Every command is executed with absolute accuracy. No edge cases, no failures. Just pure technical dominance."
-  },
-  {
-    icon: Zap,
-    title: "Quantum Performance",
-    description: "Built on a custom high-concurrency engine processing thousands of operations per second with minimal latency."
-  },
-  {
-    icon: ShieldCheck,
-    title: "Fortress Security",
-    description: "Advanced threat mitigation going beyond filtering. We protect your community with corporate-grade protocols."
-  },
-  {
-    icon: Cpu,
-    title: "Neural Integration",
-    description: "A modular, intelligent core designed to adapt and evolve with your server's unique ecosystem."
-  }
-];
-
 export default function WhyTon() {
+  const { t } = useTranslation();
+
+  const reasons = [
+    {
+      icon: Target,
+      title: t('why.reasons.precision.title'),
+      description: t('why.reasons.precision.desc')
+    },
+    {
+      icon: Zap,
+      title: t('why.reasons.performance.title'),
+      description: t('why.reasons.performance.desc')
+    },
+    {
+      icon: ShieldCheck,
+      title: t('why.reasons.security.title'),
+      description: t('why.reasons.security.desc')
+    },
+    {
+      icon: Cpu,
+      title: t('why.reasons.integration.title'),
+      description: t('why.reasons.integration.desc')
+    }
+  ];
+
   return (
     <section id="why" className="py-40 bg-black relative overflow-hidden">
       {/* Structural Elements */}
@@ -41,22 +44,22 @@ export default function WhyTon() {
           >
             <div className="flex items-center gap-4 mb-8">
                <div className="h-[1px] w-12 bg-indigo-500"></div>
-               <span className="text-xs font-bold uppercase tracking-[0.4em] text-indigo-500">Elite Engineering</span>
+               <span className="text-xs font-bold uppercase tracking-[0.4em] text-indigo-500">{t('why.tag')}</span>
             </div>
             
             <h2 className="text-5xl md:text-7xl font-bold text-white uppercase leading-[0.9] mb-10 tracking-tightest">
-              Engineered <br/>
-              <span className="text-premium-gradient">Superiority</span>
+              {t('why.title')} <br/>
+              <span className="text-premium-gradient">{t('why.titleAccent')}</span>
             </h2>
             
             <p className="text-xl text-slate-400 font-medium leading-relaxed mb-12 max-w-xl">
-              In a universe of generic templates, TON618 is the only utility forged with the scale and power of a supermassive singularity.
+              {t('why.description')}
             </p>
             
             <div className="grid grid-cols-2 gap-4">
                {[
-                 { label: 'Uptime Protocol', value: '99.99%', sub: 'Verified 24/7' },
-                 { label: 'Processing Speed', value: '< 12ms', sub: 'Global Latency' }
+                 { label: t('why.stats.uptime'), value: '99.99%', sub: t('why.stats.uptimeSub') },
+                 { label: t('why.stats.speed'), value: '< 12ms', sub: t('why.stats.speedSub') }
                ].map((item, i) => (
                  <div key={i} className="p-6 cinematic-glass rounded-2xl border-white/5 group hover:border-indigo-500/20 transition-all duration-500">
                     <div className="text-sm text-indigo-400 font-bold tracking-widest uppercase mb-1">{item.label}</div>

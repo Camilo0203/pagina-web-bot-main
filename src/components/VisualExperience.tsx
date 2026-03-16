@@ -1,8 +1,10 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Activity, ShieldCheck, Cpu } from 'lucide-react';
 
 export default function VisualExperience() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -54,18 +56,18 @@ export default function VisualExperience() {
           <div className="absolute top-0 -right-20 animate-float-subtle">
              <div className="cinematic-glass p-4 rounded-xl border-indigo-500/20 flex gap-3 items-center">
                 <Activity className="w-4 h-4 text-indigo-400" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Flux: 0.88c</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('experience.hud')}</span>
              </div>
           </div>
         </div>
 
         <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tightest mb-10 leading-[0.85]">
-          Architect the <br/>
-          <span className="text-premium-gradient text-shadow-glow">Void</span>
+          {t('experience.title')} <br/>
+          <span className="text-premium-gradient text-shadow-glow">{t('experience.titleAccent')}</span>
         </h2>
         
         <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed tracking-[0.3em] uppercase opacity-60 italic">
-          Scaling civilizations beyond the event horizon.
+          {t('experience.subtitle')}
         </p>
       </motion.div>
 
@@ -76,8 +78,8 @@ export default function VisualExperience() {
       >
         <div className="tech-card p-10 max-w-[300px] border-white/5 bg-black/40">
            <ShieldCheck className="w-8 h-8 text-indigo-500 mb-6" />
-           <h4 className="text-lg font-bold text-white mb-3 tracking-tight">Vanguard Shield</h4>
-           <p className="text-xs text-slate-500 leading-relaxed">Advanced kinetic barriers protecting your server against the pressures of extreme growth.</p>
+           <h4 className="text-lg font-bold text-white mb-3 tracking-tight">{t('experience.card1Title')}</h4>
+           <p className="text-xs text-slate-500 leading-relaxed">{t('experience.card1Desc')}</p>
         </div>
       </motion.div>
 
@@ -87,8 +89,8 @@ export default function VisualExperience() {
       >
         <div className="tech-card p-10 max-w-[300px] border-white/5 bg-black/40">
            <Cpu className="w-8 h-8 text-indigo-500 mb-6" />
-           <h4 className="text-lg font-bold text-white mb-3 tracking-tight">Neural Sharding</h4>
-           <p className="text-xs text-slate-500 leading-relaxed">Dynamic shard distribution allowing for uninterrupted processing at hyper-massive scales.</p>
+           <h4 className="text-lg font-bold text-white mb-3 tracking-tight">{t('experience.card2Title')}</h4>
+           <p className="text-xs text-slate-500 leading-relaxed">{t('experience.card2Desc')}</p>
         </div>
       </motion.div>
     </section>

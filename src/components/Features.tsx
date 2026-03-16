@@ -1,68 +1,71 @@
 import { Shield, Zap, Cpu, BarChart3, Lock, Globe, Layers, Radio } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const features = [
-  { 
-    icon: Shield,    
-    title: 'Kinetic Moderation',    
-    description: 'Neural-linked enforcement protocols that sanitize threats before they penetrate your community ecosystem.',
-    status: 'ENFORCER ACTIVE'
-  },
-  { 
-    icon: Cpu,       
-    title: 'Core Autonomy', 
-    description: 'Sophisticated event-loops and automated role architectures that evolve with your server\'s complexity.',
-    status: 'LOGIC STABLE'
-  },
-  { 
-    icon: Zap,       
-    title: 'Sub-Zero Latency',      
-    description: 'High-frequency command processing across decentralized shard clusters for near-instant execution.',
-    status: 'FLOW OPTIMIZED'
-  },
-  { 
-    icon: Lock,      
-    title: 'Cryptographic Integrity',     
-    description: 'Military-grade data protection and sophisticated intrusion detection to maintain total sovereign security.',
-    status: 'SHIELD VERIFIED'
-  },
-  { 
-    icon: BarChart3,  
-    title: 'Neural Analytics',         
-    description: 'Deep-space telemetry and interaction mapping. Visualize every data point within your digital horizon.',
-    status: 'COGNITION LIVE'
-  },
-  { 
-    icon: Globe,     
-    title: 'Omni-Scale Network',    
-    description: 'Architected for massive expansion. Seamlessly sustain multi-million member ecosystems with absolute stability.',
-    status: 'HORIZON EXPANDED'
-  },
-  { 
-    icon: Layers,     
-    title: 'Modular DNA',   
-    description: 'Granular configuration patterns. Tailor the singularity core to your server\'s specific operational requirements.',
-    status: 'CORE CUSTOMIZED'
-  },
-  { 
-    icon: Radio,       
-    title: 'Unified Comms',           
-    description: 'Seamless integration across the Discord API. A bridge between your community and the next generation of tools.',
-    status: 'SIGNAL CLEAR'
-  },
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 30 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } } as const,
-};
+import { useTranslation } from 'react-i18next';
 
 export default function Features() {
+  const { t } = useTranslation();
+
+  const features = [
+    { 
+      icon: Shield,    
+      title: t('features.items.moderation.title'),    
+      description: t('features.items.moderation.desc'),
+      status: t('features.items.moderation.status')
+    },
+    { 
+      icon: Cpu,       
+      title: t('features.items.autonomy.title'), 
+      description: t('features.items.autonomy.desc'),
+      status: t('features.items.autonomy.status')
+    },
+    { 
+      icon: Zap,       
+      title: t('features.items.latency.title'),      
+      description: t('features.items.latency.desc'),
+      status: t('features.items.latency.status')
+    },
+    { 
+      icon: Lock,      
+      title: t('features.items.security.title'),     
+      description: t('features.items.security.desc'),
+      status: t('features.items.security.status')
+    },
+    { 
+      icon: BarChart3,  
+      title: t('features.items.analytics.title'),         
+      description: t('features.items.analytics.desc'),
+      status: t('features.items.analytics.status')
+    },
+    { 
+      icon: Globe,     
+      title: t('features.items.network.title'),    
+      description: t('features.items.network.desc'),
+      status: t('features.items.network.status')
+    },
+    { 
+      icon: Layers,     
+      title: t('features.items.modular.title'),   
+      description: t('features.items.modular.desc'),
+      status: t('features.items.modular.status')
+    },
+    { 
+      icon: Radio,       
+      title: t('features.items.comms.title'),           
+      description: t('features.items.comms.desc'),
+      status: t('features.items.comms.status')
+    },
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 30 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } } as const,
+  };
+
   return (
     <section id="features" className="py-40 relative overflow-hidden bg-black/50">
       {/* ATMOSPHERIC BACKGROUND */}
@@ -79,7 +82,7 @@ export default function Features() {
               className="flex items-center gap-4 mb-8"
             >
               <div className="w-8 h-[1px] bg-indigo-500/50"></div>
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400">Tactical Advantage</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400">{t('features.tag')}</span>
             </motion.div>
             
             <motion.h2
@@ -88,8 +91,8 @@ export default function Features() {
               viewport={{ once: true }}
               className="text-5xl md:text-8xl font-black text-white leading-[0.9] tracking-tightest uppercase"
             >
-              Operational <br/>
-              <span className="text-premium-gradient">Superiority</span>
+              {t('features.title')} <br/>
+              <span className="text-premium-gradient">{t('features.titleAccent')}</span>
             </motion.h2>
           </div>
           
@@ -101,7 +104,7 @@ export default function Features() {
             className="max-w-md"
           >
             <p className="text-lg text-slate-400 font-medium leading-relaxed border-l border-white/10 pl-8">
-              A highly-calibrated utility core designed to command the next generation of complex digital infrastructures.
+              {t('features.description')}
             </p>
           </motion.div>
         </div>
@@ -119,7 +122,7 @@ export default function Features() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                className="tech-card group"
+                className="tech-card group h-full flex flex-col"
               >
                 {/* HUD ACCENTS */}
                 <div className="hud-accent-corner top-left"></div>
