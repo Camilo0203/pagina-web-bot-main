@@ -24,25 +24,28 @@ const itemVariants = {
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 bg-brand-100 dark:bg-surface-800 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+    <section id="features" className="py-32 bg-[#020617] relative overflow-hidden">
+      {/* Subtle background glow */}
+      <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-5xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter"
           >
-            Powerful Features for Every Server
+            Power Beyond the <span className="text-brand-gradient">Horizon</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-gray-600 dark:text-slate-400 max-w-3xl mx-auto"
+            className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed"
           >
-            Everything you need to manage, engage, and grow your Discord community in one powerful bot.
+            TON618 provides the most massive toolset ever created for Discord. Unstable power, stabilized for your server.
           </motion.p>
         </div>
 
@@ -51,7 +54,7 @@ export default function Features() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {features.map((feature, index) => {
             const Icon = feature.icon;
@@ -59,16 +62,19 @@ export default function Features() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                className="group relative bg-brand-50 dark:bg-surface-700 rounded-2xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-brand-200 dark:border-surface-600"
+                className="group relative gravitational-lens rounded-3xl p-8 border border-white/5 hover:border-amber-500/30 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(245,158,11,0.1)] overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                {/* Hover light effect */}
+                <div className="absolute -inset-1 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className="relative z-10">
+                  <div className="inline-flex p-4 rounded-2xl bg-amber-500/10 mb-6 group-hover:bg-amber-500/20 transition-all duration-500 group-hover:scale-110">
+                    <Icon className="w-8 h-8 text-amber-500" />
+                  </div>
+
+                  <h3 className="text-xl font-black text-white mb-3 uppercase tracking-tight">{feature.title}</h3>
+                  <p className="text-slate-400 leading-relaxed text-sm font-medium">{feature.description}</p>
                 </div>
-
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-slate-400 leading-relaxed text-sm">{feature.description}</p>
               </motion.div>
             );
           })}

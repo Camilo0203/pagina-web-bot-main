@@ -4,16 +4,15 @@ import { getDiscordInviteUrl, config } from '../config';
 import { useTranslation } from 'react-i18next';
 import { motion, Variants } from 'framer-motion';
 import { getDashboardUrl, isDashboardExternal } from '../config';
+import { useState } from 'react';
 
 export default function Hero() {
+  const [isActive, setIsActive] = useState(false);
   const inviteUrl = getDiscordInviteUrl();
   const inviteEnabled = Boolean(inviteUrl);
   const { t } = useTranslation();
 
   const dashboardHref = getDashboardUrl();
-  const supportHref = config.supportServerUrl || '#support';
-  const dashboardExternal = isDashboardExternal();
-  const supportExternal = Boolean(config.supportServerUrl);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -26,101 +25,92 @@ export default function Hero() {
   };
 
   return (
-    <section id="top" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradient — warm indigo/violet (light) to navy (dark) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-500 via-violet-600 to-purple-700 dark:from-surface-900 dark:via-brand-900 dark:to-surface-700 animate-gradient transition-colors duration-500"></div>
+    <section id="top" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#010208]">
+      {/* Hyper-Void Reactive Black Hole */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center">
+        {/* Distant Stars */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
 
-      {/* Decorative warm blobs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-400/15 rounded-full blur-3xl pointer-events-none"></div>
+        {/* Global Glow */}
+        <div className={`absolute w-[100vw] h-[100vh] bg-amber-600/5 blur-[150px] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-40'}`}></div>
 
-      {/* Dot pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMC0xMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6bTEwIDBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0xMCAwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTIwIDEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMTAgMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6bTEwIDBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wIDEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEwIDBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0tMTAgMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
+        <div className="relative w-[500px] h-[500px] md:w-[800px] md:h-[800px] flex items-center justify-center">
+          {/* External Accretion Disk (Slow) */}
+          <div className={`absolute inset-0 border-[1px] border-amber-500/10 rounded-full animate-spin-slow transition-all duration-700 ${isActive ? 'scale-110 opacity-40' : 'scale-100 opacity-20'}`}></div>
+          
+          {/* Secondary Accretion Layer (Reverse) */}
+          <div className={`absolute inset-16 border-t border-b border-amber-500/20 rounded-full animate-spin-reverse transition-all duration-700 ${isActive ? 'scale-105 opacity-60' : 'scale-100 opacity-30'}`}></div>
+
+          {/* Core Photon Ring */}
+          <div className={`absolute inset-32 bg-gradient-to-r from-amber-600/40 via-orange-500/20 to-amber-600/40 rounded-full blur-[40px] transition-all duration-500 ${isActive ? 'scale-125 opacity-100 active-accretion' : 'scale-100 opacity-60'}`}></div>
+
+          {/* The Event Horizon (The Void) */}
+          <div className={`relative z-10 w-48 h-48 md:w-64 md:h-64 bg-black rounded-full shadow-[0_0_100px_rgba(245,158,11,0.5)] flex items-center justify-center border border-amber-500/10 transition-transform duration-700 ${isActive ? 'scale-90' : 'scale-100'}`}>
+             {/* Center Singularity Pulse */}
+             <div className="w-full h-full rounded-full bg-black animate-pulse shadow-[inset_0_0_40px_rgba(245,158,11,0.2)]"></div>
+          </div>
+          
+          {/* Gravitational Lens Particles */}
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-amber-400/40 rounded-full animate-float"
+              style={{
+                top: `${40 + Math.random() * 20}%`,
+                left: `${40 + Math.random() * 20}%`,
+                transform: `rotate(${i * 24}deg) translateX(${150 + Math.random() * 100}px)`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${10 + Math.random() * 10}s`
+              }}
+            ></div>
+          ))}
+        </div>
+      </div>
 
       <motion.div
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <motion.div variants={itemVariants} className="flex justify-center mb-8">
-          <div className="p-4 bg-white/15 backdrop-blur-xl rounded-2xl border border-white/25 shadow-2xl transform hover:scale-110 transition-transform duration-300">
-            <Bot className="w-16 h-16 text-white" />
+          <div className="p-4 hud-border rounded-3xl event-horizon-glow transform hover:scale-110 transition-all duration-500">
+            <Bot className="w-16 h-16 text-amber-500" />
           </div>
         </motion.div>
 
-        <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-lg">
-          {t('hero.title', 'The Ultimate Discord Bot')}
-          <br />
-          <span className="bg-gradient-to-r from-amber-300 to-violet-200 bg-clip-text text-transparent">
-            {t('hero.subtitle', 'for Your Community')}
-          </span>
+        <motion.h1 variants={itemVariants} className="text-7xl md:text-9xl font-black text-white mb-6 tracking-tighter uppercase">
+          <span className="opacity-80">TON</span>
+          <span className="text-brand-gradient">618</span>
         </motion.h1>
 
-        <motion.p variants={itemVariants} className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto drop-shadow">
-          {t('hero.description', 'Powerful moderation, engaging features, and seamless automation. Elevate your Discord server to the next level.')}
+        <motion.p variants={itemVariants} className="text-xl md:text-2xl text-slate-400 mb-14 max-w-2xl mx-auto font-bold uppercase tracking-widest leading-relaxed">
+          {t('hero.description', 'Absolute power stabilized. The most massive Discord automation utility in the known universe.')}
         </motion.p>
 
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-8 justify-center items-center">
           <a
             href={inviteEnabled ? inviteUrl : '#top'}
             target={inviteEnabled ? '_blank' : undefined}
             rel={inviteEnabled ? 'noopener noreferrer' : undefined}
-            aria-disabled={!inviteEnabled}
-            onClick={(event) => { if (!inviteEnabled) event.preventDefault(); }}
-            className={`group px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-2xl flex items-center gap-2 ${
-              inviteEnabled
-                ? 'bg-white text-brand-600 hover:bg-white/95 hover:shadow-white/30 hover:scale-105'
-                : 'bg-gray-400 text-gray-700 cursor-not-allowed opacity-70'
-            }`}
+            onMouseEnter={() => setIsActive(true)}
+            onMouseLeave={() => setIsActive(false)}
+            className="group relative px-12 py-6 rounded-2xl font-black text-xl bg-amber-500 text-black hover:bg-amber-400 transition-all duration-300 shadow-[0_0_40px_rgba(245,158,11,0.5)] hover:shadow-[0_0_70px_rgba(245,158,11,0.7)] hover:scale-110 flex items-center gap-3 overflow-hidden"
           >
-            <Bot className="w-5 h-5" />
-            {t('hero.invite', 'Invite Bot')}
+            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12"></div>
+            <Bot className="w-7 h-7" />
+            {t('hero.invite', 'INITIATE SYNC')}
           </a>
 
-          {dashboardExternal ? (
-            <a
-              href={dashboardHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-2"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              {t('hero.dashboard', 'Open Dashboard')}
-            </a>
-          ) : (
-            <Link
-              to={dashboardHref}
-              className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-2"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              {t('hero.dashboard', 'Open Dashboard')}
-            </Link>
-          )}
-
-          <a
-            href={supportHref}
-            target={supportExternal ? '_blank' : undefined}
-            rel={supportExternal ? 'noopener noreferrer' : undefined}
-            className="px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-xl font-semibold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-2"
+          <Link
+            to={dashboardHref}
+            onMouseEnter={() => setIsActive(true)}
+            onMouseLeave={() => setIsActive(false)}
+            className="px-12 py-6 hud-border text-white rounded-2xl font-black text-xl hover:bg-white/5 transition-all duration-300 hover:scale-105 flex items-center gap-3"
           >
-            <ExternalLink className="w-5 h-5" />
-            {t('hero.support', 'Support Server')}
-          </a>
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-          {[
-            { value: '50K+', label: t('stats.servers', 'Servers') },
-            { value: '10M+', label: t('stats.users', 'Users') },
-            { value: '99.9%', label: t('stats.uptime', 'Uptime') },
-            { value: '24/7', label: t('stats.support', 'Support') },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-white/10 backdrop-blur-xl rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-              <div className="text-3xl md:text-4xl font-bold text-white mb-1">{stat.value}</div>
-              <div className="text-white/75 text-sm font-medium">{stat.label}</div>
-            </div>
-          ))}
+            <LayoutDashboard className="w-7 h-7" />
+            {t('hero.dashboard', 'COMMAND HUD')}
+          </Link>
         </motion.div>
       </motion.div>
     </section>

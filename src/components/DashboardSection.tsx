@@ -8,24 +8,33 @@ export default function DashboardSection() {
   const dashboardExternal = isDashboardExternal();
 
   return (
-    <section id="dashboard" className="pt-32 pb-24 bg-brand-50 dark:bg-surface-800 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section id="dashboard" className="py-32 bg-[#010208] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-5">Control Everything in One Dashboard</h2>
-            <p className="text-lg text-gray-600 dark:text-slate-400 mb-8">
-              Manage moderation, automations, and engagement settings with an interface built for server owners and moderators.
+            <h2 className="text-5xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter">Singularity <span className="text-brand-gradient">HUD</span></h2>
+            <p className="text-xl text-slate-400 font-bold uppercase tracking-widest mb-10 leading-relaxed">
+              Command the void with the most advanced management interface in the cluster.
             </p>
 
-            <div className="space-y-4 text-gray-700 dark:text-slate-300 mb-8">
-              <p className="flex items-center gap-3"><ShieldCheck className="w-5 h-5 text-brand-600 dark:text-brand-400" /> Role-based moderation controls</p>
-              <p className="flex items-center gap-3"><BarChart3 className="w-5 h-5 text-brand-600 dark:text-brand-400" /> Live analytics and usage reports</p>
-              <p className="flex items-center gap-3"><Settings2 className="w-5 h-5 text-brand-600 dark:text-brand-400" /> Fast feature toggles and presets</p>
+            <div className="space-y-6 mb-12">
+               {[
+                 { icon: ShieldCheck, text: 'Neural-linked moderation' },
+                 { icon: BarChart3, text: 'Stellar activity mapping' },
+                 { icon: Settings2, text: 'Real-time protocol toggles' }
+               ].map((item, i) => (
+                 <div key={i} className="flex items-center gap-4 group">
+                    <div className="p-3 rounded-xl bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
+                       <item.icon className="w-6 h-6 text-amber-500" />
+                    </div>
+                    <span className="text-white font-black uppercase text-sm tracking-widest">{item.text}</span>
+                 </div>
+               ))}
             </div>
 
             {dashboardExternal ? (
@@ -33,36 +42,51 @@ export default function DashboardSection() {
                 href={dashboardHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
+                className="inline-flex px-10 py-5 rounded-2xl bg-amber-500 text-black font-black uppercase tracking-widest hover:bg-amber-400 transition-all duration-300 shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:shadow-[0_0_50px_rgba(245,158,11,0.5)] hover:scale-110"
               >
-                Open Dashboard
+                Access HUD
               </a>
             ) : (
               <Link
                 to={dashboardHref}
-                className="inline-flex px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
+                className="inline-flex px-10 py-5 rounded-2xl bg-amber-500 text-black font-black uppercase tracking-widest hover:bg-amber-400 transition-all duration-300 shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:shadow-[0_0_50px_rgba(245,158,11,0.5)] hover:scale-110"
               >
-                Open Dashboard
+                Access HUD
               </Link>
             )}
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-gradient-to-br from-brand-900 via-violet-900 to-brand-900 dark:from-surface-900 dark:via-brand-900 dark:to-surface-900 rounded-3xl p-8 text-white shadow-2xl border border-white/10 relative overflow-hidden"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="hud-border rounded-[40px] p-12 relative overflow-hidden group"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
-            <p className="text-sm uppercase tracking-wide text-white/70 mb-3 relative z-10">Preview</p>
-            <h3 className="text-2xl font-bold mb-4 relative z-10">Command Activity</h3>
-            <div className="space-y-3 relative z-10">
-              <div className="h-3 bg-white/10 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} whileInView={{ width: '82%' }} transition={{ duration: 1, delay: 0.5 }} className="h-full bg-brand-400"></motion.div></div>
-              <div className="h-3 bg-white/10 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} whileInView={{ width: '64%' }} transition={{ duration: 1, delay: 0.6 }} className="h-full bg-violet-400"></motion.div></div>
-              <div className="h-3 bg-white/10 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} whileInView={{ width: '91%' }} transition={{ duration: 1, delay: 0.7 }} className="h-full bg-amber-400"></motion.div></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] pointer-events-none group-hover:opacity-100 transition-opacity"></div>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-amber-500/60 font-black mb-6">Manifest Preview // Active</p>
+            <h3 className="text-3xl font-black text-white mb-10 uppercase tracking-tight">Mass Flux</h3>
+            <div className="space-y-6">
+              {[82, 64, 91].map((val, i) => (
+                <div key={i} className="space-y-2">
+                   <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
+                      <span>Protocol {i + 1}</span>
+                      <span className="text-amber-500">{val}%</span>
+                   </div>
+                   <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                     <motion.div 
+                        initial={{ width: 0 }} 
+                        whileInView={{ width: `${val}%` }} 
+                        transition={{ duration: 1.5, delay: 0.5 + i*0.2, ease: "circOut" }} 
+                        className="h-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                     ></motion.div>
+                   </div>
+                </div>
+              ))}
             </div>
-            <p className="text-white/80 mt-6 text-sm relative z-10">Real-time insights for moderation, engagement, and feature usage.</p>
+            <div className="mt-12 pt-8 border-t border-white/5">
+               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">System status: Normal. All singularities stabilized within range.</p>
+            </div>
           </motion.div>
         </div>
       </div>

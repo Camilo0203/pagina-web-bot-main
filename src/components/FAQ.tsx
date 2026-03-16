@@ -20,52 +20,51 @@ export default function FAQ() {
   const docsExternal = Boolean(config.docsUrl);
 
   return (
-    <section id="faq" className="py-24 bg-brand-50 dark:bg-surface-900 transition-colors duration-300">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Frequently Asked Questions
+    <section id="faq" className="py-32 bg-[#010208] relative overflow-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">
+            Neural <span className="text-brand-gradient">Feedback</span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-slate-400">
-            Everything you need to know about getting started
+          <p className="text-xl text-slate-400 font-bold uppercase tracking-widest">
+            Resolving paradoxes from the event horizon.
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={faq.question}
-              className="bg-brand-100 dark:bg-surface-700 rounded-xl border border-brand-200 dark:border-surface-600 overflow-hidden hover:border-brand-400 dark:hover:border-brand-600 transition-colors duration-200"
+              className="hud-border rounded-2xl overflow-hidden hover:border-amber-500/30 transition-all duration-300 group"
             >
               <button
                 type="button"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between p-6 text-left"
+                className="w-full flex items-center justify-between p-8 text-left"
               >
-                <span className="font-semibold text-gray-900 dark:text-white pr-4">{faq.question}</span>
+                <span className="font-black text-white uppercase tracking-tight text-lg pr-6 group-hover:text-amber-500 transition-colors">{faq.question}</span>
                 <ChevronDown
-                  className={`w-5 h-5 text-brand-500 dark:text-brand-400 transition-transform duration-200 flex-shrink-0 ${openIndex === index ? 'rotate-180' : ''}`}
+                  className={`w-6 h-6 text-amber-500 transition-transform duration-500 flex-shrink-0 ${openIndex === index ? 'rotate-180' : ''}`}
                 />
               </button>
-              <div className={`overflow-hidden transition-all duration-200 ${openIndex === index ? 'max-h-96' : 'max-h-0'}`}>
-                <div className="px-6 pb-6 text-gray-600 dark:text-slate-400 leading-relaxed">{faq.answer}</div>
+              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === index ? 'max-h-96' : 'max-h-0'}`}>
+                <div className="px-8 pb-8 text-slate-400 font-bold leading-relaxed uppercase text-sm tracking-wide border-t border-white/5 pt-6 bg-white/[0.01]">{faq.answer}</div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-gray-600 dark:text-slate-400 mb-4">
-            Need more help? Read the{' '}
+        <div className="mt-20 text-center">
+          <p className="text-slate-500 font-black uppercase text-xs tracking-[0.2em] mb-8">
+            Still experiencing instability? Read our{' '}
             <a href={docsHref} target={docsExternal ? '_blank' : undefined} rel={docsExternal ? 'noopener noreferrer' : undefined}
-              className="text-brand-600 dark:text-brand-400 font-semibold hover:text-brand-700 dark:hover:text-brand-300">
-              documentation
-            </a>{' '}
-            or contact support.
+              className="text-amber-500 hover:text-amber-400 underline decoration-amber-500/30 underline-offset-4">
+              Core Protocols
+            </a>
           </p>
           <a href={supportHref} target={supportExternal ? '_blank' : undefined} rel={supportExternal ? 'noopener noreferrer' : undefined}
-            className="inline-flex px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-gradient-to-r from-brand-500 to-violet-600 text-white hover:shadow-lg">
-            Contact Support
+            className="inline-flex px-10 py-5 rounded-2xl font-black uppercase tracking-widest transition-all duration-500 hover:scale-105 bg-amber-500 text-black hover:shadow-[0_0_40px_rgba(245,158,11,0.5)]">
+            Command Center
           </a>
         </div>
       </div>

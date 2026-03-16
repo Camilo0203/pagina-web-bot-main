@@ -3,42 +3,46 @@ import { config } from '../config';
 
 export default function DocsSection() {
   return (
-    <section id="docs" className="py-24 bg-brand-100 dark:bg-surface-900 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Documentation</h2>
-          <p className="text-xl text-gray-600 dark:text-slate-400 max-w-3xl mx-auto">
-            Learn commands, setup flow, and best practices to launch in minutes.
+    <section id="docs" className="py-32 bg-[#010208] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">Core <span className="text-brand-gradient">Protocols</span></h2>
+          <p className="text-xl text-slate-400 font-bold uppercase tracking-widest max-w-2xl mx-auto">
+            Technical specifications for high-mass server management.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          <div className="bg-brand-50 dark:bg-surface-800 border border-brand-200 dark:border-surface-700 rounded-2xl p-6 shadow-sm transition-colors duration-300 transition-transform hover:-translate-y-1 hover:shadow-md">
-            <BookOpen className="w-8 h-8 text-brand-600 dark:text-brand-400 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Full Docs</h3>
-            <p className="text-gray-600 dark:text-slate-400 mb-5">Guides, troubleshooting, and integration references.</p>
+        <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+          <div className="hud-border rounded-3xl p-10 flex flex-col items-center text-center transition-all duration-500 hover:border-amber-500/40 group">
+            <div className="p-4 rounded-2xl bg-amber-500/10 mb-8 shadow-[0_0_20px_rgba(245,158,11,0.1)] group-hover:scale-110 transition-transform duration-500">
+              <BookOpen className="w-10 h-10 text-amber-500" />
+            </div>
+            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Main Frame</h3>
+            <p className="text-slate-400 font-bold mb-10 leading-relaxed uppercase text-xs tracking-wider">Comprehensive guides, neural maps, and integration manifests.</p>
             {config.docsUrl ? (
               <a
                 href={config.docsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex px-5 py-2.5 rounded-lg bg-brand-600 dark:bg-brand-500 text-white font-semibold hover:bg-brand-700 dark:hover:bg-brand-600 transition-colors"
+                className="inline-flex px-10 py-4 rounded-2xl bg-amber-500 text-black font-black uppercase tracking-widest hover:bg-amber-400 transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(245,158,11,0.3)]"
               >
-                Open Docs
+                Access Core
               </a>
             ) : (
-              <a href="#guide" className="inline-flex px-5 py-2.5 rounded-lg bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 font-semibold hover:bg-brand-200 dark:hover:bg-brand-900/60 transition-colors">
-                Read Setup Guide
+              <a href="#guide" className="inline-flex px-10 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all duration-300 hover:scale-105">
+                Baseline Guide
               </a>
             )}
           </div>
 
-          <div className="bg-brand-50 dark:bg-surface-800 border border-brand-200 dark:border-surface-700 rounded-2xl p-6 shadow-sm transition-colors duration-300 transition-transform hover:-translate-y-1 hover:shadow-md">
-            <TerminalSquare className="w-8 h-8 text-brand-600 dark:text-brand-400 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Command Reference</h3>
-            <p className="text-gray-600 dark:text-slate-400 mb-5">Browse slash commands and common usage examples.</p>
-            <a href="#commands" className="inline-flex px-5 py-2.5 rounded-lg bg-gradient-to-r from-brand-500 to-violet-600 text-white font-semibold hover:shadow-lg transition-colors">
-              View Commands
+          <div className="hud-border rounded-3xl p-10 flex flex-col items-center text-center transition-all duration-500 hover:border-amber-500/40 group">
+            <div className="p-4 rounded-2xl bg-amber-500/10 mb-8 shadow-[0_0_20px_rgba(245,158,11,0.1)] group-hover:scale-110 transition-transform duration-500">
+              <TerminalSquare className="w-10 h-10 text-amber-500" />
+            </div>
+            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Command Manifest</h3>
+            <p className="text-slate-400 font-bold mb-10 leading-relaxed uppercase text-xs tracking-wider">Direct slash command reference and syntax stabilization logs.</p>
+            <a href="#commands" className="inline-flex px-10 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all duration-300 hover:scale-105">
+              View Manifest
             </a>
           </div>
         </div>

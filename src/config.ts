@@ -1,5 +1,5 @@
 export const config = {
-  botName: import.meta.env.VITE_BOT_NAME || 'DiscordBot',
+  botName: import.meta.env.VITE_BOT_NAME || 'TON618',
   discordClientId: import.meta.env.VITE_DISCORD_CLIENT_ID || '',
   discordPermissions: import.meta.env.VITE_DISCORD_PERMISSIONS || '8',
   supportServerUrl: import.meta.env.VITE_SUPPORT_SERVER_URL || '',

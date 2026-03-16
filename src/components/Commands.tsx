@@ -75,26 +75,28 @@ export default function Commands() {
   };
 
   return (
-    <section id="commands" className="py-24 bg-brand-50 dark:bg-surface-800 transition-colors duration-300 relative">
-      <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-brand-600/10 to-transparent dark:from-surface-900/50 pointer-events-none"></div>
+    <section id="commands" className="py-32 bg-[#010208] relative overflow-hidden">
+      {/* Background HUD elements */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/5 blur-[120px] pointer-events-none"></div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
+        <div className="text-center mb-24">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter"
           >
-            Powerful Commands at Your Fingertips
+            Tactical <span className="text-brand-gradient">Control</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-xl text-gray-600 dark:text-slate-400 max-w-3xl mx-auto"
+            className="text-xl text-slate-400 max-w-2xl mx-auto font-bold uppercase tracking-widest"
           >
-            Easy-to-use slash commands that make managing your server a breeze.
+            Direct access to the core SINGULARITY via slash commands.
           </motion.p>
         </div>
 
@@ -103,7 +105,7 @@ export default function Commands() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {commandCategories.map((category, categoryIndex) => {
             const Icon = category.icon;
@@ -111,39 +113,39 @@ export default function Commands() {
               <motion.div
                 key={categoryIndex}
                 variants={itemVariants}
-                className="bg-brand-100 dark:bg-surface-700 rounded-2xl p-6 border border-brand-200 dark:border-surface-600 hover:border-brand-400 dark:hover:border-brand-700 transition-all duration-300 hover:shadow-lg flex flex-col h-full"
+                className="hud-border rounded-3xl p-8 flex flex-col h-full hover:border-amber-500/40 transition-all duration-500 group"
               >
-                <div className="flex items-center gap-3 mb-5">
-                  <div className={`p-2 rounded-lg bg-gradient-to-br ${category.gradient} shadow-sm`}>
-                    <Icon className="w-5 h-5 text-white" />
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 rounded-2xl bg-amber-500/10 shadow-[0_0_20px_rgba(245,158,11,0.1)] group-hover:scale-110 transition-transform duration-500">
+                    <Icon className="w-6 h-6 text-amber-500" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">{category.name}</h3>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tight">{category.name}</h3>
                 </div>
 
-                <div className="space-y-3 flex-grow flex flex-col justify-start">
+                <div className="space-y-4 flex-grow">
                   {category.commands.map((command, commandIndex) => (
                     <div
                       key={commandIndex}
-                      className="group bg-brand-50 dark:bg-surface-800 rounded-xl p-3.5 border border-brand-100 dark:border-surface-600 hover:border-brand-400 dark:hover:border-brand-600 transition-all duration-200 hover:shadow-sm"
+                      className="group/item bg-white/5 rounded-2xl p-5 border border-white/5 hover:border-amber-500/20 transition-all duration-300"
                     >
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <code className="text-sm font-mono font-semibold text-brand-600 dark:text-brand-400">
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <code className="text-base font-black text-amber-500 uppercase font-mono">
                           {command.name}
                         </code>
                         <button
                           onClick={() => copyCommand(command.usage)}
-                          className="p-1 rounded hover:bg-brand-50 dark:hover:bg-surface-700 transition-colors flex-shrink-0"
+                          className="p-2 rounded-xl hover:bg-amber-500/20 transition-colors flex-shrink-0"
                           title="Copy command"
                         >
                           {copiedCommand === command.usage ? (
-                            <Check className="w-4 h-4 text-emerald-500" />
+                            <Check className="w-5 h-5 text-emerald-500" />
                           ) : (
-                            <Copy className="w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-brand-500" />
+                            <Copy className="w-5 h-5 text-slate-500 group-hover/item:text-amber-500" />
                           )}
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-slate-400 mb-2">{command.description}</p>
-                      <code className="block text-xs font-mono text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg">
+                      <p className="text-sm text-slate-400 mb-4 font-bold">{command.description}</p>
+                      <code className="block text-xs font-mono text-white/60 bg-black/40 px-4 py-2.5 rounded-xl border border-white/5 lowercase">
                         {command.usage}
                       </code>
                     </div>

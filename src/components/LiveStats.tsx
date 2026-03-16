@@ -62,36 +62,28 @@ export default function LiveStats() {
   return (
     <section
       id="stats"
-      className="py-24 relative overflow-hidden transition-colors duration-300 bg-gradient-to-br from-brand-600 via-violet-700 to-purple-800 dark:from-surface-900 dark:via-brand-900 dark:to-surface-800"
+      className="py-32 relative overflow-hidden bg-[#010413]"
     >
-      {/* Subtle grid pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djYuOTEzYzAtLjUtLjItLjktLjYtMS4ybC00LTQuMGMtLjQtLjQtLjktLjYtMS40LS42SDI0Yy0xLjEgMC0yIC45LTIgMnYxMmMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjM2YzAtMS4xLS45LTItMi0yem0tNiAxOGgtNHYtNGg0djR6bTAtOGgtNHYtNGg0djR6bTggOGgtNHYtNGg0djR6bTAtOGgtNHYtNGg0djR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
-
-      {/* Decorative glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-brand-400/20 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Interstellar background elements */}
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_30%,rgba(245,158,11,0.03),transparent_50%)]"></div>
+      <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_70%,rgba(99,102,241,0.03),transparent_50%)]"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur-xl rounded-full border border-white/25 mb-6 shadow-sm">
-            <div className={`w-2 h-2 rounded-full ${liveUnavailable ? 'bg-red-400' : 'bg-amber-400 animate-pulse'}`}></div>
-            <span className="text-white font-medium text-sm">{liveUnavailable ? 'Fallback Statistics' : 'Live Statistics'}</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2 gravitational-lens rounded-full border border-white/10 mb-8 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+            <div className={`w-2.5 h-2.5 rounded-full ${liveUnavailable ? 'bg-red-500' : 'bg-amber-500 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.8)]'}`}></div>
+            <span className="text-white font-black text-xs uppercase tracking-[0.2em]">{liveUnavailable ? 'Offline Sync' : 'Real-time Pulse'}</span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Trusted by Thousands</h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
-            Join the growing community of Discord servers using our bot every day.
+          <h2 className="text-5xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">Verified <span className="text-brand-gradient">Mass</span></h2>
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
+            Real-time data streaming directly from the event horizon. Zero latency community monitoring.
           </p>
-          {!loading && liveUnavailable && (
-            <p className="mt-4 text-sm text-white/60">Live stats unavailable. Showing latest fallback values.</p>
-          )}
-          {!loading && !liveUnavailable && lastUpdated && (
-            <p className="mt-4 text-sm text-white/60">{t('stats.lastUpdated', 'Last updated')} {formatDate(lastUpdated)}</p>
-          )}
         </motion.div>
 
         <motion.div
@@ -99,18 +91,18 @@ export default function LiveStats() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {statCards.map((stat) => {
             const Icon = stat.icon;
             return (
               <motion.div variants={itemVariants} key={stat.label} className="relative group">
-                <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:-translate-y-1 hover:bg-white/15 shadow-lg">
-                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${stat.gradient} mb-4 shadow-sm`}>
-                    <Icon className="w-6 h-6 text-white" />
+                <div className="relative hud-border rounded-3xl p-10 hover:border-amber-500/40 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_50px_rgba(245,158,11,0.1)] group/card">
+                  <div className="inline-flex p-4 rounded-2xl bg-amber-500/10 mb-8 group-hover/card:scale-110 transition-transform duration-500">
+                    <Icon className="w-8 h-8 text-amber-500" />
                   </div>
-                  <div className="text-4xl font-bold text-white mb-1">{stat.value}</div>
-                  <div className="text-white/70 font-medium text-sm">{stat.label}</div>
+                  <div className="text-5xl font-black text-white mb-2 tracking-tighter">{stat.value}</div>
+                  <div className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-loose">{stat.label}</div>
                 </div>
               </motion.div>
             );
