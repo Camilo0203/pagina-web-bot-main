@@ -194,73 +194,74 @@
     text-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
   }
 
-  /* CINEMATIC SINGULARITY UTILITIES */
-  .singularity-core-depth {
+  /* CINEMATIC SINGULARITY - ADVANCED INCLINATION & WARP */
+  .singularity-void {
     background: radial-gradient(circle at center, 
                 #000000 0%, 
-                #000000 45%, 
-                rgba(15, 12, 41, 0.9) 70%, 
+                #000000 55%, 
+                rgba(5, 6, 15, 0.95) 75%, 
                 transparent 100%);
-    box-shadow: inset 0 0 100px rgba(79, 70, 229, 0.3);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 1), 
+                0 0 40px rgba(79, 70, 229, 0.2);
   }
 
-  .accretion-disk-texture {
+  /* Accretion Disk - Multi-band Organic Texture */
+  .accretion-disk-premium {
     background: conic-gradient(from 0deg at 50% 50%, 
-                      transparent 0%, 
-                      rgba(99, 102, 241, 0.15) 15%, 
-                      rgba(167, 139, 250, 0.4) 30%, 
-                      rgba(255, 255, 255, 0.6) 50%, 
-                      rgba(167, 139, 250, 0.4) 70%, 
-                      rgba(99, 102, 241, 0.15) 85%, 
-                      transparent 100%);
-    filter: contrast(1.3) brightness(1.2) blur(1px);
+                transparent 0%, 
+                rgba(99, 102, 241, 0.1) 10%, 
+                rgba(167, 139, 250, 0.3) 25%, 
+                rgba(255, 255, 255, 0.6) 45%, 
+                rgba(167, 139, 250, 0.5) 55%, 
+                rgba(255, 255, 255, 0.8) 60%, 
+                rgba(167, 139, 250, 0.3) 75%, 
+                rgba(99, 102, 241, 0.1) 90%, 
+                transparent 100%);
+    filter: blur(1.5px) contrast(1.4) brightness(1.1);
   }
 
-  .mask-accretion-organic {
-    mask-image: radial-gradient(circle at center, transparent 38%, black 42%, black 58%, transparent 72%);
-    -webkit-mask-image: radial-gradient(circle at center, transparent 38%, black 42%, black 58%, transparent 72%);
+  /* Gravitational Lensing / Warp Halo */
+  .lensing-warp-asymmetric {
+    mask-image: radial-gradient(ellipse at 50% 45%, black 40%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 45%, black 40%, transparent 75%);
+    filter: blur(4px) saturate(1.5);
+    background: radial-gradient(circle at center, transparent 40%, rgba(99, 102, 241, 0.2) 50%, transparent 70%);
   }
 
-  .lensing-warp {
+  @keyframes accretion-flow-cinematic {
+    0% { transform: rotateX(75deg) rotateZ(0deg) skewX(10deg); }
+    50% { transform: rotateX(78deg) rotateZ(180deg) skewX(12deg); }
+    100% { transform: rotateX(75deg) rotateZ(360deg) skewX(10deg); }
+  }
+
+  .animate-accretion-flow {
+    animation: accretion-flow-cinematic 40s linear infinite;
+  }
+
+  @keyframes disk-shimmer {
+    0%, 100% { opacity: 0.6; filter: brightness(1) blur(1.5px); }
+    50% { opacity: 0.9; filter: brightness(1.4) blur(2.5px); }
+  }
+
+  .animate-disk-shimmer {
+    animation: disk-shimmer 12s ease-in-out infinite;
+  }
+
+  @keyframes singularity-breathing {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.03); opacity: 1; }
+  }
+
+  .animate-singularity-breathing {
+    animation: singularity-breathing 10s ease-in-out infinite;
+  }
+
+  /* Distortion Artifacts */
+  .warp-fragment {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.2), transparent);
+    height: 1px;
     filter: blur(1px);
     mix-blend-mode: screen;
-  }
-
-  @keyframes accretion-spin {
-    0% { transform: rotateX(72deg) rotateZ(0deg) scale(1); }
-    50% { transform: rotateX(75deg) rotateZ(180deg) scale(1.05); }
-    100% { transform: rotateX(72deg) rotateZ(360deg) scale(1); }
-  }
-
-  .animate-accretion-spin {
-    animation: accretion-spin 35s linear infinite;
-  }
-
-  @keyframes energy-surge {
-    0%, 100% { opacity: 0.5; filter: brightness(1) blur(2px); }
-    50% { opacity: 0.9; filter: brightness(1.6) blur(4px); }
-  }
-
-  .animate-energy-surge {
-    animation: energy-surge 10s ease-in-out infinite;
-  }
-
-  @keyframes core-pulse {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.02); filter: brightness(1.2); }
-  }
-
-  .animate-core-pulse {
-    animation: core-pulse 15s ease-in-out infinite;
-  }
-
-  @keyframes drift-cosmic {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(15px, -10px) scale(1.02); }
-    66% { transform: translate(-10px, 15px) scale(0.98); }
-  }
-
-  .animate-drift-cosmic {
-    animation: drift-cosmic 50s ease-in-out infinite;
   }
 }
