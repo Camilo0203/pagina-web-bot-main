@@ -1,117 +1,100 @@
-import { useState } from 'react';
-import { Bot, Menu, X, Globe } from 'lucide-react';
-import { getDiscordInviteUrl, config } from '../config';
-import { useTheme } from './ThemeProvider';
-import { useTranslation } from 'react-i18next';
-
-const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'Stats', href: '#stats' },
-  { label: 'Commands', href: '#commands' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Docs', href: '#docs' },
-  { label: 'Support', href: '#support' },
-];
+import { useState, useEffect } from 'react';
+import { Bot, Menu, X, ChevronRight, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { getDiscordLoginUrl } from '../config';
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const inviteUrl = getDiscordInviteUrl();
-  const inviteEnabled = Boolean(inviteUrl);
-  useTheme(); // theme is not used
-  const { i18n } = useTranslation();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // The second redundant useTheme() call is removed.
-  const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'en' ? 'es' : 'en');
-  };
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const loginUrl = getDiscordLoginUrl();
 
   return (
-    <nav className="sticky top-0 z-50 gravitational-lens backdrop-blur-2xl border-b border-white/10 transition-colors duration-300">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${scrolled ? 'py-4' : 'py-8'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <a href="#top" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 bg-amber-500 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-              <Bot className="w-6 h-6 text-black" />
-            </div>
-            <span className="font-black text-white text-xl tracking-tighter uppercase">{config.botName}</span>
-          </a>
-
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-slate-400 hover:text-amber-500 transition-colors font-bold text-sm uppercase tracking-widest"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-4">
-            <button
-              onClick={toggleLanguage}
-              className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors flex items-center gap-2 text-sm font-bold uppercase"
-              aria-label="Toggle language"
-            >
-              <Globe className="w-5 h-5 text-amber-500" />
-              <span>{i18n.language.split('-')[0]}</span>
-            </button>
-            
-            <a
-              href={inviteEnabled ? inviteUrl : '#top'}
-              target={inviteEnabled ? '_blank' : undefined}
-              rel={inviteEnabled ? 'noopener noreferrer' : undefined}
-              className="inline-flex items-center justify-center px-8 py-3 bg-amber-500 text-black rounded-2xl font-black transition-all duration-300 text-sm hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] hover:scale-110 uppercase tracking-widest"
-            >
-              Establish Sync
+        <div className={`relative cinematic-glass rounded-[2rem] border-white/5 px-6 py-3 flex items-center justify-between transition-all duration-500 ${scrolled ? 'shadow-2xl shadow-indigo-500/10 border-white/10' : ''}`}>
+          
+          <div className="flex items-center gap-12">
+            <a href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.3)] group-hover:scale-110 transition-all duration-500">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-black text-white uppercase tracking-tighter">TON618</span>
             </a>
-          </div>
 
-          {/* Mobile Toggle */}
-          <button
-            type="button"
-            onClick={() => setIsOpen((open) => !open)}
-            className="md:hidden p-2 text-white hover:bg-white/5 rounded-xl transition-colors"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7 text-amber-500" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden pb-6 border-t border-white/5">
-            <div className="space-y-2 pt-4">
-              {navLinks.map((link) => (
+            <div className="hidden md:flex items-center gap-8">
+              {['Features', 'Experience', 'Why', 'Stats'].map((item) => (
                 <a
-                  key={link.href}
-                  href={link.href}
-                  className="block px-4 py-3 text-slate-300 hover:bg-white/5 hover:text-amber-500 rounded-xl transition-colors font-bold uppercase tracking-wider"
-                  onClick={() => setIsOpen(false)}
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-white transition-colors"
                 >
-                  {link.label}
+                  {item}
                 </a>
               ))}
-              <div className="flex items-center gap-4 px-4 pt-4 border-t border-white/5 mt-4">
-                <button onClick={toggleLanguage} className="flex items-center gap-2 p-3 bg-white/5 rounded-xl text-slate-300 w-full justify-center">
-                  <Globe className="w-5 h-5 text-amber-500" />
-                  <span className="font-bold uppercase">{i18n.language}</span>
-                </button>
-              </div>
-              <a
-                href={inviteEnabled ? inviteUrl : '#top'}
-                className="block w-full px-4 py-5 bg-amber-500 text-black rounded-2xl font-black text-center mt-6 uppercase tracking-widest"
-              >
-                Establish Sync
-              </a>
             </div>
           </div>
-        )}
+
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+               <Shield className="w-3 h-3 text-indigo-400" />
+               <span>V-STABLE</span>
+            </div>
+
+            <a
+              href={loginUrl}
+              className="hidden md:flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] group"
+            >
+              <span>Initialize</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-slate-400 hover:text-white"
+            >
+              {mobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden absolute top-full left-0 right-0 px-4 pt-4"
+          >
+            <div className="cinematic-glass rounded-3xl border-white/10 p-8 flex flex-col gap-6 shadow-2xl">
+              {['Features', 'Experience', 'Why', 'Stats'].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg font-black uppercase tracking-widest text-slate-400 hover:text-white"
+                >
+                  {item}
+                </a>
+              ))}
+              <hr className="border-white/5" />
+              <a
+                href={loginUrl}
+                className="flex items-center justify-center gap-2 px-6 py-4 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-widest"
+              >
+                <span>Initialize Login</span>
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

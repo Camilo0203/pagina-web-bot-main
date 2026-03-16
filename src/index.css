@@ -6,395 +6,125 @@
 
 @layer base {
   :root {
-    /* TON618 "Hyper-Void" tokens */
-    --color-bg-base:       #010208; /* Total Void */
-    --color-bg-surface:    #030512;
-    --color-bg-elevated:   #0a0c1f;
-    --color-border:        rgba(255, 255, 255, 0.05);
-    --color-text-primary:  #ffffff;
-    --color-text-muted:    #64748b;
-    --color-brand:         #f59e0b;
-    --color-brand-glow:    rgba(245, 158, 11, 0.5);
-    --color-accent:        #6366f1;
-  }
-
-  .dark {
-    /* Keep same for TON618 cinematic experience */
-    --color-bg-base:       #020617;
-    --color-bg-surface:    #0f172a;
-    --color-bg-elevated:   #1e293b;
-    --color-border:        rgba(255, 255, 255, 0.1);
+    /* TON618 "Singularity" Design System */
+    --color-bg-base:       #010204; /* Absolute Black */
+    --color-bg-void:       #02040a; /* Deep Void */
+    --color-bg-surface:    #050814;
+    --color-bg-elevated:   #0a0f25;
+    
+    --color-primary:       #6366f1; /* Galactic Blue */
+    --color-secondary:     #a855f7; /* Nebula Violet */
+    --color-accent:        #06b6d4; /* Electric Cyan */
+    
+    --color-brand-glow:    rgba(99, 102, 241, 0.4);
+    
+    --color-border:        rgba(255, 255, 255, 0.08);
     --color-text-primary:  #f8fafc;
     --color-text-muted:    #94a3b8;
-    --color-brand:         #f59e0b;
-    --color-brand-hover:   #fbbf24;
+    
+    --font-main:           'Sora', 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
 
-  /* Smooth theme transitions */
   html {
     scroll-behavior: smooth;
+    background-color: var(--color-bg-base);
   }
 
   body {
     background-color: var(--color-bg-base);
     color: var(--color-text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: var(--font-main);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background: rgba(88, 101, 242, 0.28);
-    color: inherit;
+    background: rgba(99, 102, 241, 0.3);
+    color: #fff;
   }
 }
 
 @layer components {
-  .dashboard-shell {
-    position: relative;
-    isolation: isolate;
-    min-height: 100vh;
-    font-family: 'Sora', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background:
-      radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05), transparent 60%),
-      radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1), transparent 40%),
-      #020617;
-  }
-
-  .dashboard-shell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-    background-size: 80px 80px;
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 88%);
-    opacity: 0.18;
-    pointer-events: none;
-  }
-
-  .dashboard-shell::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(5, 9, 19, 0) 0%, rgba(5, 9, 19, 0.34) 100%);
-    pointer-events: none;
-  }
-
-  .dashboard-surface {
-    @apply relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_80px_rgba(2,6,23,0.18)] backdrop-blur-2xl transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out dark:bg-surface-800;
-    background-color: rgba(255, 255, 255, 0.8);
-  }
-
-  .dark .dashboard-surface {
-    background-color: rgba(30, 32, 53, 0.78);
-  }
-
-  .dashboard-surface::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at top right, rgba(88, 101, 242, 0.14), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 22%);
-    pointer-events: none;
-  }
-
-  .dashboard-surface-soft {
-    @apply rounded-[1.5rem] border border-slate-200/80 bg-slate-50/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out dark:border-surface-600/80;
-    background-color: rgba(248, 250, 252, 0.75);
-  }
-
-  .dark .dashboard-surface-soft {
-    background-color: rgba(37, 40, 64, 0.72);
-  }
-
-  .dashboard-panel-label {
-    @apply text-[11px] font-semibold uppercase tracking-[0.26em] text-brand-600 dark:text-brand-300;
-  }
-
-  .dashboard-kpi-card {
-    @apply dashboard-surface-soft min-w-0 rounded-[1.6rem] border border-white/10 p-5;
-  }
-
-  .dashboard-empty-state {
-    @apply rounded-[1.5rem] border border-dashed border-slate-300/90 bg-slate-50/70 p-6 text-sm text-slate-500 dark:border-surface-600 dark:text-slate-400;
-    background-color: rgba(248, 250, 252, 0.7);
-  }
-
-  .dark .dashboard-empty-state {
-    background-color: rgba(37, 40, 64, 0.38);
-  }
-
-  .dashboard-primary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,_#5865f2_0%,_#7c6af7_44%,_#14b8a6_100%)] px-5 py-3 font-semibold text-white shadow-[0_18px_40px_rgba(88,101,242,0.35)] transition duration-200 hover:translate-y-[-2px] hover:shadow-[0_22px_52px_rgba(88,101,242,0.42)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200/70 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-
-  .dashboard-secondary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200/90 px-4 py-3 font-semibold text-slate-700 transition duration-200 hover:translate-y-[-1px] hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-100/70 dark:border-surface-600 dark:text-white dark:hover:border-brand-700 dark:hover:text-brand-200;
-    background-color: rgba(255, 255, 255, 0.9);
-  }
-
-  .dark .dashboard-secondary-button {
-    background-color: rgba(37, 40, 64, 0.92);
-  }
-
-  .dashboard-status-pill {
-    @apply inline-flex max-w-full items-center gap-2 rounded-[1.1rem] border border-white/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)];
-    line-height: 1.15;
-    overflow-wrap: anywhere;
-    white-space: normal;
-  }
-
-  .dashboard-status-pill-compact {
-    @apply inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em];
-    line-height: 1.1;
-    overflow-wrap: anywhere;
-  }
-
-  .dashboard-form-field {
-    @apply w-full rounded-2xl border border-slate-200/90 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-brand-400 focus:ring-4 focus:ring-brand-100/80 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:text-white dark:focus:border-brand-500 dark:focus:ring-brand-900/45;
-    background-color: rgba(255, 255, 255, 0.95);
-  }
-
-  .dark .dashboard-form-field {
-    background-color: rgba(37, 40, 64, 0.92);
-  }
-
-  .dashboard-toggle-card {
-    @apply rounded-[1.5rem] border border-slate-200/85 p-4 transition duration-200 hover:border-brand-200 hover:bg-white dark:border-surface-600 dark:hover:border-brand-800 dark:hover:bg-surface-700;
-    background-color: rgba(248, 250, 252, 0.85);
-  }
-
-  .dark .dashboard-toggle-card {
-    background-color: rgba(37, 40, 64, 0.72);
-  }
-
-  .dashboard-grid-fit-compact {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
-  }
-
-  .dashboard-grid-fit-standard {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  }
-
-  .dashboard-grid-fit-wide {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  }
-
-  .dashboard-data-card {
-    @apply dashboard-surface-soft min-w-0 rounded-[1.4rem] border border-slate-200/80 p-4 dark:border-surface-600;
-  }
-
-  .dashboard-data-label {
-    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400;
-  }
-
-  .dashboard-data-value {
-    @apply mt-2 text-sm font-semibold text-slate-950 dark:text-white;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-  .dashboard-muted-copy {
-    @apply text-sm leading-6 text-slate-600 dark:text-slate-300;
-  }
-
-  .dashboard-interactive-card {
-    @apply relative overflow-hidden transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out;
-  }
-
-  .dashboard-interactive-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .dashboard-scroll-panel {
-    max-height: min(70vh, 58rem);
-    overflow: auto;
-    padding-right: 0.25rem;
-  }
-
-  .dashboard-sidebar-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(107, 120, 252, 0.72) transparent;
-  }
-
-  .dashboard-sidebar-scroll::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .dashboard-sidebar-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .dashboard-sidebar-scroll::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background:
-      linear-gradient(180deg, rgba(124, 106, 247, 0.92), rgba(34, 211, 238, 0.82));
-    background-clip: padding-box;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-  }
-
-  .dashboard-sidebar-scroll::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
-  .dashboard-sidebar-scroll::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-
-  .dashboard-scroll-panel::-webkit-scrollbar {
-    width: 9px;
-  }
-
-  .dashboard-scroll-panel::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background: rgba(148, 163, 184, 0.42);
-    background-clip: padding-box;
-  }
-
-  .dashboard-skeleton {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .dashboard-skeleton::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.28) 40%,
-      transparent 100%
-    );
-    animation: dashboard-shimmer 1.8s ease-in-out infinite;
-  }
-
-  .dark .dashboard-skeleton::after {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.12) 40%,
-      transparent 100%
-    );
-  }
-}
-
-@layer utilities {
-  @keyframes gradient {
-    0%, 100% { background-position: 0% 50%; }
-    50%       { background-position: 100% 50%; }
-  }
-
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes dashboard-shimmer {
-    100% { transform: translateX(100%); }
-  }
-
-  .animate-gradient {
-    background-size: 200% 200%;
-    animation: gradient 15s ease infinite;
-  }
-
-  .animate-fade-in {
-    animation: fade-in 1s ease-out;
-  }
-
-  /* Reusable brand gradient text */
-  .text-brand-gradient {
-    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f97316 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .event-horizon-glow {
-    box-shadow: 0 0 60px -15px rgba(245, 158, 11, 0.3);
-  }
-
-  .gravitational-lens {
-    backdrop-filter: blur(20px) saturate(180%);
-    background-color: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-20px) scale(1.05); }
-  }
-
-  .animate-float {
-    animation: float 8s ease-in-out infinite;
+  .cinematic-glass {
+    @apply backdrop-blur-2xl border border-white/10 bg-white/5;
+    box-shadow: 
+      inset 0 0 20px rgba(99, 102, 241, 0.02),
+      0 20px 50px -15px rgba(0, 0, 0, 0.5);
   }
 
   .hud-border {
-    position: relative;
-    background: rgba(1, 2, 8, 0.7);
+    @apply relative border border-white/10 transition-all duration-500;
+    background: rgba(2, 4, 10, 0.6);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      inset 0 0 20px rgba(245, 158, 11, 0.02),
-      0 10px 40px -10px rgba(0, 0, 0, 0.5);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hud-border::before {
     content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
+    @apply absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent, rgba(245, 158, 11, 0.1));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    background: linear-gradient(135deg, var(--color-primary), transparent, var(--color-secondary));
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
   }
 
-  .nebula-glow {
-    filter: blur(100px);
-    opacity: 0.15;
-    mix-blend-mode: screen;
-    pointer-events: none;
+  .hud-border:hover::before {
+    @apply opacity-100;
   }
 
-  .active-accretion {
-    filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.6));
-    transition: all 0.8s ease;
+  .premium-button {
+    @apply relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all duration-500 overflow-hidden;
   }
 
-  @keyframes spin-slow {
+  .premium-button-primary {
+    @apply premium-button bg-white text-black hover:scale-105;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+  }
+
+  .premium-button-outline {
+    @apply premium-button hud-border text-white hover:bg-white/5 hover:scale-105;
+  }
+
+  .text-premium-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 font-black;
+  }
+}
+
+@layer utilities {
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  .animate-scanline {
+    animation: scanline 8s linear infinite;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 10s ease-in-out infinite;
+  }
+
+  @keyframes rotate-quasar {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
 
-  @keyframes spin-reverse {
-    from { transform: rotate(360deg); }
-    to { transform: rotate(0deg); }
+  .animate-rotate-quasar {
+    animation: rotate-quasar 60s linear infinite;
   }
 
-  .animate-spin-slow {
-    animation: spin-slow 12s linear infinite;
+  .nebula-blur {
+    @apply blur-[120px] opacity-20 mix-blend-screen pointer-events-none absolute;
   }
 
-  .animate-spin-reverse {
-    animation: spin-reverse 20s linear infinite;
+  .singularity-void {
+    background: radial-gradient(circle at center, #000 30%, transparent 70%);
+    box-shadow: 0 0 100px 20px rgba(99, 102, 241, 0.2);
   }
 }
