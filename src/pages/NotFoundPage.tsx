@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Home, LayoutDashboard } from 'lucide-react';
 import { config } from '../config';
+import Logo from '../components/Logo';
 
 export default function NotFoundPage() {
   return (
@@ -10,6 +11,7 @@ export default function NotFoundPage() {
         <title>{config.botName} | Page not found</title>
       </Helmet>
       <div className="max-w-xl w-full rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+        <Logo size="lg" subtitle="Navigation Recovery" className="mb-6" />
         <p className="text-sm uppercase tracking-[0.3em] text-brand-300 mb-4">
           Error 404
         </p>

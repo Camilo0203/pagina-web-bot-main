@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, ChevronRight, Zap } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { getDiscordLoginUrl } from '../config';
 import LanguageSelector from './LanguageSelector';
+import Logo from './Logo';
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -32,11 +33,13 @@ export default function Navbar() {
           
           <div className="flex items-center gap-10 lg:gap-16">
             <a href="/" className="flex items-center gap-3 group">
-               <div className="relative w-8 h-8 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-indigo-500/20 blur-md group-hover:bg-indigo-500/40 transition-colors duration-500"></div>
-                  <Zap className="w-5 h-5 text-indigo-400 relative z-10 group-hover:scale-110 transition-transform duration-500" />
-               </div>
-               <span className="text-lg font-black tracking-[-0.05em] uppercase text-white group-hover:text-indigo-200 transition-colors duration-500">TON618</span>
+              <Logo
+                size="sm"
+                subtitle="Neural Core"
+                className="transition-transform duration-500 group-hover:scale-[1.02]"
+                textClassName="group-hover:text-indigo-200 transition-colors duration-500"
+                frameClassName="group-hover:border-indigo-300/30"
+              />
             </a>
 
             <div className="hidden lg:flex items-center gap-10">
@@ -86,7 +89,7 @@ export default function Navbar() {
           >
             <div className="cinematic-glass rounded-2xl border-white/5 p-8 flex flex-col gap-8 shadow-3xl shadow-black">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Regional Protocol</span>
+                <Logo size="xs" subtitle="Regional Protocol" />
                 <LanguageSelector />
               </div>
 
@@ -115,4 +118,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

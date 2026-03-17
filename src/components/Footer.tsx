@@ -1,6 +1,7 @@
-import { Bot, Twitter, Github, MessageCircle, Mail, Map } from 'lucide-react';
+import { Twitter, Github, MessageCircle, Mail, Map } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { config } from '../config';
+import Logo from './Logo';
 
 interface FooterProps {
   onOpenLegal: (type: 'terms' | 'privacy' | 'cookies') => void;
@@ -19,10 +20,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-20 mb-32">
           <div className="col-span-1 lg:col-span-2">
             <div className="flex items-center gap-4 mb-10">
-              <div className="premium-icon-tile group h-12 w-12 rounded-xl">
-                <Bot className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
-              </div>
-              <span className="text-3xl font-bold text-white uppercase tracking-tightest">TON618</span>
+              <Logo size="lg" subtitle="Official Bot Identity" />
             </div>
             <p className="text-slate-500 max-w-sm font-medium leading-relaxed mb-10 text-lg">
               {t('footer.tagline')}

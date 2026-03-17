@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Bot,
   LogOut,
   Menu,
   Moon,
@@ -22,10 +21,10 @@ import {
   formatRelativeTime,
   getHealthLabel,
   resolveGuildIconUrl,
-  resolveGuildInitials,
   resolveUserAvatarUrl,
 } from '../utils';
 import { useTheme } from '../../components/ThemeProvider';
+import Logo from '../../components/Logo';
 
 interface DashboardShellProps {
   user: User;
@@ -77,12 +76,10 @@ function SidebarContent({
       <div className="pointer-events-none absolute -right-12 top-0 h-44 w-44 rounded-full bg-brand-500/18 blur-3xl" />
 
       <Link to="/" className="relative z-[1] flex items-center gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-[1.35rem] bg-[linear-gradient(135deg,_#5865f2_0%,_#7c6af7_55%,_#14b8a6_100%)] text-white shadow-[0_18px_45px_rgba(88,101,242,0.4)]">
-          <Bot className="h-7 w-7" />
-        </div>
+        <Logo size="lg" withText={false} />
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-200">
-            Pando Bot
+            TON618 Bot
           </p>
           <p className="mt-1 text-[1.4rem] font-bold tracking-[-0.04em] text-white">
             Control Deck
@@ -289,7 +286,7 @@ export default function DashboardShell({
                   <Menu className="h-5 w-5" />
                 </button>
 
-                <div className="flex h-14 w-14 items-center justify-center rounded-[1.35rem] bg-[linear-gradient(135deg,_#5865f2_0%,_#7c6af7_55%,_#14b8a6_100%)] p-[3px] text-white shadow-[0_18px_45px_rgba(88,101,242,0.4)]">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)),radial-gradient(circle_at_top,rgba(99,102,241,0.22),transparent_62%),rgba(5,8,18,0.92)] p-[3px] text-white shadow-[0_18px_45px_rgba(88,101,242,0.25)]">
                   <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[1.08rem] bg-[rgba(7,12,24,0.82)]">
                     {guildIconUrl ? (
                       <img
@@ -298,9 +295,7 @@ export default function DashboardShell({
                         className="h-full w-full rounded-[1.08rem] object-cover"
                       />
                     ) : (
-                      <span className="text-base font-bold">
-                        {selectedGuild ? resolveGuildInitials(selectedGuild.guildName) : 'DB'}
-                      </span>
+                      <Logo size="sm" withText={false} frameClassName="h-full w-full rounded-[1.08rem] border-0 bg-transparent p-1.5 shadow-none" />
                     )}
                   </div>
                 </div>

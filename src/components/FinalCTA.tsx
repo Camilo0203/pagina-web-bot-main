@@ -1,7 +1,8 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Bot, ChevronRight, Zap } from 'lucide-react';
+import { ChevronRight, Zap } from 'lucide-react';
 import { getDiscordInviteUrl } from '../config';
+import Logo from './Logo';
 
 export default function FinalCTA() {
   const { t } = useTranslation();
@@ -70,7 +71,7 @@ export default function FinalCTA() {
               rel="noopener noreferrer"
               className="btn-premium-primary text-lg !px-20 !py-6 group"
             >
-              <Bot className="w-6 h-6 group-hover:rotate-12 transition-transform duration-500" />
+              <Logo size="xs" withText={false} frameClassName="border-black/5 bg-white/10 shadow-none" imageClassName="scale-[1.02]" />
               <span>{t('final.cta')}</span>
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>

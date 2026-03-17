@@ -23,6 +23,15 @@ export default function LandingPage() {
       <Helmet>
         <title>{t('meta.title')}</title>
         <meta name="description" content={t('meta.description')} />
+        <meta name="theme-color" content="#05060f" />
+        <meta property="og:title" content={t('meta.title')} />
+        <meta property="og:description" content={t('meta.description')} />
+        <meta property="og:image" content="/logo-ton618.png" />
+        <meta name="twitter:title" content={t('meta.title')} />
+        <meta name="twitter:description" content={t('meta.description')} />
+        <meta name="twitter:image" content="/logo-ton618.png" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </Helmet>
 
       {/* Global Background Effects */}

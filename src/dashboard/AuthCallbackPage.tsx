@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertOctagon, Bot, CheckCircle2, Loader2 } from 'lucide-react';
+import { AlertOctagon, CheckCircle2, Loader2 } from 'lucide-react';
 import { config } from '../config';
 import { exchangeDashboardCodeForSession, syncDiscordGuilds } from './api';
 import { dashboardQueryKeys } from './constants';
+import Logo from '../components/Logo';
 
 export default function AuthCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -89,9 +90,7 @@ export default function AuthCallbackPage() {
       </Helmet>
       <div className="dashboard-surface w-full max-w-xl p-8">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#5865f2_0%,_#7c6af7_55%,_#14b8a6_100%)] shadow-[0_18px_45px_rgba(88,101,242,0.35)]">
-            <Bot className="h-7 w-7" />
-          </div>
+          <Logo size="lg" withText={false} />
           <div>
             <p className="dashboard-panel-label">Discord OAuth</p>
             <h1 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">Callback del dashboard</h1>

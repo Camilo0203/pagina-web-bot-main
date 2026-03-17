@@ -2,6 +2,7 @@ import { ChevronRight, Sparkles, Activity } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { getDiscordInviteUrl, getDashboardUrl } from '../config';
+import Logo from './Logo';
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -73,9 +74,17 @@ export default function Hero() {
           <Activity className={`h-3.5 w-3.5 text-indigo-500 opacity-50 ${shouldReduceMotion ? '' : 'transition-transform duration-1000 group-hover:rotate-180'}`} />
         </motion.div>
 
+        <motion.div {...fadeInScale} className="mb-8 flex justify-center">
+          <Logo
+            size="xl"
+            subtitle="Official System Mark"
+            frameClassName="border-indigo-300/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)),radial-gradient(circle_at_top,rgba(99,102,241,0.26),transparent_62%),rgba(3,5,14,0.95)]"
+          />
+        </motion.div>
+
         {/* MAIN HEADLINE */}
         <motion.h1 
-          {...fadeInScale}
+          {...fadeInBody}
           className="text-[11vw] md:text-[9vw] lg:text-[8vw] font-black leading-[0.8] tracking-tightest uppercase mb-8"
         >
           {t('hero.titleMain')} <br/>
@@ -84,7 +93,7 @@ export default function Hero() {
 
         {/* SUBHEADLINE */}
         <motion.p 
-          {...fadeInBody}
+          {...fadeInActions}
           className="text-lg md:text-xl text-slate-300/90 max-w-2xl mx-auto mb-14 font-medium leading-relaxed tracking-tight"
         >
           {t('hero.description')} <br className="hidden md:block"/>
@@ -93,7 +102,9 @@ export default function Hero() {
 
         {/* CTA BUTTONS */}
         <motion.div 
-          {...fadeInActions}
+          {...(shouldReduceMotion
+            ? instantReveal
+            : { initial: { opacity: 0, y: 15 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.8, delay: 0.55 } })}
           className="flex flex-col sm:flex-row gap-6 justify-center items-center"
         >
           <a href={inviteUrl} className="btn-premium-primary group">

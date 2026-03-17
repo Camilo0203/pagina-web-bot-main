@@ -7,6 +7,7 @@ import StateCard from '../components/StateCard';
 import { fadeInVariants, panelSwapVariants, staggerContainerVariants } from '../motion';
 import type { DashboardGuild, GuildConfigMutation, GuildSyncStatus, TicketDashboardActionId, TicketInboxItem, TicketWorkspaceSnapshot, TicketWorkflowStatus } from '../types';
 import { formatDateTime, formatMinutesLabel, formatRelativeTime, getCustomerProfileForTicket, getTicketEventsForTicket, getTicketQueueLabel, getTicketSlaLabel, getTicketStatusLabel, getTicketWorkspaceSummary } from '../utils';
+import Logo from '../../components/Logo';
 
 interface InboxModuleProps {
   guild: DashboardGuild;
@@ -301,9 +302,12 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                     </div>
 
                     <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
-                      <div className="flex items-center gap-3">
-                        <MessageSquareText className="h-4 w-4 text-brand-500" />
-                        <p className="text-lg font-semibold text-slate-950 dark:text-white">Responder al cliente</p>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <MessageSquareText className="h-4 w-4 text-brand-500" />
+                          <p className="text-lg font-semibold text-slate-950 dark:text-white">Responder al cliente</p>
+                        </div>
+                        <Logo size="sm" subtitle="Bot Avatar" />
                       </div>
                       <textarea value={replyDraft} onChange={(event) => setReplyDraft(event.target.value)} rows={5} placeholder="Escribe una respuesta operativa; el bot la publicara en el canal del ticket." className="dashboard-form-field mt-4" />
                       <div className="mt-4 flex flex-wrap gap-2">
