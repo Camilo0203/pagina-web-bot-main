@@ -193,85 +193,85 @@ const resources = {
         description: 'Automatización cinematográfica para Discord, diseñada para escala, precisión y control total.'
       },
       nav: {
-        features: 'CaracterÃ­sticas',
+        features: 'Características',
         architecture: 'Arquitectura',
-        whyTon: 'Por quÃ© TON',
+        whyTon: 'Por qué TON',
         network: 'Red',
         cta: 'Inicializar HUD',
         mobileCta: 'Iniciar Panel'
       },
       hero: {
         badge: 'Protocolo Quantum v2.5.0 Activo',
-        titleMain: 'MÃ¡s allÃ¡ de la',
+        titleMain: 'Más allá de la',
         titleAccent: 'Gravedad',
         description: 'Forja tu ecosistema de Discord dentro de la singularidad.',
-        descriptionSub: 'AutomatizaciÃ³n masiva, precisiÃ³n extrema, escala cÃ³smica.',
+        descriptionSub: 'Automatización masiva, precisión extrema, escala cósmica.',
         ctaPrimary: 'Lanzar Protocolo',
         ctaSecondary: 'Acceder a Terminal',
-        scroll: 'ExploraciÃ³n Singular'
+        scroll: 'Exploración Singular'
       },
       features: {
-        tag: 'Ventaja TÃ¡ctica',
+        tag: 'Ventaja Táctica',
         title: 'Superioridad',
         titleAccent: 'Operativa',
-        description: 'Un nÃºcleo de utilidad altamente calibrado diseÃ±ado para comandar la prÃ³xima generaciÃ³n de infraestructuras digitales complejas.',
+        description: 'Un núcleo de utilidad altamente calibrado diseñado para comandar la próxima generación de infraestructuras digitales complejas.',
         items: {
           moderation: {
-            title: 'ModeraciÃ³n KinÃ©tica',
+            title: 'Moderación Kinética',
             desc: 'Protocolos de cumplimiento vinculados neuronalmente que desinfectan amenazas antes de que penetren tu ecosistema comunitario.',
             status: 'EJECUTOR ACTIVO'
           },
           autonomy: {
-            title: 'AutonomÃ­a Central',
+            title: 'Autonomía Central',
             desc: 'Circuitos de eventos sofisticados y arquitecturas de roles automatizadas que evolucionan con la complejidad de tu servidor.',
-            status: 'LÃ“GICA ESTABLE'
+            status: 'LÓGICA ESTABLE'
           },
           latency: {
             title: 'Latencia Sub-Cero',
-            desc: 'Procesamiento de comandos de alta frecuencia a travÃ©s de clÃºsteres de fragmentos descentralizados para una ejecuciÃ³n casi instantÃ¡nea.',
+            desc: 'Procesamiento de comandos de alta frecuencia a través de clústeres de fragmentos descentralizados para una ejecución casi instantánea.',
             status: 'FLUJO OPTIMIZADO'
           },
           security: {
-            title: 'Integridad CriptogrÃ¡fica',
-            desc: 'ProtecciÃ³n de datos de grado militar y detecciÃ³n de intrusiones sofisticada para mantener una seguridad soberana total.',
+            title: 'Integridad Criptográfica',
+            desc: 'Protección de datos de grado militar y detección de intrusiones sofisticada para mantener una seguridad soberana total.',
             status: 'ESCUDO VERIFICADO'
           },
           analytics: {
-            title: 'AnalÃ­tica Neural',
-            desc: 'TelemetrÃ­a de espacio profundo y mapeo de interacciones. Visualiza cada punto de datos dentro de tu horizonte digital.',
-            status: 'COGNICIÃ“N EN VIVO'
+            title: 'Analítica Neural',
+            desc: 'Telemetría de espacio profundo y mapeo de interacciones. Visualiza cada punto de datos dentro de tu horizonte digital.',
+            status: 'COGNICIÓN EN VIVO'
           },
           network: {
             title: 'Red Omni-Escala',
-            desc: 'Arquitectado para una expansiÃ³n masiva. MantÃ©n ecosistemas de millones de miembros sin problemas con estabilidad absoluta.',
+            desc: 'Arquitectado para una expansión masiva. Mantén ecosistemas de millones de miembros sin problemas con estabilidad absoluta.',
             status: 'HORIZONTE EXPANDIDO'
           },
           modular: {
             title: 'ADN Modular',
-            desc: 'Patrones de configuraciÃ³n granulares. Adapta el nÃºcleo de la singularidad a los requerimientos operativos especÃ­ficos de tu servidor.',
-            status: 'NÃšCLEO PERSONALIZADO'
+            desc: 'Patrones de configuración granulares. Adapta el núcleo de la singularidad a los requerimientos operativos específicos de tu servidor.',
+            status: 'NÚCLEO PERSONALIZADO'
           },
           comms: {
             title: 'Comunicaciones Unidas',
-            desc: 'IntegraciÃ³n fluida a travÃ©s de la API de Discord. Un puente entre tu comunidad y la prÃ³xima generaciÃ³n de herramientas.',
-            status: 'SEÃ‘AL LIMPIA'
+            desc: 'Integración fluida a través de la API de Discord. Un puente entre tu comunidad y la próxima generación de herramientas.',
+            status: 'SEÑAL LIMPIA'
           }
         }
       },
       experience: {
         title: 'Arquitecta el',
-        titleAccent: 'VacÃ­o',
-        subtitle: 'Escalando civilizaciones mÃ¡s allÃ¡ del horizonte de sucesos.',
+        titleAccent: 'Vacío',
+        subtitle: 'Escalando civilizaciones más allá del horizonte de sucesos.',
         card1Title: 'Escudo Vanguardia',
-        card1Desc: 'Barreras kinÃ©ticas avanzadas que protegen tu servidor contra las presiones del crecimiento extremo.',
-        card2Title: 'FragmentaciÃ³n Neural',
-        card2Desc: 'DistribuciÃ³n dinÃ¡mica de fragmentos que permite un procesamiento ininterrumpido a escalas hÃ­per-masivas.'
+        card1Desc: 'Barreras kinéticas avanzadas que protegen tu servidor contra las presiones del crecimiento extremo.',
+        card2Title: 'Fragmentación Neural',
+        card2Desc: 'Distribución dinámica de fragmentos que permite un procesamiento ininterrumpido a escalas híper-masivas.'
       },
       why: {
-        tag: 'IngenierÃ­a de Ã‰lite',
+        tag: 'Ingeniería de Élite',
         title: 'Superioridad',
-        titleAccent: 'TÃ©cnica',
-        description: 'En un universo de plantillas genÃ©ricas, TON618 es la Ãºnica utilidad forjada con la escala y el poder de una singularidad supermasiva.',
+        titleAccent: 'Técnica',
+        description: 'En un universo de plantillas genéricas, TON618 es la única utilidad forjada con la escala y el poder de una singularidad supermasiva.',
         stats: {
           uptime: 'Protocolo de Actividad',
           uptimeValue: 'Siempre monitoreado',
@@ -282,90 +282,90 @@ const resources = {
         },
         reasons: {
           precision: {
-            title: 'PrecisiÃ³n Inigualable',
-            desc: 'Cada comando se ejecuta con exactitud absoluta. Sin casos lÃ­mite, sin fallos. Solo pura dominancia tÃ©cnica.'
+            title: 'Precisión Inigualable',
+            desc: 'Cada comando se ejecuta con exactitud absoluta. Sin casos límite, sin fallos. Solo pura dominancia técnica.'
           },
           performance: {
             title: 'Rendimiento Quantum',
-            desc: 'Construido sobre un motor de alta concurrencia personalizado que procesa miles de operaciones por segundo con latencia mÃ­nima.'
+            desc: 'Construido sobre un motor de alta concurrencia personalizado que procesa miles de operaciones por segundo con latencia mínima.'
           },
           security: {
             title: 'Seguridad Fortaleza',
-            desc: 'MitigaciÃ³n de amenazas avanzada que va mÃ¡s allÃ¡ del filtrado. Protegemos tu comunidad con protocolos de grado corporativo.'
+            desc: 'Mitigación de amenazas avanzada que va más allá del filtrado. Protegemos tu comunidad con protocolos de grado corporativo.'
           },
           integration: {
-            title: 'IntegraciÃ³n Neural',
-            desc: 'Un nÃºcleo inteligente y modular diseÃ±ado para adaptarse y evolucionar con el ecosistema Ãºnico de tu servidor.'
+            title: 'Integración Neural',
+            desc: 'Un núcleo inteligente y modular diseñado para adaptarse y evolucionar con el ecosistema único de tu servidor.'
           }
         }
       },
       stats: {
-        badgeOnline: 'TelemetrÃ­a Online',
+        badgeOnline: 'Telemetría Online',
         badgeLoading: 'Sincronizando Datos',
         badgeOffline: 'Protocolo Restringido',
         title: 'Escala',
         titleAccent: 'Probada',
-        description: 'Datos de telemetrÃ­a en vivo verificados por nuestra capa de sincronizaciÃ³n global. Poder sin concesiones.',
+        description: 'Datos de telemetría en vivo verificados por nuestra capa de sincronización global. Poder sin concesiones.',
         lastUpdated: 'Actualizado {{value}}',
         status: {
-          syncing: 'Actualizando telemetrÃ­a en vivo',
-          standby: 'Esperando telemetrÃ­a en vivo',
-          fallback: 'Las mÃ©tricas base siguen visibles mientras se estabiliza la seÃ±al en vivo.'
+          syncing: 'Actualizando telemetría en vivo',
+          standby: 'Esperando telemetría en vivo',
+          fallback: 'Las métricas base siguen visibles mientras se estabiliza la señal en vivo.'
         },
         cards: {
-          clusters: { label: 'ClÃºsteres Activos', sub: 'En Nodos Globales' },
+          clusters: { label: 'Clústeres Activos', sub: 'En Nodos Globales' },
           souls: { label: 'Almas Sincronizadas', sub: 'Identidades Verificadas' },
           ops: { label: 'Operaciones Ejecutadas', sub: 'Rendimiento Real' },
-          stability: { label: 'Ãndice de Estabilidad', sub: 'EstÃ¡ndar de Actividad L1' }
+          stability: { label: 'Índice de Estabilidad', sub: 'Estándar de Actividad L1' }
         }
       },
       final: {
-        tag: 'FinalizaciÃ³n de Protocolo',
+        tag: 'Finalización de Protocolo',
         title: 'Expande tu',
         titleAccent: 'Imperio',
-        description: 'La singularidad estÃ¡ lista. Inicia el protocolo de sincronizaciÃ³n y lleva el poder a escala cÃ³smica a tu servidor de Discord hoy mismo.',
-        cta: 'Inicializar SincronizaciÃ³n',
+        description: 'La singularidad está lista. Inicia el protocolo de sincronización y lleva el poder a escala cósmica a tu servidor de Discord hoy mismo.',
+        cta: 'Inicializar Sincronización',
         nodes: {
           active: 'NODO-01 ACTIVO',
-          encryption: 'ENCRIPTACIÃ“N VERIFICADA',
-          stabilized: 'VACÃO ESTABILIZADO'
+          encryption: 'ENCRIPTACIÓN VERIFICADA',
+          stabilized: 'VACÍO ESTABILIZADO'
         }
       },
       footer: {
-        tagline: 'La utilidad de automatizaciÃ³n de Discord mÃ¡s masiva del universo conocido. DiseÃ±ada para la dominancia absoluta y la estabilidad de la comunidad.',
-        navTitle: 'NavegaciÃ³n',
+        tagline: 'La utilidad de automatización de Discord más masiva del universo conocido. Diseñada para la dominancia absoluta y la estabilidad de la comunidad.',
+        navTitle: 'Navegación',
         govTitle: 'Gobernanza',
         nav: {
-          features: 'CaracterÃ­sticas',
-          stats: 'EstadÃ­sticas',
+          features: 'Características',
+          stats: 'Estadísticas',
           commands: 'Comandos',
-          docs: 'DocumentaciÃ³n'
+          docs: 'Documentación'
         },
         gov: {
-          terms: 'protocolo de tÃ©rminos',
+          terms: 'protocolo de términos',
           privacy: 'protocolo de privacidad',
           cookies: 'protocolo de cookies'
         },
         copyright: '{{year}} PROYECTO TON618',
-        stabilized: 'NODO ESTABILIZADO DEL VACÃO',
+        stabilized: 'NODO ESTABILIZADO DEL VACÍO',
         commanded: 'COMANDADO POR MILO0DEV'
       },
       legal: {
         close: 'Cerrar HUD',
         core: 'Protocolo Central',
-        update: 'ActualizaciÃ³n de Protocolo',
+        update: 'Actualización de Protocolo',
         status: 'Activo',
         terms: {
-          title: 'TÃ©rminos de Servicio',
-          content: 'Al usar este bot aceptas usarlo de manera responsable, seguir las polÃ­ticas de Discord y evitar el abuso. La disponibilidad del servicio puede cambiar con el tiempo y las funciones pueden actualizarse sin previo aviso.'
+          title: 'Términos de Servicio',
+          content: 'Al usar este bot aceptas usarlo de manera responsable, seguir las políticas de Discord y evitar el abuso. La disponibilidad del servicio puede cambiar con el tiempo y las funciones pueden actualizarse sin previo aviso.'
         },
         privacy: {
-          title: 'PolÃ­tica de Privacidad',
-          content: 'Solo procesamos los datos requeridos para la funcionalidad del bot, moderaciÃ³n y analÃ­ticas. No vendemos datos personales. Puedes solicitar la eliminaciÃ³n de datos relacionados con el servidor contactando a soporte.'
+          title: 'Política de Privacidad',
+          content: 'Solo procesamos los datos requeridos para la funcionalidad del bot, moderación y analíticas. No vendemos datos personales. Puedes solicitar la eliminación de datos relacionados con el servidor contactando a soporte.'
         },
         cookies: {
-          title: 'PolÃ­tica de Cookies',
-          content: 'Este sitio puede usar cookies esenciales y de analÃ­tica para mejorar el rendimiento y la experiencia del usuario. Puedes controlar las cookies a travÃ©s de la configuraciÃ³n de tu navegador en cualquier momento.'
+          title: 'Política de Cookies',
+          content: 'Este sitio puede usar cookies esenciales y de analítica para mejorar el rendimiento y la experiencia del usuario. Puedes controlar las cookies a través de la configuración de tu navegador en cualquier momento.'
         }
       }
     }
