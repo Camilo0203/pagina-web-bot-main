@@ -51,13 +51,13 @@ export default function Footer({ onOpenLegal }: FooterProps) {
              </h3>
              <ul className="space-y-6">
                 {[
-                  { key: 'features', label: t('footer.nav.features') },
-                  { key: 'stats', label: t('footer.nav.stats') },
-                  { key: 'commands', label: t('footer.nav.commands') },
-                  { key: 'documentation', label: t('footer.nav.docs') }
+                  { href: '#features', label: t('footer.nav.features') },
+                  { href: '#experience', label: t('nav.architecture') },
+                  { href: '#why', label: t('nav.whyTon') },
+                  { href: '#stats', label: t('footer.nav.stats') }
                 ].map((item) => (
-                  <li key={item.key}>
-                    <a href={`#${item.key.toLowerCase()}`} className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 inline-block">
+                  <li key={item.href}>
+                    <a href={item.href} className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 inline-block">
                       {item.label}
                     </a>
                   </li>
@@ -106,4 +106,3 @@ export default function Footer({ onOpenLegal }: FooterProps) {
     </footer>
   );
 }
-

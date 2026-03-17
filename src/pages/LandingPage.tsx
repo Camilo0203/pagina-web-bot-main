@@ -40,7 +40,7 @@ export default function LandingPage() {
           {/* Section 2: Features */}
           <Features />
 
-          {/* Section 3: Experience (Visual/Immersive) */}
+          {/* Section 3: Experience */}
           <VisualExperience />
 
           {/* Section 4: Why TON618 */}

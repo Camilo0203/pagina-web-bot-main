@@ -20,11 +20,6 @@ const StatCard = memo(({ icon: Icon, label, value, sub, index }: any) => (
     className="group ml-0"
   >
     <div className="tech-card h-full flex flex-col items-center text-center group">
-      <div className="hud-accent-corner top-left"></div>
-      <div className="hud-accent-corner top-right"></div>
-      <div className="hud-accent-corner bottom-left"></div>
-      <div className="hud-accent-corner bottom-right"></div>
-
       <div className="inline-flex p-4 rounded-2xl bg-indigo-500/5 mb-8 group-hover:bg-indigo-500/10 transition-colors duration-500">
         <Icon className="w-8 h-8 text-indigo-400" />
       </div>
@@ -151,4 +146,3 @@ export default function LiveStats() {
     </section>
   );
 }
-

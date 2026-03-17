@@ -10,13 +10,6 @@ const FeatureCard = memo(({ feature, variants }: { feature: any, variants: any }
       variants={variants}
       className="tech-card group h-full flex flex-col"
     >
-      {/* HUD ACCENTS */}
-      <div className="hud-accent-corner top-left"></div>
-      <div className="hud-accent-corner top-right"></div>
-      <div className="hud-accent-corner bottom-left"></div>
-      <div className="hud-accent-corner bottom-right"></div>
-
-      {/* ICON BOX */}
       <div className="relative mb-8 w-14 h-14 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/[0.04] group-hover:border-indigo-500/20 transition-all duration-500">
         <Icon className="w-6 h-6 text-slate-500 group-hover:text-indigo-400 transition-colors duration-500" />
       </div>
@@ -76,9 +69,8 @@ export default function Features() {
 
   return (
     <section id="features" className="pt-16 pb-32 relative overflow-hidden bg-black/50">
-      {/* ATMOSPHERIC BACKGROUND */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] nebula-blur bg-indigo-500/5 -translate-y-1/2 translate-x-1/2" style={{ transform: 'translate3d(0,0,0)' }}></div>
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] nebula-blur bg-purple-500/5 translate-y-1/2 -translate-x-1/2" style={{ transform: 'translate3d(0,0,0)' }}></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] nebula-blur bg-white/[0.03] translate-y-1/2 -translate-x-1/2" style={{ transform: 'translate3d(0,0,0)' }}></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-32 gap-10">
@@ -136,4 +128,3 @@ export default function Features() {
     </section>
   );
 }
-

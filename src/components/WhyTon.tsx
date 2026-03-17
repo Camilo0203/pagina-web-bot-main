@@ -71,9 +71,6 @@ export default function WhyTon() {
           </motion.div>
 
           <div className="grid sm:grid-cols-2 gap-6 relative">
-            {/* Visual HUD Decoration */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 border border-white/5 rounded-full opacity-20 animate-spin-slow"></div>
-
             {reasons.map((reason, i) => (
               <motion.div
                 key={i}
@@ -83,11 +80,6 @@ export default function WhyTon() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="tech-card overflow-hidden group"
               >
-                <div className="hud-accent-corner top-left"></div>
-                <div className="hud-accent-corner top-right"></div>
-                <div className="hud-accent-corner bottom-left"></div>
-                <div className="hud-accent-corner bottom-right"></div>
-
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                     <reason.icon className="w-6 h-6 text-indigo-400" />
@@ -106,4 +98,3 @@ export default function WhyTon() {
     </section>
   );
 }
-
