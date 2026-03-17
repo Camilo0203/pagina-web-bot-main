@@ -48,7 +48,7 @@ export default function LegalModal({ type, onClose, botName }: LegalModalProps) 
           <p className="text-xl text-white normal-case font-medium mb-10 leading-relaxed border-l-2 border-amber-500/30 pl-6">{content}</p>
           <div className="mt-12 pt-8 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-500 uppercase tracking-[0.25em] font-black">
             <span>{t('legal.update')}</span>
-            <span className="text-amber-500/60">March 5, 2026 // {t('legal.status')}</span>
+            <span className="text-amber-500/60">{t('legal.status')}</span>
           </div>
         </div>
       </div>

@@ -4,6 +4,10 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
+      meta: {
+        title: 'TON618 | Discord Bot Beyond Gravity',
+        description: 'Premium Discord automation with a cinematic edge. Massive scale, precise control.'
+      },
       nav: {
         features: 'Features',
         architecture: 'Architecture',
@@ -184,6 +188,10 @@ const resources = {
   },
   es: {
     translation: {
+      meta: {
+        title: 'TON618 | Bot de Discord Más Allá de la Gravedad',
+        description: 'Automatización premium para Discord con un tono cinematográfico. Escala masiva y control preciso.'
+      },
       nav: {
         features: 'Características',
         architecture: 'Arquitectura',

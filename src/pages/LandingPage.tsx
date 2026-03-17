@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
@@ -14,13 +15,14 @@ import { config } from '../config';
 type LegalModalType = 'terms' | 'privacy' | 'cookies' | null;
 
 export default function LandingPage() {
+  const { t } = useTranslation();
   const [legalModalType, setLegalModalType] = useState<LegalModalType>(null);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden">
       <Helmet>
-        <title>TON618 | Discord Bot Beyond Gravity</title>
-        <meta name="description" content="The most massive Discord automation utility in the known universe. Premium, cinematic, and powerful." />
+        <title>{t('meta.title')}</title>
+        <meta name="description" content={t('meta.description')} />
       </Helmet>
 
       {/* Global Background Effects */}
