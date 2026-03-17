@@ -1,5 +1,5 @@
 import { ChevronRight, Sparkles, Activity } from 'lucide-react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { getDiscordInviteUrl, getDashboardUrl } from '../config';
 import { useRef } from 'react';
@@ -11,88 +11,34 @@ export default function Hero() {
   const inviteUrl = getDiscordInviteUrl();
   const dashboardUrl = getDashboardUrl();
 
-  const { scrollY } = useScroll();
-  
-  // High-fidelity scroll effects
-  const ySingularity = useTransform(scrollY, [0, 1000], [0, 200]);
-  const scaleSingularity = useTransform(scrollY, [0, 1000], [1, 1.3]);
-
   return (
-    <section ref={containerRef} id="top" className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#010103]">
-      {/* 1. COSMIC BACKGROUND LAYER */}
+    <section ref={containerRef} id="top" className="relative min-h-[100dvh] flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#000]">
+      {/* 1. VIDEO BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(15,20,50,0.4)_0%,rgba(1,1,3,1)_100%)]"></div>
-        
-        {/* NEBULA VOLUMES */}
-        <div className="absolute top-[-10%] left-[-15%] w-[80%] h-[80%] nebula-blur bg-indigo-900/10 animate-pulse-soft"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] nebula-blur bg-purple-900/10 animate-pulse-soft" style={{ animationDelay: '-10s' }}></div>
-      </div>
-
-      {/* 2. THE GARGANTUA SINGULARITY (TON 618) */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none">
-        <motion.div 
-          style={{ 
-            y: shouldReduceMotion ? 0 : ySingularity, 
-            scale: shouldReduceMotion ? 1 : scaleSingularity,
-            willChange: 'transform'
-          }}
-          className="relative w-full h-full max-w-[1500px] max-h-[1500px] flex items-center justify-center"
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         >
-          {/* COMPOSITION RADIUS CONTAINER */}
-          <div className="relative w-[600px] h-[600px] md:w-[900px] md:h-[900px] lg:w-[1200px] lg:h-[1200px] flex items-center justify-center">
-            
-            {/* A. LENSED BACK DISK - TOP ARCH (The Light Behind) */}
-            <div 
-              className="absolute w-[80%] h-[50%] top-[-5%] left-[10%] matter-flow-disk lensing-arch-mask animate-doppler-shimmer"
-              style={{ transform: 'rotateX(-20deg) scale(1.1)', filter: 'blur(5px)' }}
-            ></div>
+          <source src="/videos/ton618-hero.mp4" type="video/mp4" />
+        </video>
 
-            {/* B. LENSED BACK DISK - BOTTOM ARCH (The Light Beneath) */}
-            <div 
-              className="absolute w-[70%] h-[40%] bottom-[5%] left-[15%] matter-flow-disk lensing-arch-mask-bottom animate-doppler-shimmer"
-              style={{ transform: 'rotateX(20deg) scale(0.9)', filter: 'blur(8px)', opacity: 0.6 }}
-            ></div>
-
-            {/* C. PRIMARY ACCRETION DISK - FRONT BAND (Matter in orbit) */}
-            <div 
-              className="absolute w-[120%] h-[25%] z-20 matter-flow-disk animate-orbit-matter"
-              style={{ 
-                maskImage: 'radial-gradient(circle at center, transparent 35%, black 45%, black 55%, transparent 65%)',
-                WebkitMaskImage: 'radial-gradient(circle at center, transparent 35%, black 45%, black 55%, transparent 65%)',
-                transform: 'rotateX(75deg) rotateZ(0deg)',
-                background: 'conic-gradient(from 180deg at 50% 50%, transparent 0%, rgba(99,102,241,0.2) 15%, rgba(255,255,255,0.7) 45%, rgba(167,139,250,0.6) 55%, transparent 100%)'
-              }}
-            ></div>
-
-            {/* D. THE VOID CORE (Event Horizon) */}
-            <div className="absolute w-[30%] h-[30%] z-10 flex items-center justify-center">
-                {/* Einstein Ring (Photosphere) */}
-                <div className="absolute inset-[-2%] rounded-full einstein-ring animate-gravity-pulse"></div>
-                
-                {/* Event Horizon (Black Void) */}
-                <div className="absolute inset-0 rounded-full event-horizon-core flex items-center justify-center overflow-hidden">
-                    {/* Interior Mass Shimmer */}
-                    <div className="w-full h-full bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.05)_0%,transparent_70%)]"></div>
-                </div>
-            </div>
-
-            {/* E. DOPPLER BEAMING (Left-side Intensity Asymmetry) */}
-            <div className="absolute left-[5%] top-1/2 -translate-y-1/2 w-[30%] h-[20%] bg-indigo-500/10 blur-[100px] z-30 mix-blend-screen pointer-events-none"></div>
-
-            {/* F. GRAVITATIONAL WARP FIELD (Lens Artifacts) */}
-            <div className="absolute inset-0 lensing-warp-field z-0 opacity-40"></div>
-          </div>
-
-          {/* G. AMBIENT ATMOSPHERIC SPILL */}
-          <div className="absolute w-[40%] h-[40%] rounded-full bg-indigo-600/5 blur-[150px] mix-blend-color-dodge animate-pulse-soft"></div>
-        </motion.div>
+        {/* 2. OVERLAY LAYERS */}
+        {/* Primary Dark Overlay */}
+        <div className="absolute inset-0 bg-black/60 z-10"></div>
+        
+        {/* Radial Gradient Overlay (Softens the center/edges) */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(0,0,0,0.4)_70%,rgba(0,0,0,0.8)_100%)] z-15"></div>
+        
+        {/* Cinematic Vignette */}
+        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.9)] z-20"></div>
       </div>
 
       {/* 3. UI CONTENT LAYER */}
       <div className="relative z-30 max-w-7xl mx-auto px-6 text-center">
-        {/* LEGIBILITY VIGNETTE */}
-        <div className="absolute inset-[-150px] bg-black/40 blur-[100px] -z-10 rounded-full"></div>
-
         {/* STATUS BADGE */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
