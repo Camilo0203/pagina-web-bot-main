@@ -1,62 +1,45 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bot, ChevronRight, Zap } from 'lucide-react';
 import { getDiscordInviteUrl } from '../config';
 
-const finalCtaVideos = [
-  '/videos/lensing-arc.mp4',
-  '/videos/cosmic-haze.mp4',
-  '/videos/ton618-hero.mp4',
-];
-
 export default function FinalCTA() {
   const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const inviteUrl = getDiscordInviteUrl();
-  const currentVideo = finalCtaVideos[currentVideoIndex];
-
-  const handleVideoEnd = () => {
-    if (shouldReduceMotion) {
-      return;
-    }
-
-    setCurrentVideoIndex((index) => (index + 1) % finalCtaVideos.length);
-  };
 
   return (
     <section id="join" className="py-32 relative overflow-hidden bg-black">
       {/* Cinematic Singularity Background */}
       <div className="absolute inset-0 z-0 overflow-hidden select-none pointer-events-none">
         {/* Soft Depth Glows */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-indigo-500/5 blur-[180px] rounded-full"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/8 blur-[120px] rounded-full animate-pulse-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-indigo-500/4 blur-[180px] rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/6 blur-[120px] rounded-full animate-pulse-slow"></div>
         
         {/* ORGANIC FOCAL ACCENT VIDEO - No visible boxes */}
         <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-screen h-screen opacity-24 mix-blend-lighten"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-screen h-screen opacity-[0.13] mix-blend-screen"
           style={{ 
-            maskImage: 'radial-gradient(circle at center, transparent 0%, transparent 24%, black 52%, transparent 78%)',
-            WebkitMaskImage: 'radial-gradient(circle at center, transparent 0%, transparent 24%, black 52%, transparent 78%)'
+            maskImage: 'radial-gradient(circle at center, transparent 0%, transparent 18%, black 52%, transparent 86%)',
+            WebkitMaskImage: 'radial-gradient(circle at center, transparent 0%, transparent 18%, black 52%, transparent 86%)'
           }}
         >
           <motion.video
-            key={currentVideo}
             autoPlay 
             muted 
+            loop
             playsInline 
             preload="metadata"
-            onEnded={handleVideoEnd}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: shouldReduceMotion ? 0.01 : 0.45, ease: 'easeOut' }}
             aria-hidden="true"
             className="w-full h-full object-contain scale-125"
           >
-            <source src={currentVideo} type="video/mp4" />
+            <source src="/videos/lensing-arc.mp4" type="video/mp4" />
           </motion.video>
         </div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(3,4,10,0.1)_0%,rgba(3,4,10,0.24)_44%,rgba(0,0,0,0.78)_100%)]" />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
