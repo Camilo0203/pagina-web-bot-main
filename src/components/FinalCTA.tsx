@@ -10,9 +10,23 @@ export default function FinalCTA() {
   return (
     <section id="join" className="py-32 relative overflow-hidden bg-black">
       {/* Cinematic Singularity Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-indigo-500/5 blur-[180px] rounded-full"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/10 blur-[100px] rounded-full animate-pulse-slow"></div>
+        
+        {/* FOCAL ACCENT VIDEO */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl aspect-video opacity-40 mix-blend-lighten pointer-events-none select-none">
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline 
+            preload="metadata"
+            className="w-full h-full object-contain"
+          >
+            <source src="/videos/lensing-arc.mp4" type="video/mp4" />
+          </video>
+        </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
