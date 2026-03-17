@@ -25,15 +25,34 @@ export default function Hero() {
 
   return (
     <section id="top" className="relative min-h-[85dvh] flex items-center justify-center pt-32 pb-12 overflow-hidden bg-[#000]">
-      {/* 1. STATIC BACKDROP LAYER */}
+      {/* 1. BACKDROP LAYER */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
-        <div className="absolute inset-0 bg-[#02030a]" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-[#02030a] bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url("/hero-poster.jpg")' }}
+          aria-hidden="true"
+        />
+
+        {!shouldReduceMotion && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            poster="/hero-poster.jpg"
+            aria-hidden="true"
+            className="absolute inset-0 hidden h-full w-full object-cover object-center md:block"
+          >
+            <source src="/videos/ton618-hero.mp4" type="video/mp4" />
+          </video>
+        )}
 
         <div
           className={`absolute inset-0 ${
             shouldReduceMotion
-              ? 'bg-[radial-gradient(circle_at_50%_30%,rgba(67,56,202,0.22),transparent_32%),radial-gradient(circle_at_50%_20%,rgba(14,19,46,0.78),transparent_52%),radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.03),transparent_22%),radial-gradient(circle_at_82%_24%,rgba(129,140,248,0.05),transparent_18%),linear-gradient(180deg,rgba(4,5,14,0.82)_0%,rgba(1,2,8,0.92)_56%,rgba(0,0,0,0.98)_100%)]'
-              : 'bg-[radial-gradient(circle_at_50%_28%,rgba(67,56,202,0.28),transparent_30%),radial-gradient(circle_at_50%_18%,rgba(10,14,34,0.82),transparent_54%),radial-gradient(circle_at_16%_16%,rgba(255,255,255,0.035),transparent_20%),radial-gradient(circle_at_84%_22%,rgba(129,140,248,0.06),transparent_18%),linear-gradient(180deg,rgba(3,4,12,0.78)_0%,rgba(1,2,8,0.9)_58%,rgba(0,0,0,0.98)_100%)]'
+              ? 'bg-[radial-gradient(circle_at_50%_30%,rgba(8,10,24,0.54),transparent_36%),radial-gradient(circle_at_50%_32%,rgba(99,102,241,0.16),transparent_34%),radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.03),transparent_22%),radial-gradient(circle_at_82%_24%,rgba(139,92,246,0.06),transparent_18%),linear-gradient(180deg,rgba(5,6,15,0.7)_0%,rgba(1,2,8,0.9)_58%,rgba(0,0,0,0.98)_100%)]'
+              : 'bg-[radial-gradient(circle_at_50%_34%,rgba(7,9,20,0.42),transparent_38%),radial-gradient(circle_at_50%_35%,rgba(99,102,241,0.14),transparent_36%),radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.035),transparent_20%),radial-gradient(circle_at_84%_22%,rgba(139,92,246,0.08),transparent_18%),linear-gradient(180deg,rgba(5,6,15,0.28)_0%,rgba(0,0,0,0.82)_72%,rgba(0,0,0,0.96)_100%)]'
           }`}
         />
         <div className="absolute inset-x-[12%] top-[12%] h-[28rem] rounded-full bg-[radial-gradient(circle,rgba(109,40,217,0.22)_0%,rgba(67,56,202,0.16)_38%,rgba(15,23,42,0.04)_72%,transparent_100%)] blur-3xl" />
@@ -42,7 +61,7 @@ export default function Hero() {
 
         {/* 2. OVERLAY LAYERS */}
         {/* Primary Dark Overlay */}
-        <div className={`absolute inset-0 z-10 ${shouldReduceMotion ? 'bg-black/62' : 'bg-black/56'}`}></div>
+        <div className={`absolute inset-0 z-10 ${shouldReduceMotion ? 'bg-black/62' : 'bg-black/58'}`}></div>
         
         {/* Radial Gradient Overlay (Softens the center/edges) */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(3,4,12,0.06)_0%,rgba(3,4,12,0.18)_30%,transparent_52%),radial-gradient(circle_at_50%_50%,transparent_0%,rgba(0,0,0,0.4)_74%,rgba(0,0,0,0.82)_100%)] z-15" />
