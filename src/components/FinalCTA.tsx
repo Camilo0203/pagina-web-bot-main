@@ -1,11 +1,29 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bot, ChevronRight, Zap } from 'lucide-react';
 import { getDiscordInviteUrl } from '../config';
 
+const finalCtaVideos = [
+  '/videos/lensing-arc.mp4',
+  '/videos/cosmic-haze.mp4',
+  '/videos/ton618-hero.mp4',
+];
+
 export default function FinalCTA() {
   const { t } = useTranslation();
+  const shouldReduceMotion = useReducedMotion();
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const inviteUrl = getDiscordInviteUrl();
+  const currentVideo = finalCtaVideos[currentVideoIndex];
+
+  const handleVideoEnd = () => {
+    if (shouldReduceMotion) {
+      return;
+    }
+
+    setCurrentVideoIndex((index) => (index + 1) % finalCtaVideos.length);
+  };
 
   return (
     <section id="join" className="py-32 relative overflow-hidden bg-black">
@@ -23,16 +41,21 @@ export default function FinalCTA() {
             WebkitMaskImage: 'radial-gradient(circle at center, transparent 0%, transparent 24%, black 52%, transparent 78%)'
           }}
         >
-          <video 
+          <motion.video
+            key={currentVideo}
             autoPlay 
             muted 
-            loop 
             playsInline 
             preload="metadata"
+            onEnded={handleVideoEnd}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: shouldReduceMotion ? 0.01 : 0.45, ease: 'easeOut' }}
+            aria-hidden="true"
             className="w-full h-full object-contain scale-125"
           >
-            <source src="/videos/lensing-arc.mp4" type="video/mp4" />
-          </video>
+            <source src={currentVideo} type="video/mp4" />
+          </motion.video>
         </div>
       </div>
 
