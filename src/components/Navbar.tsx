@@ -34,11 +34,12 @@ export default function Navbar() {
           <div className="flex items-center gap-10 lg:gap-16">
             <a href="/" className="flex items-center gap-3 group">
               <Logo
-                size="md"
+                size="lg"
                 subtitle="Neural Core"
                 className="transition-transform duration-500 group-hover:scale-[1.02]"
                 textClassName="group-hover:text-indigo-200 transition-colors duration-500"
-                frameClassName="h-12 w-12 rounded-[1.1rem] p-1.5 md:h-14 md:w-14 md:rounded-[1.25rem] md:p-2 group-hover:border-indigo-300/30"
+                frameClassName="h-16 w-16 md:h-[4.5rem] md:w-[4.5rem]"
+                imageClassName="scale-[1.12] transition-transform duration-500 group-hover:scale-[1.16]"
               />
             </a>
 
@@ -89,7 +90,12 @@ export default function Navbar() {
           >
             <div className="cinematic-glass rounded-2xl border-white/5 p-8 flex flex-col gap-8 shadow-3xl shadow-black">
               <div className="flex items-center justify-between mb-4">
-                <Logo size="sm" subtitle="Regional Protocol" frameClassName="p-1.5" />
+                <Logo
+                  size="md"
+                  subtitle="Regional Protocol"
+                  frameClassName="h-14 w-14"
+                  imageClassName="scale-[1.1]"
+                />
                 <LanguageSelector />
               </div>
 

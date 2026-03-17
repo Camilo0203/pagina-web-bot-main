@@ -20,7 +20,12 @@ export default function Footer({ onOpenLegal }: FooterProps) {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-20 mb-32">
           <div className="col-span-1 lg:col-span-2">
             <div className="flex items-center gap-4 mb-10">
-              <Logo size="lg" subtitle="Official Bot Identity" />
+              <Logo
+                size="xl"
+                subtitle="Official Bot Identity"
+                frameClassName="h-24 w-24 md:h-28 md:w-28"
+                imageClassName="scale-[1.12]"
+              />
             </div>
             <p className="text-slate-500 max-w-sm font-medium leading-relaxed mb-10 text-lg">
               {t('footer.tagline')}

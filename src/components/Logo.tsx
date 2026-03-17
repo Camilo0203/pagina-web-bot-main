@@ -15,11 +15,11 @@ interface LogoProps {
 }
 
 const sizeStyles: Record<LogoSize, { frame: string; title: string; subtitle: string; gap: string }> = {
-  xs: { frame: 'h-8 w-8 rounded-xl p-1.5', title: 'text-sm', subtitle: 'text-[9px]', gap: 'gap-2' },
-  sm: { frame: 'h-10 w-10 rounded-[1rem] p-2', title: 'text-base', subtitle: 'text-[10px]', gap: 'gap-2.5' },
-  md: { frame: 'h-12 w-12 rounded-[1.1rem] p-2.5', title: 'text-lg', subtitle: 'text-[10px]', gap: 'gap-3' },
-  lg: { frame: 'h-14 w-14 rounded-[1.25rem] p-3', title: 'text-[1.4rem]', subtitle: 'text-[11px]', gap: 'gap-4' },
-  xl: { frame: 'h-20 w-20 rounded-[1.65rem] p-4', title: 'text-[1.9rem] md:text-[2.15rem]', subtitle: 'text-[11px] md:text-xs', gap: 'gap-5' },
+  xs: { frame: 'h-10 w-10', title: 'text-sm', subtitle: 'text-[9px]', gap: 'gap-2.5' },
+  sm: { frame: 'h-12 w-12', title: 'text-base', subtitle: 'text-[10px]', gap: 'gap-3' },
+  md: { frame: 'h-14 w-14', title: 'text-lg', subtitle: 'text-[10px]', gap: 'gap-3.5' },
+  lg: { frame: 'h-20 w-20', title: 'text-[1.4rem]', subtitle: 'text-[11px]', gap: 'gap-4.5' },
+  xl: { frame: 'h-28 w-28 md:h-32 md:w-32 lg:h-36 lg:w-36', title: 'text-[1.9rem] md:text-[2.15rem]', subtitle: 'text-[11px] md:text-xs', gap: 'gap-6' },
 };
 
 export default function Logo({
@@ -38,16 +38,19 @@ export default function Logo({
     <div className={clsx('flex items-center', styles.gap, className)}>
       <div
         className={clsx(
-          'relative flex shrink-0 items-center justify-center overflow-hidden border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)),radial-gradient(circle_at_top,rgba(99,102,241,0.2),transparent_62%),rgba(5,8,18,0.92)] shadow-[0_18px_45px_rgba(2,6,23,0.38)] backdrop-blur-xl',
+          'relative flex shrink-0 items-center justify-center overflow-visible',
           styles.frame,
           frameClassName,
         )}
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.16),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-[12%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.14),rgba(99,102,241,0.1)_38%,transparent_72%)] blur-xl" />
         <img
           src="/logo-ton618-transparent.png"
           alt={alt ?? `${config.botName} logo`}
-          className={clsx('relative z-[1] h-full w-full object-contain', imageClassName)}
+          className={clsx(
+            'relative z-[1] h-full w-full scale-[1.08] object-contain drop-shadow-[0_10px_26px_rgba(99,102,241,0.18)]',
+            imageClassName,
+          )}
           loading="eager"
           decoding="async"
         />
