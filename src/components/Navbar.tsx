@@ -83,9 +83,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-4 lg:gap-8">
-            <div className="hidden sm:block">
-              <LanguageSelector />
-            </div>
+            <LanguageSelector />
 
             <a
               href={loginUrl}
@@ -96,6 +94,7 @@ export default function Navbar() {
             </a>
 
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-slate-300 hover:text-white transition-colors"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
