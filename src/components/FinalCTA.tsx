@@ -8,7 +8,7 @@ export default function FinalCTA() {
   const inviteUrl = getDiscordInviteUrl();
 
   return (
-    <section id="join" className="py-60 relative overflow-hidden bg-black">
+    <section id="join" className="py-32 relative overflow-hidden bg-black">
       {/* Cinematic Singularity Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-indigo-500/5 blur-[180px] rounded-full"></div>

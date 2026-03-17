@@ -19,17 +19,17 @@ export default function VisualExperience() {
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 1.05]);
 
   return (
-    <section ref={containerRef} id="experience" className="h-[200vh] relative bg-black overflow-hidden flex items-center justify-center">
+    <section ref={containerRef} id="experience" className="min-h-[100vh] py-24 relative bg-black overflow-hidden flex items-center justify-center">
       {/* DEEP SPACE BACKGROUND */}
       <div className="absolute inset-0 z-0 select-none pointer-events-none">
         <motion.div 
           style={{ y: shouldReduceMotion ? 0 : y1, willChange: 'transform' }}
-          className="absolute top-0 left-0 w-full h-full opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"
+          className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"
         ></motion.div>
         
-        {/* Dynamic Nebulas - Optimized with GPU acceleration hint */}
-        <motion.div style={{ y: shouldReduceMotion ? 0 : y1, willChange: 'transform' }} className="absolute top-1/4 left-1/4 w-[600px] h-[600px] nebula-blur bg-indigo-500/10" />
-        <motion.div style={{ y: shouldReduceMotion ? 0 : y2, willChange: 'transform' }} className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] nebula-blur bg-purple-500/10" />
+        {/* Dynamic Nebulas - Compacted size */}
+        <motion.div style={{ y: shouldReduceMotion ? 0 : y1, willChange: 'transform' }} className="absolute top-1/4 left-1/3 w-[400px] h-[400px] nebula-blur bg-indigo-500/10" />
+        <motion.div style={{ y: shouldReduceMotion ? 0 : y2, willChange: 'transform' }} className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] nebula-blur bg-purple-500/10" />
       </div>
 
       {/* CORE EXPERIENCE VISUAL */}
@@ -40,65 +40,64 @@ export default function VisualExperience() {
           rotate: shouldReduceMotion ? 0 : rotate,
           willChange: 'transform, opacity'
         }}
-        className="relative z-10 text-center px-6"
+        className="relative z-10 text-center px-6 max-w-4xl mx-auto"
       >
-        <div className="relative mb-20 inline-block">
-          {/* Energy Core HUD */}
-          <div className="w-48 h-48 md:w-64 md:h-64 rounded-full border border-white/[0.05] flex items-center justify-center relative">
-            <div className="absolute inset-[-10px] border border-indigo-500/10 rounded-full animate-[spin_25s_linear_infinite]"></div>
-            <div className="absolute inset-[-30px] border border-white/5 rounded-full animate-[spin_40s_linear_infinite_reverse]"></div>
+        <div className="relative mb-12 inline-block">
+          {/* Energy Core HUD - Resized */}
+          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border border-white/[0.05] flex items-center justify-center relative">
+            <div className="absolute inset-[-6px] border border-indigo-500/10 rounded-full animate-[spin_25s_linear_infinite]"></div>
+            <div className="absolute inset-[-15px] border border-white/5 rounded-full animate-[spin_40s_linear_infinite_reverse]"></div>
             
-            <div className="w-6 h-6 bg-white rounded-full shadow-[0_0_30px_rgba(255,255,255,0.6)] z-10"></div>
+            <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.6)] z-10"></div>
             
-            {/* Energy Ripples - Simplified opacity animation */}
             {!shouldReduceMotion && (
               <motion.div 
-                animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0, 0.2] }}
+                animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0, 0.2] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                className="absolute w-20 h-20 bg-indigo-500/10 rounded-full blur-xl"
+                className="absolute w-12 h-12 bg-indigo-500/10 rounded-full blur-lg"
               />
             )}
           </div>
           
           {/* Floating HUD Elements */}
-          <div className="absolute top-0 -right-20 animate-float-subtle">
-             <div className="cinematic-glass p-3 rounded-xl border-indigo-500/10 flex gap-3 items-center">
-                <Activity className="w-4 h-4 text-indigo-400" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('experience.hud')}</span>
+          <div className="absolute top-0 -right-16 animate-float-subtle">
+             <div className="cinematic-glass p-2 rounded-lg border-indigo-500/10 flex gap-2 items-center">
+                <Activity className="w-3 h-3 text-indigo-400" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t('experience.hud')}</span>
              </div>
           </div>
         </div>
 
-        <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tightest mb-10 leading-[0.85]">
+        <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tightest mb-6 leading-[0.85]">
           {t('experience.title')} <br/>
           <span className="text-premium-gradient text-shadow-glow">{t('experience.titleAccent')}</span>
         </h2>
         
-        <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed tracking-[0.3em] uppercase opacity-60 italic">
+        <p className="text-base md:text-lg text-slate-500 max-w-xl mx-auto font-medium leading-relaxed tracking-[0.2em] uppercase opacity-70 italic">
           {t('experience.subtitle')}
         </p>
       </motion.div>
 
-      {/* PARALLAX PANELS - Optimized shadows and blurs */}
+      {/* PARALLAX PANELS - Adjusted position for tighter layout */}
       <motion.div 
         style={{ y: shouldReduceMotion ? 0 : y1, willChange: 'transform' }}
-        className="absolute top-[30%] right-[10%] hidden xl:block"
+        className="absolute top-[15%] right-[5%] hidden xl:block"
       >
-        <div className="tech-card p-8 max-w-[280px] border-white/5 bg-black/40 backdrop-blur-md">
-           <ShieldCheck className="w-8 h-8 text-indigo-500 mb-6" />
-           <h4 className="text-lg font-bold text-white mb-3 tracking-tight">{t('experience.card1Title')}</h4>
-           <p className="text-xs text-slate-500 leading-relaxed font-medium">{t('experience.card1Desc')}</p>
+        <div className="tech-card p-6 max-w-[240px] border-white/5 bg-black/40 backdrop-blur-md">
+           <ShieldCheck className="w-6 h-6 text-indigo-500 mb-4" />
+           <h4 className="text-base font-bold text-white mb-2 tracking-tight">{t('experience.card1Title')}</h4>
+           <p className="text-[11px] text-slate-500 leading-relaxed font-medium">{t('experience.card1Desc')}</p>
         </div>
       </motion.div>
 
       <motion.div 
         style={{ y: shouldReduceMotion ? 0 : y2, willChange: 'transform' }}
-        className="absolute bottom-[30%] left-[10%] hidden xl:block"
+        className="absolute bottom-[15%] left-[5%] hidden xl:block"
       >
-        <div className="tech-card p-8 max-w-[280px] border-white/5 bg-black/40 backdrop-blur-md">
-           <Cpu className="w-8 h-8 text-indigo-500 mb-6" />
-           <h4 className="text-lg font-bold text-white mb-3 tracking-tight">{t('experience.card2Title')}</h4>
-           <p className="text-xs text-slate-500 leading-relaxed font-medium">{t('experience.card2Desc')}</p>
+        <div className="tech-card p-6 max-w-[240px] border-white/5 bg-black/40 backdrop-blur-md">
+           <Cpu className="w-6 h-6 text-indigo-500 mb-4" />
+           <h4 className="text-base font-bold text-white mb-2 tracking-tight">{t('experience.card2Title')}</h4>
+           <p className="text-[11px] text-slate-500 leading-relaxed font-medium">{t('experience.card2Desc')}</p>
         </div>
       </motion.div>
     </section>

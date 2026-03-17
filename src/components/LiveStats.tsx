@@ -109,7 +109,7 @@ export default function LiveStats() {
   ];
 
   return (
-    <section id="stats" className="py-40 relative bg-black overflow-hidden">
+    <section id="stats" className="pt-16 pb-32 relative bg-black overflow-hidden">
       {/* Background Matrix/Grid - GPU accelerated */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '40px 40px', transform: 'translate3d(0,0,0)' }}></div>
 

@@ -29,7 +29,7 @@ export default function WhyTon() {
   ];
 
   return (
-    <section id="why" className="py-40 bg-black relative overflow-hidden">
+    <section id="why" className="pt-16 pb-32 bg-black relative overflow-hidden">
       {/* Structural Elements */}
       <div className="absolute top-0 right-0 w-[500px] h-px bg-gradient-to-l from-indigo-500/20 to-transparent"></div>
       <div className="absolute top-0 right-0 h-[500px] w-px bg-gradient-to-b from-indigo-500/20 to-transparent"></div>
