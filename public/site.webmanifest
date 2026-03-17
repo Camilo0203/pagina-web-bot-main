@@ -1,21 +1,29 @@
 {
   "name": "TON618",
   "short_name": "TON618",
-  "description": "TON618 centraliza moderacion, automatizacion y control visual de tu bot.",
+  "description": "TON618 centraliza automatizacion, dashboard y control visual de Discord con una identidad consistente.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#05060f",
   "theme_color": "#05060f",
   "icons": [
     {
       "src": "/favicon.png",
-      "sizes": "192x192",
+      "sizes": "64x64",
       "type": "image/png"
     },
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "/logo-ton618.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
