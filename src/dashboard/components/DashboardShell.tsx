@@ -23,6 +23,7 @@ import {
   resolveGuildIconUrl,
   resolveUserAvatarUrl,
 } from '../utils';
+import { config } from '../../config';
 import { useTheme } from '../../components/ThemeProvider';
 import Logo from '../../components/Logo';
 
@@ -79,7 +80,7 @@ function SidebarContent({
         <Logo size="lg" withText={false} />
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-200">
-            TON618 Bot
+            {config.botName}
           </p>
           <p className="mt-1 text-[1.4rem] font-bold tracking-[-0.04em] text-white">
             Control Deck
