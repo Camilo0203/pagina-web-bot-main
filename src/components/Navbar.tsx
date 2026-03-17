@@ -41,8 +41,8 @@ export default function Navbar() {
                 subtitle="TON618"
                 className="transition-transform duration-500 group-hover:scale-[1.02]"
                 textClassName="group-hover:text-indigo-200 transition-colors duration-500"
-                frameClassName="h-[4.5rem] w-[4.5rem] md:h-[5rem] md:w-[5rem]"
-                imageClassName="scale-[1.08] transition-transform duration-500 group-hover:scale-[1.12]"
+                frameClassName="h-[5.25rem] w-[5.25rem] md:h-[5.75rem] md:w-[5.75rem]"
+                imageClassName="transition-transform duration-500 group-hover:scale-[1.9]"
               />
             </a>
 
@@ -100,8 +100,7 @@ export default function Navbar() {
                 <Logo
                   size="md"
                   subtitle="TON618"
-                  frameClassName="h-16 w-16"
-                  imageClassName="scale-[1.06]"
+                  frameClassName="h-[4.75rem] w-[4.75rem]"
                 />
                 <LanguageSelector />
               </div>

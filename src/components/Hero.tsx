@@ -106,8 +106,8 @@ export default function Hero() {
             size="xl"
             subtitle="Official Brand Mark"
             className="gap-6 md:gap-7"
-            frameClassName="h-36 w-36 md:h-40 md:w-40 lg:h-44 lg:w-44"
-            imageClassName="scale-[1.08] drop-shadow-[0_24px_56px_rgba(99,102,241,0.24)]"
+            frameClassName="h-[10.5rem] w-[10.5rem] md:h-[12rem] md:w-[12rem] lg:h-[13rem] lg:w-[13rem]"
+            imageClassName="drop-shadow-[0_24px_56px_rgba(99,102,241,0.24)]"
           />
         </motion.div>
 
