@@ -10,6 +10,8 @@ export default function Navbar() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const scrolledNavbarClassName =
+    'rounded-2xl border border-white/[0.02] bg-[linear-gradient(180deg,rgba(12,16,30,0.9)_0%,rgba(5,7,16,0.82)_100%)] backdrop-blur-xl shadow-2xl shadow-black/70';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -29,7 +31,7 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className={`flex items-center justify-between px-6 py-3 transition-all duration-700 ${scrolled ? 'cinematic-glass rounded-2xl border-white/[0.05] shadow-2xl shadow-black/80' : ''}`}>
+        <div className={`flex items-center justify-between px-6 py-3 transition-all duration-700 ${scrolled ? scrolledNavbarClassName : ''}`}>
           
           <div className="flex items-center gap-10 lg:gap-16">
             <a href="/" className="flex items-center gap-3 group">
