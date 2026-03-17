@@ -99,7 +99,7 @@ export default function Hero() {
           className="text-[11vw] md:text-[9vw] lg:text-[8vw] font-black leading-[0.8] tracking-tightest uppercase mb-8"
         >
           {t('hero.titleMain')} <br/>
-          <span className="headline-accent headline-accent-clean text-premium-gradient text-shadow-premium">{t('hero.titleAccent')}</span>
+          <span className="headline-accent headline-accent-solid">{t('hero.titleAccent')}</span>
         </motion.h1>
 
         {/* SUBHEADLINE */}
