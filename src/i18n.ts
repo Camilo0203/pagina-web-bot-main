@@ -372,7 +372,23 @@ const resources = {
   }
 };
 
-const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
+function normalizeDocumentLanguage(language?: string): string {
+  return language?.startsWith('es') ? 'es' : 'en';
+}
+
+function applyDocumentLanguage(language?: string) {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const normalizedLanguage = normalizeDocumentLanguage(language);
+  document.documentElement.lang = normalizedLanguage;
+  document.documentElement.setAttribute('xml:lang', normalizedLanguage);
+}
+
+const savedLanguage = typeof window !== 'undefined'
+  ? localStorage.getItem('i18nextLng') || 'en'
+  : 'en';
 
 i18n
   .use(initReactI18next)
@@ -386,8 +402,14 @@ i18n
   });
 
 i18n.on('languageChanged', (lng) => {
-  localStorage.setItem('i18nextLng', lng);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('i18nextLng', lng);
+  }
+
+  applyDocumentLanguage(lng);
 });
+
+applyDocumentLanguage(i18n.resolvedLanguage || i18n.language || savedLanguage);
 
 export default i18n;
 

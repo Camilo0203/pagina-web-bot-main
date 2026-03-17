@@ -67,6 +67,8 @@ function SidebarContent({
   isSyncing,
   closeOnNavigate,
 }: SidebarProps) {
+  const dashboardBrandLabel = `${config.botName} Dashboard`;
+
   return (
     <motion.div
       variants={fadeUpVariants}
@@ -83,7 +85,7 @@ function SidebarContent({
             {config.botName}
           </p>
           <p className="mt-1 text-[1.4rem] font-bold tracking-[-0.04em] text-white">
-            Dashboard
+            {dashboardBrandLabel}
           </p>
         </div>
       </Link>
@@ -221,6 +223,7 @@ export default function DashboardShell({
   const { theme, setTheme } = useTheme();
   const userAvatarUrl = resolveUserAvatarUrl(user);
   const guildIconUrl = selectedGuild ? resolveGuildIconUrl(selectedGuild) : null;
+  const dashboardBrandLabel = `${config.botName} Dashboard`;
 
   const statusPills = [
     {
@@ -302,7 +305,7 @@ export default function DashboardShell({
                 </div>
 
                 <div className="min-w-0">
-                  <p className="dashboard-panel-label">Operacion del servidor</p>
+                  <p className="dashboard-panel-label">{dashboardBrandLabel}</p>
                   <h1 className="mt-2 break-words text-[1.85rem] font-bold tracking-[-0.05em] text-slate-950 dark:text-white lg:text-[2rem]">
                     {selectedGuild?.guildName ?? 'Sin seleccion'}
                   </h1>

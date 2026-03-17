@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronRight, Sparkles, Activity } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
   const [videoReady, setVideoReady] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const inviteUrl = getDiscordInviteUrl();
   const dashboardUrl = getDashboardUrl();
   const instantReveal = { initial: false, animate: { opacity: 1 }, transition: { duration: 0.01 } };
@@ -26,6 +27,66 @@ export default function Hero() {
     ? instantReveal
     : { initial: { opacity: 0, y: 15 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.8, delay: 0.4 } };
 
+  useEffect(() => {
+    if (shouldReduceMotion) {
+      setVideoReady(false);
+      setVideoFailed(false);
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const markReady = () => {
+      if (!isMounted) {
+        return;
+      }
+
+      setVideoReady(true);
+      setVideoFailed(false);
+    };
+
+    const markFailed = () => {
+      if (!isMounted) {
+        return;
+      }
+
+      setVideoReady(false);
+      setVideoFailed(true);
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      markReady();
+    }
+
+    const playPromise = video.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+          markReady();
+          return;
+        }
+
+        markFailed();
+      });
+    }
+
+    video.addEventListener('canplay', markReady);
+    video.addEventListener('playing', markReady);
+    video.addEventListener('error', markFailed);
+
+    return () => {
+      isMounted = false;
+      video.removeEventListener('canplay', markReady);
+      video.removeEventListener('playing', markReady);
+      video.removeEventListener('error', markFailed);
+    };
+  }, [shouldReduceMotion]);
+
   return (
     <section id="top" className="relative min-h-[85dvh] flex items-center justify-center pt-32 pb-12 overflow-hidden bg-[#000]">
       {/* 1. BACKDROP LAYER */}
@@ -38,28 +99,31 @@ export default function Hero() {
           aria-hidden="true"
         />
 
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          poster="/hero-poster.jpg"
-          aria-hidden="true"
-          onLoadedData={() => {
-            setVideoReady(true);
-            setVideoFailed(false);
-          }}
-          onError={() => {
-            setVideoReady(false);
-            setVideoFailed(true);
-          }}
-          className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
-            videoFailed ? 'opacity-0' : 'opacity-100'
-          }`}
-        >
-          <source src="/videos/ton618-hero.mp4" type="video/mp4" />
-        </video>
+        {!shouldReduceMotion && (
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            poster="/hero-poster.jpg"
+            aria-hidden="true"
+            onLoadedData={() => {
+              setVideoReady(true);
+              setVideoFailed(false);
+            }}
+            onError={() => {
+              setVideoReady(false);
+              setVideoFailed(true);
+            }}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
+              videoReady && !videoFailed ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <source src="/videos/ton618-hero.mp4" type="video/mp4" />
+          </video>
+        )}
 
         <div
           className={`absolute inset-0 ${

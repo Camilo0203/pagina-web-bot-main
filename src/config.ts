@@ -1,15 +1,25 @@
-const siteUrl = (import.meta.env.VITE_SITE_URL || '').replace(/\/+$/, '');
+import {
+  appleTouchIconPath,
+  buildAbsoluteUrl,
+  defaultMetaDescription,
+  defaultMetaTitle,
+  faviconPath,
+  manifestPath,
+  normalizeSiteUrl,
+  socialImagePath,
+} from './siteMetadata';
+
+const siteUrl = normalizeSiteUrl(import.meta.env.VITE_SITE_URL);
 
 export const config = {
   botName: 'TON618',
   brandMarkPath: '/logo-ton618-transparent.png',
-  socialImagePath: '/social-preview.png',
-  faviconPath: '/favicon.png',
-  appleTouchIconPath: '/apple-touch-icon.png',
-  manifestPath: '/site.webmanifest',
-  defaultMetaTitle: 'TON618 | Premium Discord Control',
-  defaultMetaDescription:
-    'TON618 centraliza moderacion, automatizacion y control visual de tu bot con una identidad consistente y oscura.',
+  socialImagePath,
+  faviconPath,
+  appleTouchIconPath,
+  manifestPath,
+  defaultMetaTitle,
+  defaultMetaDescription,
   discordClientId: import.meta.env.VITE_DISCORD_CLIENT_ID || '',
   discordPermissions: import.meta.env.VITE_DISCORD_PERMISSIONS || '8',
   supportServerUrl: import.meta.env.VITE_SUPPORT_SERVER_URL || '',
@@ -72,17 +82,8 @@ export function getCanonicalUrl(pathname = '/'): string {
 }
 
 export function getAbsoluteAssetUrl(path: string): string {
-  if (/^https?:\/\//i.test(path)) {
-    return path;
-  }
-
   const origin = getSiteOrigin();
-
-  if (!origin) {
-    return path;
-  }
-
-  return `${origin}${path.startsWith('/') ? path : `/${path}`}`;
+  return buildAbsoluteUrl(origin, path);
 }
 
 export function getDiscordLoginUrl(): string {

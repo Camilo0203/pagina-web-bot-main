@@ -20,6 +20,28 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const loginUrl = getDiscordLoginUrl();
 
   const navLinks = [
@@ -30,9 +52,9 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className={`flex items-center justify-between overflow-visible px-6 py-3 rounded-[1.75rem] transition-all duration-500 ${navbarClassName}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-[90] transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}>
+      <div className="relative max-w-7xl mx-auto px-6">
+        <div className={`relative flex items-center justify-between overflow-visible px-6 py-3 rounded-[1.75rem] transition-all duration-500 ${navbarClassName}`}>
           
           <div className="flex items-center gap-10 lg:gap-16">
             <a href="/" className="flex items-center gap-3 group">
@@ -93,7 +115,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             id="mobile-navigation"
-            className="lg:hidden absolute top-full left-0 right-0 px-6 pt-2 overflow-hidden"
+            className="lg:hidden absolute top-full left-0 right-0 z-[95] px-6 pt-2 overflow-hidden"
           >
             <div className="cinematic-glass rounded-2xl border-white/5 p-8 flex flex-col gap-8 shadow-3xl shadow-black">
               <div className="flex items-center justify-between mb-4">

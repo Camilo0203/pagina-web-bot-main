@@ -1,13 +1,22 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import {
+  appleTouchIconPath,
+  buildAbsoluteUrl,
+  defaultMetaDescription,
+  defaultMetaTitle,
+  faviconPath,
+  manifestPath,
+  normalizeSiteUrl,
+  socialImagePath,
+} from './src/siteMetadata';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const siteUrl = (env.VITE_SITE_URL || '').replace(/\/+$/, '');
+  const siteUrl = normalizeSiteUrl(env.VITE_SITE_URL);
   const siteRootUrl = siteUrl ? `${siteUrl}/` : '/';
-  const socialImagePath = '/social-preview.png';
-  const socialImageUrl = siteUrl ? `${siteUrl}${socialImagePath}` : socialImagePath;
+  const socialImageUrl = buildAbsoluteUrl(siteUrl, socialImagePath);
 
   return {
     plugins: [
@@ -16,6 +25,11 @@ export default defineConfig(({ mode }) => {
         name: 'ton618-seo-assets',
         transformIndexHtml(html) {
           return html
+            .replaceAll('__DEFAULT_META_TITLE__', defaultMetaTitle)
+            .replaceAll('__DEFAULT_META_DESCRIPTION__', defaultMetaDescription)
+            .replaceAll('__FAVICON_PATH__', faviconPath)
+            .replaceAll('__APPLE_TOUCH_ICON_PATH__', appleTouchIconPath)
+            .replaceAll('__MANIFEST_PATH__', manifestPath)
             .replaceAll('__SITE_URL__', siteUrl)
             .replaceAll('__SITE_ROOT_URL__', siteRootUrl)
             .replaceAll('__SOCIAL_IMAGE_URL__', socialImageUrl);

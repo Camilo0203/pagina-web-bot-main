@@ -19,6 +19,7 @@ export default function AuthCallbackPage() {
 
   const authError = searchParams.get('error_description') || searchParams.get('error');
   const code = searchParams.get('code');
+  const dashboardBrandLabel = `${config.botName} Dashboard`;
 
   useEffect(() => {
     const attemptKey = authError ? `error:${authError}` : code ? `code:${code}` : 'missing-code';
@@ -86,14 +87,14 @@ export default function AuthCallbackPage() {
   return (
     <main className="dashboard-shell flex min-h-screen items-center justify-center px-4 text-white">
       <Helmet>
-        <title>{config.botName} | Dashboard Auth</title>
+        <title>{dashboardBrandLabel} | Auth</title>
       </Helmet>
       <div className="dashboard-surface w-full max-w-xl p-8">
         <div className="flex items-center gap-4">
-          <Logo size="lg" subtitle="TON618" />
+          <Logo size="lg" subtitle={config.botName} />
           <div>
             <p className="dashboard-panel-label">Discord OAuth</p>
-            <h1 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">Acceso al dashboard de TON618</h1>
+            <h1 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">Acceso a {dashboardBrandLabel}</h1>
           </div>
         </div>
 
