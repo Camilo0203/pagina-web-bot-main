@@ -96,6 +96,7 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
   const [noteDraft, setNoteDraft] = useState('');
   const [tagDraft, setTagDraft] = useState('');
   const [statusDraft, setStatusDraft] = useState<TicketWorkflowStatus>('triage');
+  const [priorityDraft, setPriorityDraft] = useState<TicketInboxItem['priority']>('normal');
   const summary = useMemo(() => getTicketWorkspaceSummary(workspace.inbox), [workspace.inbox]);
 
   const filteredInbox = useMemo(() => {
@@ -131,7 +132,15 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
 
   const selectedTicket = useMemo(() => filteredInbox.find((ticket) => ticket.ticketId === selectedTicketId) ?? null, [filteredInbox, selectedTicketId]);
   useEffect(() => {
-    if (selectedTicket) setStatusDraft(selectedTicket.workflowStatus);
+    if (!selectedTicket) {
+      return;
+    }
+
+    setStatusDraft(selectedTicket.workflowStatus);
+    setPriorityDraft(selectedTicket.priority);
+    setReplyDraft('');
+    setNoteDraft('');
+    setTagDraft('');
   }, [selectedTicket]);
   const timeline = useMemo(() => getTicketEventsForTicket(workspace.events, selectedTicket?.ticketId ?? null), [selectedTicket?.ticketId, workspace.events]);
   const customerProfile = useMemo(() => getCustomerProfileForTicket(workspace.inbox, selectedTicket), [selectedTicket, workspace.inbox]);
@@ -219,7 +228,8 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
               <PanelCard eyebrow="Ficha del ticket" title={`#${selectedTicket.ticketId} - ${selectedTicket.categoryLabel}`} description={selectedTicket.subject || 'Ticket sin asunto explicito'} variant="highlight" stickyActions actions={
                 <div className="flex flex-wrap gap-2">
                   <button type="button" onClick={() => runAction('claim')} disabled={isMutating || Boolean(selectedTicket.claimedBy)} className="dashboard-primary-button"><UserRoundCheck className="h-4 w-4" />Reclamar</button>
-                  <button type="button" onClick={() => runAction('assign_self')} disabled={isMutating} className="dashboard-secondary-button">Asignarme</button>
+                  <button type="button" onClick={() => runAction('assign_self')} disabled={isMutating || Boolean(selectedTicket.assigneeId)} className="dashboard-secondary-button">Asignarme</button>
+                  <button type="button" onClick={() => runAction('unassign')} disabled={isMutating || !selectedTicket.assigneeId} className="dashboard-secondary-button">Desasignar</button>
                   <button type="button" onClick={() => runAction('unclaim')} disabled={isMutating || !selectedTicket.claimedBy} className="dashboard-secondary-button">Liberar</button>
                 </div>
               }>
@@ -271,6 +281,12 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                         <button type="button" onClick={() => runAction('set_status', { workflowStatus: statusDraft })} disabled={isMutating} className="dashboard-primary-button"><Clock3 className="h-4 w-4" />Aplicar estado</button>
                         <button type="button" onClick={() => runAction('reopen')} disabled={isMutating || selectedTicket.isOpen} className="dashboard-secondary-button">Reabrir</button>
                         <button type="button" onClick={() => runAction('close', { reason: 'Cerrado desde la dashboard' })} disabled={isMutating || !selectedTicket.isOpen} className="dashboard-secondary-button">Cerrar</button>
+                      </div>
+                      <div className="dashboard-grid-fit-standard mt-4 items-start">
+                        <select value={priorityDraft} onChange={(event) => setPriorityDraft(event.target.value as TicketInboxItem['priority'])} className="dashboard-form-field">
+                          {priorityOptions.filter((option) => option.value !== 'all').map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                        </select>
+                        <button type="button" onClick={() => runAction('set_priority', { priority: priorityDraft })} disabled={isMutating || priorityDraft === selectedTicket.priority} className="dashboard-secondary-button">Actualizar prioridad</button>
                       </div>
                     </div>
 

@@ -27,8 +27,7 @@ export function useDashboardAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
-      void queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth });
-      void queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     });
 
     return () => {
@@ -91,8 +90,8 @@ export function useSignOutDashboard() {
   return useMutation({
     mutationFn: signOutDashboard,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth });
-      await queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds });
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.removeQueries({ queryKey: ['dashboard', 'snapshot'] });
     },
   });
 }
@@ -103,7 +102,7 @@ export function useExchangeDashboardCode() {
   return useMutation({
     mutationFn: exchangeDashboardCodeForSession,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth });
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -115,6 +114,7 @@ export function useSyncDashboardGuilds() {
     mutationFn: syncDiscordGuilds,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds });
+      queryClient.removeQueries({ queryKey: ['dashboard', 'snapshot'] });
     },
   });
 }

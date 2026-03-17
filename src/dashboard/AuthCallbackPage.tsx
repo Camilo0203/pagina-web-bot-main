@@ -5,7 +5,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AlertOctagon, CheckCircle2, Loader2 } from 'lucide-react';
 import { config } from '../config';
 import { exchangeDashboardCodeForSession, syncDiscordGuilds } from './api';
-import { dashboardQueryKeys } from './constants';
 import Logo from '../components/Logo';
 
 export default function AuthCallbackPage() {
@@ -29,6 +28,7 @@ export default function AuthCallbackPage() {
 
     processedAttemptRef.current = attemptKey;
     let isCancelled = false;
+    let redirectTimeout: number | null = null;
 
     async function completeAuthFlow() {
       if (authError) {
@@ -53,16 +53,13 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth }),
-        queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
 
       const firstGuildId = syncResult.guilds[0]?.guildId;
       setStatusText('Listo. Redirigiendo al panel...');
       setIsCompleted(true);
 
-      window.setTimeout(() => {
+      redirectTimeout = window.setTimeout(() => {
         navigate(firstGuildId ? `/dashboard?guild=${encodeURIComponent(firstGuildId)}` : '/dashboard', {
           replace: true,
         });
@@ -81,6 +78,9 @@ export default function AuthCallbackPage() {
 
     return () => {
       isCancelled = true;
+      if (redirectTimeout !== null) {
+        window.clearTimeout(redirectTimeout);
+      }
     };
   }, [authError, code, navigate, queryClient]);
 
