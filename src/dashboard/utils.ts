@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import { dashboardSections, dashboardTaskGroups } from './constants';
 import {
   defaultDashboardPreferences,
   defaultGeneralSettings,
@@ -25,6 +26,7 @@ import {
 import type {
   CommandRateLimitOverride,
   ConfigMutationSectionId,
+  DashboardSectionId,
   DashboardGuild,
   DashboardSessionState,
   GuildBackupManifest,
@@ -40,6 +42,411 @@ import type {
   TicketSlaState,
   TicketWorkflowStatus,
 } from './types';
+
+export type DashboardTaskStatus = 'not_configured' | 'basic' | 'active' | 'needs_attention';
+
+export interface DashboardSectionState {
+  sectionId: DashboardSectionId;
+  label: string;
+  description: string;
+  groupId: string;
+  status: DashboardTaskStatus;
+  progress: number;
+  summary: string;
+  messages: string[];
+}
+
+export interface DashboardChecklistStep {
+  id: string;
+  label: string;
+  description: string;
+  sectionId: DashboardSectionId;
+  status: DashboardTaskStatus;
+  complete: boolean;
+  summary: string;
+}
+
+export interface DashboardQuickAction {
+  id: string;
+  label: string;
+  description: string;
+  sectionId: DashboardSectionId;
+  priority: number;
+}
+
+function clampRatio(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, value));
+}
+
+function summarizeStatus(status: DashboardTaskStatus): string {
+  switch (status) {
+    case 'active':
+      return 'Activo';
+    case 'basic':
+      return 'Basico';
+    case 'needs_attention':
+      return 'Requiere revision';
+    default:
+      return 'No configurado';
+  }
+}
+
+function getTaskGroupId(sectionId: DashboardSectionId): string {
+  return (
+    dashboardTaskGroups.find((group) => group.sections.includes(sectionId))?.id
+    ?? 'system'
+  );
+}
+
+function buildSectionState(
+  sectionId: DashboardSectionId,
+  progress: number,
+  messages: string[],
+): DashboardSectionState {
+  const meta = dashboardSections.find((section) => section.id === sectionId);
+  const normalizedProgress = clampRatio(progress);
+  const status: DashboardTaskStatus = messages.length
+    ? (normalizedProgress >= 0.75 ? 'needs_attention' : normalizedProgress > 0 ? 'basic' : 'not_configured')
+    : normalizedProgress >= 0.75
+      ? 'active'
+      : normalizedProgress > 0
+        ? 'basic'
+        : 'not_configured';
+
+  return {
+    sectionId,
+    label: meta?.label ?? sectionId,
+    description: meta?.description ?? '',
+    groupId: getTaskGroupId(sectionId),
+    status,
+    progress: normalizedProgress,
+    summary: messages[0] ?? summarizeStatus(status),
+    messages,
+  };
+}
+
+export function getDashboardSectionStates(
+  config: GuildConfig,
+  guild: DashboardGuild,
+  syncStatus: GuildSyncStatus | null,
+  backups: GuildBackupManifest[],
+  mutations: GuildConfigMutation[],
+): DashboardSectionState[] {
+  const channels = config.serverRolesChannelsSettings;
+  const tickets = config.ticketsSettings;
+  const verification = config.verificationSettings;
+  const welcome = config.welcomeSettings;
+  const suggestions = config.suggestionSettings;
+  const modlogs = config.modlogSettings;
+  const commands = config.commandSettings;
+  const rolesChannelsChecks = [
+    Boolean(channels.dashboardChannelId),
+    Boolean(channels.ticketPanelChannelId),
+    Boolean(channels.logsChannelId),
+    Boolean(channels.supportRoleId),
+    Boolean(channels.adminRoleId),
+  ];
+  const rolesChannelsMessages = [
+    !channels.ticketPanelChannelId ? 'Falta elegir el canal donde se publicara el panel de tickets.' : null,
+    !channels.supportRoleId ? 'Aun no has seleccionado un rol de staff.' : null,
+    !channels.adminRoleId ? 'Falta definir el rol administrador del bot.' : null,
+    !channels.logsChannelId ? 'Todavia no existe un canal central para registros del bot.' : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const ticketChecks = [
+    Boolean(channels.ticketPanelChannelId),
+    tickets.maxTickets > 0,
+    tickets.slaMinutes > 0,
+    !tickets.dailySlaReportEnabled || Boolean(tickets.dailySlaReportChannelId),
+    !tickets.slaEscalationEnabled || Boolean(tickets.slaEscalationRoleId || tickets.slaEscalationChannelId),
+  ];
+  const ticketMessages = [
+    !channels.ticketPanelChannelId ? 'Falta elegir el canal de tickets.' : null,
+    tickets.slaEscalationEnabled && !tickets.slaEscalationRoleId && !tickets.slaEscalationChannelId
+      ? 'El escalado de SLA esta activo pero no tiene rol ni canal de aviso.'
+      : null,
+    tickets.dailySlaReportEnabled && !tickets.dailySlaReportChannelId
+      ? 'El reporte diario esta activo pero no tiene canal asignado.'
+      : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const verificationChecks = [
+    !verification.enabled || Boolean(verification.channelId),
+    !verification.enabled || Boolean(verification.verifiedRoleId),
+    !verification.enabled || verification.panelTitle.trim().length > 0,
+  ];
+  const verificationMessages = [
+    verification.enabled && !verification.channelId ? 'La verificacion esta activa pero no tiene canal asignado.' : null,
+    verification.enabled && !verification.verifiedRoleId ? 'La verificacion necesita un rol para miembros verificados.' : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const welcomeChecks = [
+    !welcome.welcomeEnabled || Boolean(welcome.welcomeChannelId),
+    !welcome.welcomeEnabled || welcome.welcomeMessage.trim().length > 0,
+    !welcome.goodbyeEnabled || Boolean(welcome.goodbyeChannelId),
+  ];
+  const welcomeMessages = [
+    welcome.welcomeEnabled && !welcome.welcomeChannelId ? 'La bienvenida esta activa pero no tiene canal asignado.' : null,
+    welcome.goodbyeEnabled && !welcome.goodbyeChannelId ? 'La despedida esta activa pero no tiene canal asignado.' : null,
+    welcome.welcomeEnabled && !welcome.welcomeAutoroleId ? 'Puedes completar la experiencia asignando un autorrol de entrada.' : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const suggestionChecks = [
+    !suggestions.enabled || Boolean(suggestions.channelId),
+    !suggestions.enabled || Boolean(suggestions.logChannelId),
+  ];
+  const suggestionMessages = [
+    suggestions.enabled && !suggestions.channelId ? 'Las sugerencias estan activas pero falta el canal principal.' : null,
+    suggestions.enabled && !suggestions.logChannelId ? 'Conviene definir un canal interno para revisar sugerencias.' : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const modlogChecks = [
+    !modlogs.enabled || Boolean(modlogs.channelId),
+    !modlogs.enabled || [
+      modlogs.logBans,
+      modlogs.logUnbans,
+      modlogs.logKicks,
+      modlogs.logMessageDelete,
+      modlogs.logMessageEdit,
+      modlogs.logJoins,
+      modlogs.logLeaves,
+    ].some(Boolean),
+  ];
+  const modlogMessages = [
+    modlogs.enabled && !modlogs.channelId ? 'El registro de moderacion esta activo pero no tiene canal.' : null,
+    modlogs.enabled && ![
+      modlogs.logBans,
+      modlogs.logUnbans,
+      modlogs.logKicks,
+      modlogs.logMessageDelete,
+      modlogs.logMessageEdit,
+      modlogs.logJoins,
+      modlogs.logLeaves,
+      modlogs.logVoice,
+      modlogs.logRoleAdd,
+      modlogs.logRoleRemove,
+      modlogs.logNickname,
+    ].some(Boolean)
+      ? 'El registro esta activado, pero no has marcado eventos para guardar.'
+      : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const commandChecks = [
+    config.generalSettings.commandMode === 'mention' || config.generalSettings.prefix.trim().length > 0,
+    Boolean(config.generalSettings.timezone),
+    !commands.rateLimitEnabled || commands.rateLimitMaxActions > 0,
+  ];
+  const commandMessages = [
+    config.generalSettings.commandMode === 'prefix' && !config.generalSettings.prefix.trim()
+      ? 'Elegiste comandos por prefijo, pero aun no definiste el prefijo.'
+      : null,
+    !config.generalSettings.timezone ? 'Falta elegir una zona horaria base para reportes y automatizaciones.' : null,
+  ].filter((message): message is string => Boolean(message));
+
+  const failedMutations = syncStatus?.failedMutations ?? mutations.filter((entry) => entry.status === 'failed').length;
+  const pendingMutations = syncStatus?.pendingMutations ?? mutations.filter((entry) => entry.status === 'pending').length;
+  const systemChecks = [
+    guild.botInstalled,
+    syncStatus?.bridgeStatus !== 'error',
+    backups.length > 0,
+    failedMutations === 0,
+  ];
+  const systemMessages = [
+    !guild.botInstalled ? 'El bot todavia no esta instalado en este servidor.' : null,
+    syncStatus?.bridgeStatus === 'error' ? 'El bot esta conectado, pero la sincronizacion reporta errores.' : null,
+    syncStatus?.bridgeStatus === 'degraded' ? 'La sincronizacion funciona, pero llega con retraso.' : null,
+    backups.length === 0 ? 'Todavia no existe un backup inicial.' : null,
+    failedMutations > 0 ? `Hay ${failedMutations} cambios que no pudo aplicar el bot.` : null,
+    pendingMutations > 0 ? `Hay ${pendingMutations} cambios pendientes por aplicar.` : null,
+  ].filter((message): message is string => Boolean(message));
+
+  return [
+    buildSectionState('general', [
+      Boolean(config.generalSettings.language),
+      Boolean(config.generalSettings.timezone),
+      config.generalSettings.commandMode === 'mention' || Boolean(config.generalSettings.prefix.trim()),
+    ].filter(Boolean).length / 3, []),
+    buildSectionState('server_roles', rolesChannelsChecks.filter(Boolean).length / rolesChannelsChecks.length, rolesChannelsMessages),
+    buildSectionState('tickets', ticketChecks.filter(Boolean).length / ticketChecks.length, ticketMessages),
+    buildSectionState('verification', verificationChecks.filter(Boolean).length / verificationChecks.length, verificationMessages),
+    buildSectionState('welcome', welcomeChecks.filter(Boolean).length / welcomeChecks.length, welcomeMessages),
+    buildSectionState('suggestions', suggestionChecks.filter(Boolean).length / suggestionChecks.length, suggestionMessages),
+    buildSectionState('modlogs', modlogChecks.filter(Boolean).length / modlogChecks.length, modlogMessages),
+    buildSectionState('commands', commandChecks.filter(Boolean).length / commandChecks.length, commandMessages),
+    buildSectionState('system', systemChecks.filter(Boolean).length / systemChecks.length, systemMessages),
+    buildSectionState('inbox', tickets.maxTickets > 0 ? 1 : 0, ticketMessages.slice(0, 1)),
+    buildSectionState('activity', modlogs.enabled || failedMutations > 0 || pendingMutations > 0 ? 1 : 0.5, []),
+    buildSectionState('analytics', 1, []),
+    buildSectionState('overview', 1, []),
+  ];
+}
+
+export function getDashboardChecklist(
+  guild: DashboardGuild,
+  sectionStates: DashboardSectionState[],
+  backups: GuildBackupManifest[],
+  syncStatus: GuildSyncStatus | null,
+): DashboardChecklistStep[] {
+  const findState = (sectionId: DashboardSectionId) =>
+    sectionStates.find((section) => section.sectionId === sectionId);
+
+  const general = findState('general');
+  const roles = findState('server_roles');
+  const verification = findState('verification');
+  const welcome = findState('welcome');
+  const tickets = findState('tickets');
+  const modlogs = findState('modlogs');
+  const system = findState('system');
+
+  return [
+    {
+      id: 'select-server',
+      label: 'Seleccionar servidor',
+      description: 'Confirma el servidor donde quieres trabajar y verifica que el bot este dentro.',
+      sectionId: 'overview',
+      complete: Boolean(guild.guildId),
+      status: guild.botInstalled ? 'active' : 'basic',
+      summary: guild.botInstalled ? 'Servidor listo para configurar.' : 'Servidor elegido, pero el bot aun no esta instalado.',
+    },
+    {
+      id: 'language-and-commands',
+      label: 'Configurar idioma y comandos',
+      description: 'Define idioma, prefijo o mencion y zona horaria del servidor.',
+      sectionId: 'general',
+      complete: Boolean(general && general.progress >= 1),
+      status: general?.status ?? 'not_configured',
+      summary: general?.summary ?? 'Falta revisar la configuracion basica.',
+    },
+    {
+      id: 'roles-and-channels',
+      label: 'Vincular canales y roles esenciales',
+      description: 'Asigna staff, admin y los canales que el bot necesita para operar.',
+      sectionId: 'server_roles',
+      complete: Boolean(roles && roles.progress >= 0.8 && roles.messages.length === 0),
+      status: roles?.status ?? 'not_configured',
+      summary: roles?.summary ?? 'Faltan roles y canales base.',
+    },
+    {
+      id: 'member-experience',
+      label: 'Activar bienvenida o verificacion',
+      description: 'Prepara la entrada de nuevos miembros con mensajes o control de acceso.',
+      sectionId: welcome?.status === 'active' ? 'welcome' : 'verification',
+      complete: welcome?.status === 'active' || verification?.status === 'active',
+      status: welcome?.status === 'active' || verification?.status === 'active'
+        ? 'active'
+        : (welcome?.status === 'basic' || verification?.status === 'basic' ? 'basic' : 'not_configured'),
+      summary: welcome?.status === 'active'
+        ? 'La bienvenida ya esta funcionando.'
+        : verification?.status === 'active'
+          ? 'La verificacion de acceso ya esta funcionando.'
+          : 'Activa al menos una experiencia de acceso para nuevos miembros.',
+    },
+    {
+      id: 'tickets',
+      label: 'Configurar tickets',
+      description: 'Elige canal, limites y tiempos de atencion para el sistema de soporte.',
+      sectionId: 'tickets',
+      complete: Boolean(tickets && tickets.progress >= 0.8 && tickets.messages.length === 0),
+      status: tickets?.status ?? 'not_configured',
+      summary: tickets?.summary ?? 'Falta preparar el sistema de tickets.',
+    },
+    {
+      id: 'moderation',
+      label: 'Activar logs y moderacion',
+      description: 'Deja trazabilidad del staff y define el canal de registro.',
+      sectionId: 'modlogs',
+      complete: Boolean(modlogs?.status === 'active'),
+      status: modlogs?.status ?? 'not_configured',
+      summary: modlogs?.summary ?? 'Todavia no hay un registro claro de moderacion.',
+    },
+    {
+      id: 'backup',
+      label: 'Crear backup inicial',
+      description: 'Genera una copia base del estado del bot para restauracion futura.',
+      sectionId: 'system',
+      complete: backups.length > 0,
+      status: backups.length > 0 ? 'active' : 'not_configured',
+      summary: backups.length > 0 ? `Backup disponible desde ${formatRelativeTime(backups[0]?.createdAt ?? null)}.` : 'Aun no existe un backup inicial.',
+    },
+    {
+      id: 'sync',
+      label: 'Confirmar sincronizacion',
+      description: 'Verifica que el bot este conectado y aplicando cambios sin errores.',
+      sectionId: 'system',
+      complete: syncStatus?.bridgeStatus === 'healthy',
+      status: system?.status ?? 'not_configured',
+      summary: system?.summary ?? 'Revisa el estado tecnico del bot.',
+    },
+  ];
+}
+
+export function getDashboardQuickActions(
+  sectionStates: DashboardSectionState[],
+  checklist: DashboardChecklistStep[],
+  syncStatus: GuildSyncStatus | null,
+): DashboardQuickAction[] {
+  const actions: DashboardQuickAction[] = [];
+  const findState = (sectionId: DashboardSectionId) =>
+    sectionStates.find((section) => section.sectionId === sectionId);
+
+  if (findState('server_roles')?.messages.length) {
+    actions.push({
+      id: 'roles-channels',
+      label: 'Completar canales y roles',
+      description: findState('server_roles')?.messages[0] ?? 'Revisa staff, admin y canales base.',
+      sectionId: 'server_roles',
+      priority: 100,
+    });
+  }
+
+  if (findState('tickets')?.status !== 'active') {
+    actions.push({
+      id: 'activate-tickets',
+      label: 'Activar sistema de tickets',
+      description: findState('tickets')?.summary ?? 'Configura el canal y las reglas de soporte.',
+      sectionId: 'tickets',
+      priority: 95,
+    });
+  }
+
+  if (syncStatus?.bridgeStatus !== 'healthy') {
+    actions.push({
+      id: 'review-sync',
+      label: 'Revisar sincronizacion',
+      description: getHealthLabel(syncStatus) === 'Con errores'
+        ? 'El bot necesita revision tecnica para aplicar cambios.'
+        : 'Confirma que el bridge este al dia.',
+      sectionId: 'system',
+      priority: 98,
+    });
+  }
+
+  if (!checklist.find((step) => step.id === 'backup')?.complete) {
+    actions.push({
+      id: 'create-backup',
+      label: 'Crear backup inicial',
+      description: 'Genera una copia base antes de seguir ajustando el servidor.',
+      sectionId: 'system',
+      priority: 92,
+    });
+  }
+
+  if (findState('verification')?.status === 'not_configured' && findState('welcome')?.status === 'not_configured') {
+    actions.push({
+      id: 'member-experience',
+      label: 'Preparar acceso de miembros',
+      description: 'Activa bienvenida o verificacion para guiar a nuevos usuarios.',
+      sectionId: 'verification',
+      priority: 88,
+    });
+  }
+
+  return actions.sort((left, right) => right.priority - left.priority).slice(0, 4);
+}
 
 interface GuildConfigRow {
   guild_id?: string | null;

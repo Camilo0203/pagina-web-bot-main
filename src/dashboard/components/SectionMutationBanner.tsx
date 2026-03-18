@@ -60,7 +60,7 @@ export default function SectionMutationBanner({
         variants={fadeInVariants}
         initial="hidden"
         animate="show"
-        className="dashboard-surface-soft rounded-[1.45rem] p-4 text-sm text-slate-600 dark:text-slate-300"
+        className="dashboard-surface-soft rounded-[1.45rem] p-4 text-sm text-slate-700 dark:text-slate-300"
       >
         Sin cambios pendientes para esta seccion. El bot sigue mostrando el ultimo estado aplicado.
       </motion.div>

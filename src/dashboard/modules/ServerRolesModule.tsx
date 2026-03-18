@@ -108,38 +108,38 @@ export default function ServerRolesModule({
       className="grid gap-6 xl:grid-cols-2"
     >
       <PanelCard
-        eyebrow="Servidor y roles"
-        title="Canales base"
-        description="Define los canales que sostienen la operacion diaria del bot."
+        eyebrow="Roles y canales"
+        title="Base operativa del servidor"
+        description="Estos canales y roles permiten que tickets, logs y automatizaciones funcionen correctamente."
         actions={<SaveRequestButton isDirty={isDirty} isSaving={isSaving} />}
       >
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
 
         <div className="mt-8 grid gap-5 md:grid-cols-2">
-          <SelectField label="Canal dashboard" registerName="dashboardChannelId" options={channelOptions} register={register} />
-          <SelectField label="Canal panel tickets" registerName="ticketPanelChannelId" options={channelOptions} register={register} />
-          <SelectField label="Canal logs" registerName="logsChannelId" options={channelOptions} register={register} />
-          <SelectField label="Canal transcripts" registerName="transcriptChannelId" options={channelOptions} register={register} />
-          <SelectField label="Canal reporte semanal" registerName="weeklyReportChannelId" options={channelOptions} register={register} />
-          <SelectField label="Canal live members" registerName="liveMembersChannelId" options={voiceChannelOptions} register={register} />
-          <SelectField label="Canal live role" registerName="liveRoleChannelId" options={voiceChannelOptions} register={register} />
-          <SelectField label="Rol live count" registerName="liveRoleId" options={roleOptions} register={register} />
+          <SelectField label="Canal principal del panel" registerName="dashboardChannelId" options={channelOptions} register={register} />
+          <SelectField label="Canal del panel de tickets" registerName="ticketPanelChannelId" options={channelOptions} register={register} />
+          <SelectField label="Canal de registros generales" registerName="logsChannelId" options={channelOptions} register={register} />
+          <SelectField label="Canal de transcripciones" registerName="transcriptChannelId" options={channelOptions} register={register} />
+          <SelectField label="Canal de reporte semanal" registerName="weeklyReportChannelId" options={channelOptions} register={register} />
+          <SelectField label="Canal contador de miembros" registerName="liveMembersChannelId" options={voiceChannelOptions} register={register} />
+          <SelectField label="Canal contador por rol" registerName="liveRoleChannelId" options={voiceChannelOptions} register={register} />
+          <SelectField label="Rol mostrado en contador" registerName="liveRoleId" options={roleOptions} register={register} />
         </div>
       </PanelCard>
 
       <PanelCard
         eyebrow="Accesos"
-        title="Roles operativos"
-        description="Roles que el bot usa para tickets, dashboards y restricciones."
+        title="Roles esenciales"
+        description="El bot usa estos roles para dar acceso al staff, administrar funciones y controlar flujos."
       >
         <div className="grid gap-5 md:grid-cols-2">
-          <SelectField label="Rol staff" registerName="supportRoleId" options={roleOptions} register={register} />
-          <SelectField label="Rol admin" registerName="adminRoleId" options={roleOptions} register={register} />
-          <SelectField label="Rol minimo para tickets" registerName="verifyRoleId" options={roleOptions} register={register} />
+          <SelectField label="Rol del equipo de soporte" registerName="supportRoleId" options={roleOptions} register={register} />
+          <SelectField label="Rol administrador del bot" registerName="adminRoleId" options={roleOptions} register={register} />
+          <SelectField label="Rol minimo para crear tickets" registerName="verifyRoleId" options={roleOptions} register={register} />
         </div>
 
         <div className="mt-8 rounded-3xl border border-brand-200 bg-brand-50/70 p-4 text-sm text-brand-800 dark:border-brand-900/50 dark:bg-brand-950/20 dark:text-brand-200">
-          Todos los selectores salen del inventario sincronizado por el bot. Si falta algo, revisa el heartbeat o vuelve a sincronizar el inventario.
+          Todos los selectores salen del inventario sincronizado por el bot. Si falta un rol o canal, re-sincroniza el servidor antes de seguir.
         </div>
       </PanelCard>
     </form>

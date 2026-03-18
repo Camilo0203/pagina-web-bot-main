@@ -45,15 +45,15 @@ export default function ActivityModule({
                     <p className="break-words text-lg font-semibold text-slate-950 dark:text-white">
                       {mutation.section}
                     </p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                       {summarizeMutationPayload(mutation.requestedPayload)}
                     </p>
                   </div>
-                  <div className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-300">
+                  <div className="dashboard-status-pill-compact dashboard-neutral-pill">
                     {mutation.status}
                   </div>
                 </div>
-                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-400">
+                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-500">
                   Solicitud {formatDateTime(mutation.requestedAt)}
                 </p>
                 {mutation.errorMessage ? (
@@ -82,13 +82,13 @@ export default function ActivityModule({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="break-words text-lg font-semibold text-slate-950 dark:text-white">{event.title}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{event.description}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{event.description}</p>
                   </div>
-                  <div className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-300">
+                  <div className="dashboard-status-pill-compact dashboard-neutral-pill">
                     {event.eventType}
                   </div>
                 </div>
-                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-400">{formatDateTime(event.createdAt)}</p>
+                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-500">{formatDateTime(event.createdAt)}</p>
               </article>
             ))
           ) : (

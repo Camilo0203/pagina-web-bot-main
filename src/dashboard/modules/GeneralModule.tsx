@@ -91,8 +91,8 @@ export default function GeneralModule({
     >
       <PanelCard
         eyebrow="General"
-        title="Identidad operativa del servidor"
-        description="Define idioma, modo de invocacion del bot y la experiencia principal del panel."
+        title="Configuracion esencial del servidor"
+        description="Define idioma, comandos y reglas base para que el bot quede entendible desde el primer minuto."
         actions={<SaveRequestButton isDirty={isDirty} isSaving={isSaving} />}
         variant="highlight"
         stickyActions
@@ -103,6 +103,9 @@ export default function GeneralModule({
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Idioma base
+            </span>
+            <span className="mb-2 block text-xs text-slate-500 dark:text-slate-400">
+              Este idioma se usa en mensajes, paneles y respuestas principales del bot.
             </span>
             <select
               {...register('generalSettings.language')}
@@ -116,6 +119,9 @@ export default function GeneralModule({
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Zona horaria
+            </span>
+            <span className="mb-2 block text-xs text-slate-500 dark:text-slate-400">
+              Afecta horarios visibles, reportes y automatizaciones programadas.
             </span>
             <input
               {...register('generalSettings.timezone')}
@@ -133,6 +139,9 @@ export default function GeneralModule({
             <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Modo de comandos
             </span>
+            <span className="mb-2 block text-xs text-slate-500 dark:text-slate-400">
+              Elige si el usuario invoca al bot por mencion o con un prefijo corto.
+            </span>
             <select
               {...register('generalSettings.commandMode')}
               className="dashboard-form-field"
@@ -145,6 +154,9 @@ export default function GeneralModule({
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
               Prefijo
+            </span>
+            <span className="mb-2 block text-xs text-slate-500 dark:text-slate-400">
+              Solo se usa si activas el modo por prefijo.
             </span>
             <input
               {...register('generalSettings.prefix')}
@@ -194,31 +206,31 @@ export default function GeneralModule({
 
       <PanelCard
         eyebrow="Panel"
-        title="Preferencias de trabajo"
-        description="Ajustes que cambian como se siente la dashboard para el staff."
+        title="Preferencias del equipo"
+        description="Ajustes de presentacion para que el staff entre directamente a la tarea que mas usa."
         variant="soft"
       >
         <div className="space-y-5">
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Modulo inicial
+              Pantalla inicial
             </span>
             <select
               {...register('dashboardPreferences.defaultSection')}
               className="dashboard-form-field"
             >
-              <option value="overview">Resumen</option>
-              <option value="inbox">Bandeja viva</option>
-              <option value="general">General</option>
-              <option value="server_roles">Servidor y roles</option>
-              <option value="tickets">Tickets y SLA</option>
-              <option value="verification">Verificacion</option>
+              <option value="overview">Inicio</option>
+              <option value="inbox">Bandeja de soporte</option>
+              <option value="general">Configuracion inicial</option>
+              <option value="server_roles">Roles y canales</option>
+              <option value="tickets">Tickets</option>
+              <option value="verification">Verificacion de acceso</option>
               <option value="welcome">Bienvenida</option>
-              <option value="suggestions">Sugerencias</option>
-              <option value="modlogs">Modlogs</option>
+              <option value="suggestions">Sugerencias de la comunidad</option>
+              <option value="modlogs">Registro de moderacion</option>
               <option value="commands">Comandos</option>
-              <option value="system">Sistema</option>
-              <option value="activity">Actividad</option>
+              <option value="system">Sistema del bot</option>
+              <option value="activity">Actividad reciente</option>
               <option value="analytics">Analitica</option>
             </select>
           </label>

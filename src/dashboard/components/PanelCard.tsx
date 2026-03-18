@@ -57,13 +57,13 @@ export default function PanelCard({
               </h2>
             ) : null}
             {description ? (
-              <p className="mt-2 max-w-3xl text-[0.96rem] leading-6 text-slate-600 dark:text-slate-300">
+              <p className="mt-2 max-w-3xl text-[0.96rem] leading-6 text-slate-700 dark:text-slate-300">
                 {description}
               </p>
             ) : null}
           </div>
           {actions ? (
-            <div className={`relative z-[1] flex flex-wrap items-center gap-3 ${stickyActions ? 'xl:sticky xl:top-0' : ''}`}>
+            <div className={`relative z-[1] flex max-w-full flex-wrap items-center gap-3 ${stickyActions ? 'xl:sticky xl:top-0' : ''}`}>
               {actions}
             </div>
           ) : null}

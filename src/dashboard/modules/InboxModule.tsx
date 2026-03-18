@@ -48,7 +48,7 @@ function getStatusTone(status: TicketWorkflowStatus) {
   if (status === 'resolved' || status === 'closed') return 'border-emerald-300/60 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-200';
   if (status === 'waiting_user') return 'border-sky-300/60 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/20 dark:text-sky-200';
   if (status === 'waiting_staff') return 'border-amber-300/60 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-200';
-  return 'border-slate-300/60 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-700 dark:text-slate-200';
+  return 'dashboard-neutral-pill';
 }
 
 function getSlaTone(state: TicketInboxItem['slaState']) {
@@ -171,7 +171,7 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
             <motion.article key={label} variants={fadeInVariants} className="dashboard-kpi-card min-w-0">
               <p className="dashboard-data-label">{label}</p>
               <p className="mt-3 text-3xl font-bold tracking-[-0.05em] text-slate-950 dark:text-white">{value}</p>
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{note}</p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{note}</p>
             </motion.article>
           ))}
         </motion.div>
@@ -196,12 +196,12 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
             {filteredInbox.map((ticket) => {
               const active = selectedTicket?.ticketId === ticket.ticketId;
               return (
-                <motion.button key={ticket.ticketId} type="button" variants={fadeInVariants} whileHover={{ y: -2 }} onClick={() => setSelectedTicketId(ticket.ticketId)} className={`dashboard-interactive-card w-full rounded-[1.55rem] border p-4 text-left ${active ? 'border-brand-300/55 bg-[linear-gradient(135deg,rgba(88,101,242,0.12),rgba(20,184,166,0.06))] shadow-[0_18px_40px_rgba(88,101,242,0.12)] dark:border-brand-700/60 dark:bg-brand-950/18' : 'border-slate-200/90 bg-white/80 hover:border-brand-200 hover:bg-white dark:border-surface-600 dark:bg-surface-700/70 dark:hover:border-brand-800'}`}>
+                <motion.button key={ticket.ticketId} type="button" variants={fadeInVariants} whileHover={{ y: -2 }} onClick={() => setSelectedTicketId(ticket.ticketId)} className={`dashboard-interactive-card w-full rounded-[1.55rem] border p-4 text-left ${active ? 'border-brand-300/55 bg-[linear-gradient(135deg,rgba(88,101,242,0.12),rgba(20,184,166,0.06))] shadow-[0_18px_40px_rgba(88,101,242,0.12)] dark:border-brand-700/60 dark:bg-brand-950/18' : 'dashboard-data-card hover:border-brand-200/80 hover:bg-white/95 dark:hover:border-brand-800'}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-500">Ticket #{ticket.ticketId}</p>
                       <p className="mt-2 break-words text-lg font-semibold text-slate-950 dark:text-white">{ticket.subject || ticket.categoryLabel}</p>
-                      <p className="mt-2 break-words text-sm text-slate-600 dark:text-slate-300">{ticket.userLabel ?? ticket.userId}</p>
+                      <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{ticket.userLabel ?? ticket.userId}</p>
                     </div>
                     <div className="flex min-w-[7rem] flex-col items-end gap-2">
                       <span className={`dashboard-status-pill ${getStatusTone(ticket.workflowStatus)}`}>{getTicketStatusLabel(ticket.workflowStatus)}</span>
@@ -209,11 +209,11 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                     </div>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="dashboard-status-pill-compact border-slate-200/80 bg-white/80 text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-200">{getTicketQueueLabel(ticket.queueType)}</span>
+                    <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getTicketQueueLabel(ticket.queueType)}</span>
                     <span className={`dashboard-status-pill-compact ${getPriorityTone(ticket.priority)}`}>Prioridad {getPriorityLabel(ticket.priority)}</span>
-                    <span className="dashboard-status-pill-compact border-slate-200/80 bg-white/80 text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-200">{ticket.claimedBy ? 'Reclamado' : 'Libre'}</span>
+                    <span className="dashboard-status-pill-compact dashboard-neutral-pill">{ticket.claimedBy ? 'Reclamado' : 'Libre'}</span>
                   </div>
-                  <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Ultima actividad {formatRelativeTime(ticket.lastActivityAt ?? ticket.updatedAt)}</p>
+                  <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">Ultima actividad {formatRelativeTime(ticket.lastActivityAt ?? ticket.updatedAt)}</p>
                 </motion.button>
               );
             })}
@@ -240,7 +240,7 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                       {[
                         ['Estado', getTicketStatusLabel(selectedTicket.workflowStatus), getStatusTone(selectedTicket.workflowStatus), selectedTicket.isOpen ? 'Caso abierto y operativo.' : 'Caso fuera de la cola activa.'],
                         ['SLA', getTicketSlaLabel(selectedTicket.slaState), getSlaTone(selectedTicket.slaState), `Objetivo ${formatMinutesLabel(selectedTicket.slaTargetMinutes)}`],
-                        ['Cola', getTicketQueueLabel(selectedTicket.queueType), 'border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-200', 'Carril operativo asignado a este ticket.'],
+                        ['Cola', getTicketQueueLabel(selectedTicket.queueType), 'dashboard-neutral-pill', 'Carril operativo asignado a este ticket.'],
                         ['Prioridad', getPriorityLabel(selectedTicket.priority), getPriorityTone(selectedTicket.priority), 'Nivel de atencion esperado para el caso.'],
                       ].map(([label, value, tone, note]) => (
                         <article key={label} className="dashboard-data-card min-w-0">
@@ -248,7 +248,7 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                           <div className="mt-3 flex flex-wrap gap-2">
                             <span className={`dashboard-status-pill ${tone}`}>{value}</span>
                           </div>
-                          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{note}</p>
+                          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{note}</p>
                         </article>
                       ))}
                     </div>
@@ -298,8 +298,8 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                         </div>
                         <div className="mt-4 flex flex-wrap gap-2">
                           {selectedTicket.tags.length ? selectedTicket.tags.map((tag) => (
-                            <button key={tag} type="button" onClick={() => runAction('remove_tag', { tag })} disabled={isMutating} className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 hover:border-rose-300 hover:text-rose-600 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-200">{tag}</button>
-                          )) : <span className="text-sm text-slate-500 dark:text-slate-400">Sin tags todavia.</span>}
+                            <button key={tag} type="button" onClick={() => runAction('remove_tag', { tag })} disabled={isMutating} className="dashboard-status-pill-compact dashboard-neutral-pill hover:border-rose-300 hover:text-rose-600">{tag}</button>
+                          )) : <span className="text-sm text-slate-600 dark:text-slate-400">Sin tags todavia.</span>}
                         </div>
                         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                           <input value={tagDraft} onChange={(event) => setTagDraft(event.target.value)} placeholder="Ej. vip, pago, bug" className="dashboard-form-field" />
@@ -329,7 +329,7 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                       <div className="mt-4 flex flex-wrap gap-2">
                         {workspace.macros.length ? workspace.macros.map((macro) => (
                           <button key={macro.macroId} type="button" onClick={() => runAction('post_macro', { macroId: macro.macroId })} disabled={isMutating} className="dashboard-secondary-button">{macro.label}</button>
-                        )) : <span className="text-sm text-slate-500 dark:text-slate-400">No hay macros configuradas para este guild.</span>}
+                        )) : <span className="text-sm text-slate-600 dark:text-slate-400">No hay macros configuradas para este guild.</span>}
                       </div>
                       <button type="button" onClick={() => runAction('reply_customer', { message: replyDraft.trim() })} disabled={isMutating || !replyDraft.trim()} className="dashboard-primary-button mt-4"><Send className="h-4 w-4" />Enviar respuesta</button>
                     </div>
@@ -352,8 +352,8 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                             </div>
                           </div>
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <span className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-200">{customerProfile.openTickets} abiertos</span>
-                            <span className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-200">{customerProfile.closedTickets} cerrados</span>
+                            <span className="dashboard-status-pill-compact dashboard-neutral-pill">{customerProfile.openTickets} abiertos</span>
+                            <span className="dashboard-status-pill-compact dashboard-neutral-pill">{customerProfile.closedTickets} cerrados</span>
                           </div>
                           <div className="mt-5 space-y-3">
                             {customerProfile.recentTickets.map((ticket) => (
@@ -361,11 +361,11 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="min-w-0">
                                     <p className="font-semibold text-slate-950 dark:text-white">#{ticket.ticketId}</p>
-                                    <p className="mt-2 break-words text-sm text-slate-600 dark:text-slate-300">{ticket.categoryLabel}</p>
+                                    <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{ticket.categoryLabel}</p>
                                   </div>
                                   <span className={`dashboard-status-pill-compact ${getStatusTone(ticket.workflowStatus)}`}>{getTicketStatusLabel(ticket.workflowStatus)}</span>
                                 </div>
-                                <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-400">{formatDateTime(ticket.createdAt)}</p>
+                                <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">{formatDateTime(ticket.createdAt)}</p>
                               </article>
                             ))}
                           </div>
@@ -382,11 +382,11 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="break-words font-semibold text-slate-950 dark:text-white">{event.title}</p>
-                                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{event.description}</p>
+                                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{event.description}</p>
                               </div>
-                              <span className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-700 dark:text-slate-200">{getVisibilityLabel(event.visibility)}</span>
+                              <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getVisibilityLabel(event.visibility)}</span>
                             </div>
-                            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">{event.actorLabel ? `${event.actorLabel} - ` : ''}{formatDateTime(event.createdAt)}</p>
+                            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-500">{event.actorLabel ? `${event.actorLabel} - ` : ''}{formatDateTime(event.createdAt)}</p>
                           </article>
                         )) : <div className="dashboard-empty-state">Este ticket aun no tiene eventos sincronizados en la bitacora.</div>}
                       </div>

@@ -70,10 +70,10 @@ export default function AnalyticsModule({
           ))}
         </div>
 
-        <div className="mt-8 rounded-[1.75rem] border border-slate-200 bg-slate-50/90 p-6 dark:border-surface-600 dark:bg-surface-700/70">
+        <div className="dashboard-surface-soft mt-8 rounded-[1.75rem] p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h3 className="text-xl font-bold text-slate-950 dark:text-white">Comandos ejecutados</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Serie diaria</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Serie diaria</p>
           </div>
           <div className="mt-8 grid h-64 grid-cols-7 items-end gap-3">
             {summary.series.slice(-7).map((metric) => (
@@ -98,9 +98,9 @@ export default function AnalyticsModule({
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-lg font-semibold text-slate-950 dark:text-white">{formatMetricDate(metric.metricDate)}</p>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Snapshot diario del guild</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Snapshot diario del guild</p>
                 </div>
-                <div className="dashboard-status-pill-compact border-slate-200/80 bg-white text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-slate-300">
+                <div className="dashboard-status-pill-compact dashboard-neutral-pill">
                   {metric.uptimePercentage.toFixed(2)}% uptime
                 </div>
               </div>

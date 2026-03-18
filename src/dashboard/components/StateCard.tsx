@@ -44,7 +44,7 @@ export default function StateCard({
           <h2 className="mt-5 break-words text-[2rem] font-bold tracking-[-0.04em] text-slate-950 dark:text-white lg:text-[2.15rem]">
             {title}
           </h2>
-          <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-slate-300">
+          <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-300">
             {description}
           </p>
         </div>

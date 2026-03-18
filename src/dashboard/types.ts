@@ -15,6 +15,21 @@ export type DashboardSectionId =
   | 'activity'
   | 'analytics';
 
+export type DashboardTaskGroupId =
+  | 'home'
+  | 'setup'
+  | 'community'
+  | 'support'
+  | 'moderation'
+  | 'system';
+
+export interface DashboardNavShortcut {
+  id: string;
+  label: string;
+  description: string;
+  sectionId: DashboardSectionId;
+}
+
 export type ConfigMutationSectionId =
   | 'general'
   | 'server_roles_channels'

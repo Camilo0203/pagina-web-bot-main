@@ -109,21 +109,25 @@ export default function AuthCallbackPage() {
   }, [authError, code, navigate, queryClient]);
 
   return (
-    <main className="dashboard-shell flex min-h-screen items-center justify-center px-4 text-white">
+    <main className="dashboard-shell flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6">
       <Helmet>
         <title>{dashboardBrandLabel} | Auth</title>
       </Helmet>
-      <div className="dashboard-surface w-full max-w-xl p-8">
-        <div className="flex items-center gap-4">
+      <div className="dashboard-surface relative w-full max-w-xl overflow-hidden p-6 sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(88,101,242,0.12),transparent_28%)]" />
+        <div className="relative z-[1] flex flex-col gap-4 sm:flex-row sm:items-center">
           <Logo size="lg" subtitle={config.botName} />
           <div>
             <p className="dashboard-panel-label">Discord OAuth</p>
             <h1 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">Acceso a {dashboardBrandLabel}</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+              Verificando la sesion segura y sincronizando acceso a servidores sin alterar tu configuracion actual.
+            </p>
           </div>
         </div>
 
         {errorMessage ? (
-          <div className="mt-8 rounded-[1.75rem] border border-rose-200/70 bg-rose-50/90 p-6 text-rose-800 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-200">
+          <div className="relative z-[1] mt-8 rounded-[1.75rem] border border-rose-200/70 bg-rose-50/90 p-5 text-rose-800 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-200 sm:p-6">
             <div className="flex items-start gap-3">
               <AlertOctagon className="mt-0.5 h-5 w-5" />
               <div>
@@ -133,7 +137,7 @@ export default function AuthCallbackPage() {
             </div>
           </div>
         ) : (
-          <div className="mt-8 rounded-[1.75rem] border border-emerald-200/70 bg-emerald-50/90 p-6 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-200">
+          <div className="relative z-[1] mt-8 rounded-[1.75rem] border border-emerald-200/70 bg-emerald-50/90 p-5 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-200 sm:p-6">
             <div className="flex items-start gap-3">
               {isCompleted ? (
                 <CheckCircle2 className="mt-0.5 h-5 w-5" />

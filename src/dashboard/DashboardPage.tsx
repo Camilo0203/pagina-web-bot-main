@@ -21,7 +21,13 @@ import {
   DASHBOARD_SECTION_STORAGE_PREFIX,
 } from './constants';
 import { dashboardSectionIds } from './schemas';
-import { getLatestBackupMutation, getLatestMutationForSection } from './utils';
+import {
+  getDashboardChecklist,
+  getDashboardQuickActions,
+  getDashboardSectionStates,
+  getLatestBackupMutation,
+  getLatestMutationForSection,
+} from './utils';
 import type { ConfigMutationSectionId, DashboardSectionId, TicketDashboardActionId } from './types';
 
 const OverviewModule = lazy(() => import('./modules/OverviewModule'));
@@ -164,6 +170,15 @@ export default function DashboardPage() {
   const backupMutation = getLatestBackupMutation(mutations);
   const pendingMutations = syncStatus?.pendingMutations ?? mutations.filter((mutation) => mutation.status === 'pending').length;
   const failedMutations = syncStatus?.failedMutations ?? mutations.filter((mutation) => mutation.status === 'failed').length;
+  const sectionStates = snapshot && selectedGuild
+    ? getDashboardSectionStates(snapshot.config, selectedGuild, snapshot.syncStatus, snapshot.backups, snapshot.mutations)
+    : [];
+  const checklist = snapshot && selectedGuild
+    ? getDashboardChecklist(selectedGuild, sectionStates, snapshot.backups, snapshot.syncStatus)
+    : [];
+  const quickActions = snapshot
+    ? getDashboardQuickActions(sectionStates, checklist, snapshot.syncStatus)
+    : [];
 
   return (
     <>
@@ -248,6 +263,7 @@ export default function DashboardPage() {
           syncStatus={syncStatus}
           pendingMutations={pendingMutations}
           failedMutations={failedMutations}
+          sectionStates={sectionStates}
         >
           {!selectedGuild ? (
             <StateCard
@@ -278,6 +294,9 @@ export default function DashboardPage() {
                   backups={snapshot.backups}
                   syncStatus={snapshot.syncStatus}
                   onSectionChange={handleSectionChange}
+                  sectionStates={sectionStates}
+                  checklist={checklist}
+                  quickActions={quickActions}
                 />
               ) : null}
               {activeSection === 'inbox' ? (

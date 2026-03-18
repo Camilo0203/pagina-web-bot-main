@@ -3,9 +3,11 @@ import {
   BarChart3,
   Bot,
   Command,
+  Compass,
   Inbox,
   LayoutGrid,
   MessageSquareQuote,
+  Settings2,
   Shield,
   ShieldCheck,
   SlidersHorizontal,
@@ -14,7 +16,12 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
-import type { ConfigMutationSectionId, DashboardSectionId } from './types';
+import type {
+  ConfigMutationSectionId,
+  DashboardNavShortcut,
+  DashboardSectionId,
+  DashboardTaskGroupId,
+} from './types';
 
 export const DASHBOARD_GUILD_STORAGE_KEY = 'dashboard:last-guild-id';
 export const DASHBOARD_SECTION_STORAGE_PREFIX = 'dashboard:last-section:';
@@ -32,84 +39,276 @@ export interface DashboardSectionMeta {
   icon: LucideIcon;
 }
 
+export interface DashboardTaskGroup {
+  id: DashboardTaskGroupId;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  sections: DashboardSectionId[];
+  shortcuts: DashboardNavShortcut[];
+}
+
 export const dashboardSections: DashboardSectionMeta[] = [
   {
     id: 'overview',
-    label: 'Resumen',
-    description: 'Salud operativa, setup y estado aplicado.',
+    label: 'Inicio',
+    description: 'Resumen general, checklist y proximo paso.',
     icon: LayoutGrid,
   },
   {
     id: 'inbox',
-    label: 'Bandeja viva',
-    description: 'Bandeja viva con claim, bitacora, macros y SLA.',
+    label: 'Bandeja de soporte',
+    description: 'Cola activa, macros y seguimiento.',
     icon: Inbox,
   },
   {
     id: 'general',
-    label: 'General',
-    description: 'Idioma, invocacion y preferencias del panel.',
+    label: 'Configuracion inicial',
+    description: 'Idioma, zona horaria y base del panel.',
     icon: SlidersHorizontal,
   },
   {
     id: 'server_roles',
-    label: 'Servidor y roles',
-    description: 'Canales base, paneles, staff y permisos clave.',
+    label: 'Roles y canales',
+    description: 'Canales clave, staff y permisos base.',
     icon: Bot,
   },
   {
     id: 'tickets',
-    label: 'Tickets y SLA',
-    description: 'Limites, SLA, autoasignacion e incidente.',
+    label: 'Tickets',
+    description: 'Flujo de soporte, SLA y automatizacion.',
     icon: Ticket,
   },
   {
     id: 'verification',
-    label: 'Verificacion',
-    description: 'Panel, roles, antiraid y expiracion.',
+    label: 'Verificacion de acceso',
+    description: 'Acceso de miembros y proteccion anti-raid.',
     icon: Shield,
   },
   {
     id: 'welcome',
     label: 'Bienvenida',
-    description: 'Bienvenidas, despedidas, DM y autoroles.',
+    description: 'Entrada, despedida y autoroles.',
     icon: Sparkles,
   },
   {
     id: 'suggestions',
-    label: 'Sugerencias',
-    description: 'Canales, anonimato, razones y cooldown.',
+    label: 'Sugerencias de la comunidad',
+    description: 'Canales, revision y feedback.',
     icon: MessageSquareQuote,
   },
   {
     id: 'modlogs',
-    label: 'Modlogs',
-    description: 'Eventos auditables y canal de logs.',
+    label: 'Registro de moderacion',
+    description: 'Eventos del staff y trazabilidad.',
     icon: ShieldCheck,
   },
   {
     id: 'commands',
     label: 'Comandos',
-    description: 'Comandos, limites globales y overrides.',
+    description: 'Disponibilidad y limites de uso.',
     icon: Command,
   },
   {
     id: 'system',
-    label: 'Sistema',
-    description: 'Mantenimiento, backups y estado del bridge.',
+    label: 'Sistema del bot',
+    description: 'Backups, sincronizacion y diagnostico.',
     icon: Wrench,
   },
   {
     id: 'activity',
-    label: 'Actividad',
-    description: 'Auditoria unificada de solicitudes y cambios.',
+    label: 'Actividad reciente',
+    description: 'Cambios, cola y eventos recientes.',
     icon: Activity,
   },
   {
     id: 'analytics',
     label: 'Analitica',
-    description: 'KPIs reales de comandos, tickets y SLA.',
+    description: 'Uso real, tickets y rendimiento.',
     icon: BarChart3,
+  },
+];
+
+export const dashboardTaskGroups: DashboardTaskGroup[] = [
+  {
+    id: 'home',
+    label: 'Inicio',
+    description: 'Resumen del servidor y siguientes pasos.',
+    icon: LayoutGrid,
+    sections: ['overview', 'activity'],
+    shortcuts: [
+      {
+        id: 'home-summary',
+        label: 'Resumen',
+        description: 'Vista general del estado actual.',
+        sectionId: 'overview',
+      },
+      {
+        id: 'home-checklist',
+        label: 'Checklist',
+        description: 'Tareas clave para completar la puesta en marcha.',
+        sectionId: 'overview',
+      },
+      {
+        id: 'home-pending',
+        label: 'Cambios pendientes',
+        description: 'Solicitudes y eventos por revisar.',
+        sectionId: 'activity',
+      },
+    ],
+  },
+  {
+    id: 'setup',
+    label: 'Configuracion inicial',
+    description: 'Base operativa para que el bot funcione bien.',
+    icon: Compass,
+    sections: ['general', 'server_roles', 'commands'],
+    shortcuts: [
+      {
+        id: 'setup-basics',
+        label: 'Ajustes basicos',
+        description: 'Idioma, zona horaria y modo de comandos.',
+        sectionId: 'general',
+      },
+      {
+        id: 'setup-roles',
+        label: 'Roles y canales',
+        description: 'Conecta staff, logs y canales principales.',
+        sectionId: 'server_roles',
+      },
+      {
+        id: 'setup-permissions',
+        label: 'Permisos',
+        description: 'Ajusta disponibilidad y limites de comandos.',
+        sectionId: 'commands',
+      },
+    ],
+  },
+  {
+    id: 'community',
+    label: 'Comunidad',
+    description: 'Experiencias visibles para miembros y acceso.',
+    icon: Sparkles,
+    sections: ['welcome', 'verification', 'suggestions'],
+    shortcuts: [
+      {
+        id: 'community-welcome',
+        label: 'Bienvenida',
+        description: 'Entrada, despedida y autorol.',
+        sectionId: 'welcome',
+      },
+      {
+        id: 'community-verification',
+        label: 'Verificacion',
+        description: 'Acceso seguro y proteccion de ingreso.',
+        sectionId: 'verification',
+      },
+      {
+        id: 'community-suggestions',
+        label: 'Sugerencias',
+        description: 'Canal comunitario y revision interna.',
+        sectionId: 'suggestions',
+      },
+      {
+        id: 'community-autoroles',
+        label: 'Autoroles',
+        description: 'Se gestiona desde bienvenida.',
+        sectionId: 'welcome',
+      },
+    ],
+  },
+  {
+    id: 'support',
+    label: 'Soporte',
+    description: 'Atencion operativa, tickets y seguimiento.',
+    icon: Ticket,
+    sections: ['tickets', 'inbox'],
+    shortcuts: [
+      {
+        id: 'support-tickets',
+        label: 'Tickets',
+        description: 'Reglas, limites y automatizaciones.',
+        sectionId: 'tickets',
+      },
+      {
+        id: 'support-inbox',
+        label: 'Bandeja',
+        description: 'Cola activa y conversaciones abiertas.',
+        sectionId: 'inbox',
+      },
+      {
+        id: 'support-macros',
+        label: 'Macros',
+        description: 'Acceso rapido desde la bandeja.',
+        sectionId: 'inbox',
+      },
+      {
+        id: 'support-sla',
+        label: 'SLA',
+        description: 'Objetivos de respuesta y alertas.',
+        sectionId: 'tickets',
+      },
+    ],
+  },
+  {
+    id: 'moderation',
+    label: 'Moderacion',
+    description: 'Registro operativo y seguimiento del staff.',
+    icon: ShieldCheck,
+    sections: ['modlogs', 'activity'],
+    shortcuts: [
+      {
+        id: 'moderation-log',
+        label: 'Registro',
+        description: 'Eventos que quedan guardados.',
+        sectionId: 'modlogs',
+      },
+      {
+        id: 'moderation-rules',
+        label: 'Automatizacion',
+        description: 'Controles tecnicos desde sistema.',
+        sectionId: 'system',
+      },
+      {
+        id: 'moderation-staff',
+        label: 'Acciones del staff',
+        description: 'Actividad y cambios recientes.',
+        sectionId: 'activity',
+      },
+    ],
+  },
+  {
+    id: 'system',
+    label: 'Sistema',
+    description: 'Estado tecnico, respaldo y rendimiento.',
+    icon: Settings2,
+    sections: ['system', 'analytics'],
+    shortcuts: [
+      {
+        id: 'system-sync',
+        label: 'Sincronizacion',
+        description: 'Heartbeat, cola y bridge.',
+        sectionId: 'system',
+      },
+      {
+        id: 'system-backups',
+        label: 'Backups',
+        description: 'Copias y restauracion.',
+        sectionId: 'system',
+      },
+      {
+        id: 'system-diagnostics',
+        label: 'Diagnostico',
+        description: 'Estado tecnico general.',
+        sectionId: 'system',
+      },
+      {
+        id: 'system-analytics',
+        label: 'Analitica',
+        description: 'Uso del bot y rendimiento.',
+        sectionId: 'analytics',
+      },
+    ],
   },
 ];
 
