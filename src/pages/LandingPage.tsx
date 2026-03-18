@@ -8,6 +8,7 @@ import Features from '../components/Features';
 import LiveStats from '../components/LiveStats';
 import VisualExperience from '../components/VisualExperience';
 import WhyTon from '../components/WhyTon';
+import DocsSection from '../components/DocsSection';
 import FinalCTA from '../components/FinalCTA';
 import Footer from '../components/Footer';
 import LegalModal from '../components/LegalModal';
@@ -93,6 +94,7 @@ export default function LandingPage() {
           <Features />
           <VisualExperience />
           <WhyTon />
+          <DocsSection />
           <LiveStats />
           <FinalCTA />
         </main>

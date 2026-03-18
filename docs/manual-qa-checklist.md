@@ -9,6 +9,7 @@
 - [ ] Confirmar que el poster del hero aparece si el video tarda o falla.
 - [ ] Revisar seccion de estadisticas en modo live y en fallback.
 - [ ] Revisar textos clave en ingles y espanol.
+- [ ] Confirmar que la seccion de recursos/comercial refuerza docs, dashboard, soporte y CTA final sin bloques huérfanos.
 
 ## Dashboard auth
 
@@ -47,6 +48,14 @@
 - [ ] Filtrar timeline por fuente y severidad.
 - [ ] Revisar chart de analytics en mobile con scroll horizontal.
 - [ ] Confirmar legibilidad de cards y snapshots en pantallas estrechas.
+- [ ] Simular ausencia de `guild_dashboard_events` o `guild_metrics_daily` y confirmar degradación parcial con mensaje accionable.
+
+## Degradacion parcial
+
+- [ ] Simular fallo de `guild_ticket_events` y confirmar que Inbox sigue usable.
+- [ ] Simular fallo de `guild_ticket_macros` y confirmar que Inbox sigue usable.
+- [ ] Confirmar que el snapshot no cae completo cuando falla una fuente opcional.
+- [ ] Confirmar que el mensaje visible identifica la fuente degradada y orienta qué revisar.
 
 ## Regresion final
 

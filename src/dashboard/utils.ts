@@ -402,13 +402,8 @@ export function getDashboardChecklist(
     {
       id: 'member-experience',
       label: 'Preparar la llegada de nuevos miembros',
-<<<<<<< HEAD
-      description: 'Define si el servidor va a recibir usuarios con bienvenida, verificacion o ambas cosas.',
-      sectionId: verification?.status === 'needs_attention' ? 'verification' : (welcome?.status === 'active' ? 'welcome' : 'verification'),
-=======
       description: 'Activa una experiencia de bienvenida o un control de acceso antes de abrir el servidor.',
       sectionId: memberExperienceState?.sectionId ?? 'verification',
->>>>>>> 5ce6e6001a72bbcff7d6f396bbc0cde797f85d9c
       complete: welcome?.status === 'active' || verification?.status === 'active',
       status: welcome?.status === 'active' || verification?.status === 'active'
         ? 'active'
@@ -423,15 +418,9 @@ export function getDashboardChecklist(
         ? 'La bienvenida ya esta funcionando.'
         : verification?.status === 'active'
           ? 'La verificacion de acceso ya esta funcionando.'
-<<<<<<< HEAD
-          : verification?.status === 'needs_attention'
-            ? verification.summary
-            : 'Activa al menos una experiencia clara para nuevos miembros.',
-=======
           : memberExperienceState && memberExperienceState.status !== 'not_configured'
             ? memberExperienceState.summary
             : 'Activa al menos una experiencia de acceso para nuevos miembros.',
->>>>>>> 5ce6e6001a72bbcff7d6f396bbc0cde797f85d9c
     },
     {
       id: 'tickets',

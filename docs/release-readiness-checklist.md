@@ -23,6 +23,7 @@
 - [ ] `npm run lint`
 - [ ] `npm run test`
 - [ ] `npm run build`
+- [ ] `docs/final-verification-report.md` actualizado con resultados reales.
 
 ## Landing
 
@@ -31,6 +32,7 @@
 - [ ] Skip link y focus states visibles con teclado.
 - [ ] Cambio de idioma funcional.
 - [ ] Metadatos, favicon, manifest y canonical correctos.
+- [ ] Ruta comercial clara: valor, confianza, recursos y CTA final sin secciones huérfanas.
 
 ## Dashboard
 
@@ -41,6 +43,7 @@
 - [ ] Formularios muestran labels, errores y estados de foco claros.
 - [ ] Activity, inbox y analytics se pueden usar en mobile sin bloqueo.
 - [ ] Estados vacios, errores y warnings muestran texto explicito, no solo color.
+- [ ] Fallos parciales de `activity`, `metrics`, `ticket events` y `ticket macros` degradan con gracia sin tumbar el snapshot completo.
 
 ## Aprobacion final
 

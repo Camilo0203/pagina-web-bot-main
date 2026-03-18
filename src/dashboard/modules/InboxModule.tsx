@@ -17,11 +17,13 @@ import {
   XCircle,
 } from 'lucide-react';
 import PanelCard from '../components/PanelCard';
+import DashboardDegradationNotice from '../components/DashboardDegradationNotice';
 import SectionMutationBanner from '../components/SectionMutationBanner';
 import StateCard from '../components/StateCard';
 import { fadeInVariants, panelSwapVariants, staggerContainerVariants } from '../motion';
 import type {
   DashboardGuild,
+  DashboardPartialFailure,
   GuildConfigMutation,
   GuildSyncStatus,
   TicketDashboardActionId,
@@ -49,6 +51,7 @@ interface InboxModuleProps {
   syncStatus: GuildSyncStatus | null;
   isMutating: boolean;
   onAction: (action: TicketDashboardActionId, payload: Record<string, unknown>) => Promise<void>;
+  partialFailures: DashboardPartialFailure[];
 }
 
 type OpenStateFilter = 'all' | 'open' | 'closed';
@@ -216,7 +219,15 @@ function getMacroVisibilityLabel(macro: TicketMacro) {
   return macro.visibility === 'internal' ? 'Nota interna' : 'Respuesta publica';
 }
 
-export default function InboxModule({ guild, workspace, mutation, syncStatus, isMutating, onAction }: InboxModuleProps) {
+export default function InboxModule({
+  guild,
+  workspace,
+  mutation,
+  syncStatus,
+  isMutating,
+  onAction,
+  partialFailures,
+}: InboxModuleProps) {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [openStateFilter, setOpenStateFilter] = useState<OpenStateFilter>('open');
@@ -452,6 +463,11 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
 
   return (
     <div className="space-y-6">
+      <DashboardDegradationNotice
+        failures={partialFailures}
+        title="La bandeja sigue disponible con algunas fuentes limitadas"
+      />
+
       <PanelCard eyebrow="Workspace operativo" title="Inbox profesional para staff y administradores" description="Opera tickets por prioridad, SLA y contexto del cliente. La interfaz mantiene polling y mutaciones auditadas sin bloquear la pantalla completa." variant="highlight">
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
         <motion.div variants={staggerContainerVariants} initial="hidden" animate="show" className="dashboard-grid-fit-standard mt-8">

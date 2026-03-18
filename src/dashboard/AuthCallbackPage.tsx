@@ -1,392 +1,21 @@
-import type { Session } from '@supabase/supabase-js';
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertOctagon, ArrowRight, CheckCircle2, Loader2, RotateCcw } from 'lucide-react';
 import { config } from '../config';
-import {
-  clearDashboardAuthIntent,
-  exchangeDashboardCodeForSession,
-  getDashboardSession,
-  peekDashboardAuthIntent,
-  resolveDashboardRedirectPath,
-  signInWithDiscord,
-  syncDiscordGuilds,
-} from './api';
-import { dashboardQueryKeys } from './constants';
 import Logo from '../components/Logo';
-
-const CALLBACK_REDIRECT_DELAY_MS = 700;
-const CALLBACK_EXECUTION_STORAGE_PREFIX = 'dashboard:auth-callback:';
-
-type CallbackPhase = 'exchanging' | 'syncing' | 'redirecting' | 'error';
-
-interface CallbackViewState {
-  phase: CallbackPhase;
-  statusText: string;
-  errorMessage: string;
-  isCompleted: boolean;
-  canRetrySync: boolean;
-  canRestartLogin: boolean;
-  redirectPath: string | null;
-}
-
-interface CallbackExecution {
-  promise: Promise<string> | null;
-  session: Session | null;
-  requestedGuildId: string | null;
-  state: CallbackViewState;
-}
-
-const callbackExecutions = new Map<string, CallbackExecution>();
-const callbackSubscribers = new Map<string, Set<(state: CallbackViewState) => void>>();
-
-function normalizeAuthError(value: string | null): string {
-  if (!value) {
-    return '';
-  }
-
-  const decoded = value.replace(/\+/g, ' ').trim();
-  return decoded || value;
-}
-
-function createInitialState(): CallbackViewState {
-  return {
-    phase: 'exchanging',
-    statusText: 'Preparando autenticacion con Discord...',
-    errorMessage: '',
-    isCompleted: false,
-    canRetrySync: false,
-    canRestartLogin: false,
-    redirectPath: null,
-  };
-}
-
-function readExecutionStorage(attemptKey: string): CallbackExecution | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  try {
-    const rawExecution = window.sessionStorage.getItem(`${CALLBACK_EXECUTION_STORAGE_PREFIX}${attemptKey}`);
-    if (!rawExecution) {
-      return null;
-    }
-
-    const parsedExecution = JSON.parse(rawExecution) as {
-      requestedGuildId?: unknown;
-      state?: Partial<CallbackViewState>;
-    };
-
-    return {
-      promise: null,
-      session: null,
-      requestedGuildId:
-        typeof parsedExecution.requestedGuildId === 'string' && parsedExecution.requestedGuildId
-          ? parsedExecution.requestedGuildId
-          : null,
-      state: {
-        ...createInitialState(),
-        ...parsedExecution.state,
-      },
-    };
-  } catch {
-    return null;
-  }
-}
-
-function persistExecutionStorage(attemptKey: string, execution: CallbackExecution) {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  try {
-    window.sessionStorage.setItem(
-      `${CALLBACK_EXECUTION_STORAGE_PREFIX}${attemptKey}`,
-      JSON.stringify({
-        requestedGuildId: execution.requestedGuildId,
-        state: execution.state,
-      }),
-    );
-  } catch {
-    // Ignoramos errores de storage para no romper el callback.
-  }
-}
-
-function getOrCreateExecution(attemptKey: string): CallbackExecution {
-  const current = callbackExecutions.get(attemptKey);
-  if (current) {
-    return current;
-  }
-
-  const storedExecution = readExecutionStorage(attemptKey);
-  const requestedGuildId = storedExecution?.requestedGuildId ?? peekDashboardAuthIntent().requestedGuildId;
-  const execution: CallbackExecution = storedExecution ?? {
-    promise: null,
-    session: null,
-    requestedGuildId,
-    state: createInitialState(),
-  };
-  callbackExecutions.set(attemptKey, execution);
-  persistExecutionStorage(attemptKey, execution);
-  return execution;
-}
-
-function subscribeToExecution(attemptKey: string, listener: (state: CallbackViewState) => void) {
-  const listeners = callbackSubscribers.get(attemptKey) ?? new Set<(state: CallbackViewState) => void>();
-  listeners.add(listener);
-  callbackSubscribers.set(attemptKey, listeners);
-
-  return () => {
-    const currentListeners = callbackSubscribers.get(attemptKey);
-    if (!currentListeners) {
-      return;
-    }
-
-    currentListeners.delete(listener);
-    if (!currentListeners.size) {
-      callbackSubscribers.delete(attemptKey);
-    }
-  };
-}
-
-function emitExecutionState(attemptKey: string) {
-  const execution = callbackExecutions.get(attemptKey);
-  if (!execution) {
-    return;
-  }
-
-  const listeners = callbackSubscribers.get(attemptKey);
-  if (!listeners?.size) {
-    return;
-  }
-
-  for (const listener of listeners) {
-    listener(execution.state);
-  }
-}
-
-function updateExecutionState(attemptKey: string, patch: Partial<CallbackViewState>) {
-  const execution = getOrCreateExecution(attemptKey);
-  execution.state = {
-    ...execution.state,
-    ...patch,
-  };
-  persistExecutionStorage(attemptKey, execution);
-  emitExecutionState(attemptKey);
-}
-
-async function recoverExistingSession() {
-  const authState = await getDashboardSession();
-  return authState.session;
-}
-
-function buildRedirectPath(execution: CallbackExecution, availableGuildIds: string[]): string {
-  const preferredGuildId = execution.requestedGuildId;
-  if (preferredGuildId && availableGuildIds.includes(preferredGuildId)) {
-    return resolveDashboardRedirectPath(preferredGuildId);
-  }
-
-  return resolveDashboardRedirectPath(availableGuildIds[0] ?? null);
-}
-
-async function invalidateDashboardQueries(
-  queryClient: ReturnType<typeof useQueryClient>,
-  redirectGuildId: string | null,
-) {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth }),
-    queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds }),
-    redirectGuildId
-      ? queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.snapshot(redirectGuildId) })
-      : Promise.resolve(),
-    queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  ]);
-
-  queryClient.removeQueries({ queryKey: ['dashboard', 'snapshot'] });
-}
-
-function resolveRetryFlags(errorMessage: string, execution: CallbackExecution) {
-  const lowerMessage = errorMessage.toLowerCase();
-  const canRetrySync =
-    Boolean(execution.session?.provider_token)
-    && !lowerMessage.includes('codigo')
-    && !lowerMessage.includes('oauth')
-    && !lowerMessage.includes('provider_token');
-  const canRestartLogin =
-    lowerMessage.includes('provider_token')
-    || lowerMessage.includes('oauth')
-    || lowerMessage.includes('codigo')
-    || !canRetrySync;
-
-  return {
-    canRetrySync,
-    canRestartLogin,
-  };
-}
-
-function runAuthCallbackFlow(
-  attemptKey: string,
-  code: string | null,
-  authError: string | null,
-  queryClient: ReturnType<typeof useQueryClient>,
-): Promise<string> {
-  const execution = getOrCreateExecution(attemptKey);
-  if (execution.state.isCompleted && execution.state.redirectPath) {
-    return Promise.resolve(execution.state.redirectPath);
-  }
-
-  if (execution.promise) {
-    return execution.promise;
-  }
-
-  execution.promise = (async () => {
-    console.log('[dashboard-auth] callback:begin', {
-      attemptKey,
-      hasCode: Boolean(code),
-      hasAuthError: Boolean(authError),
-      callbackPath: window.location.pathname,
-      callbackSearch: window.location.search,
-      requestedGuildId: execution.requestedGuildId,
-      hasCachedSession: Boolean(execution.session),
-    });
-
-    if (authError) {
-      throw new Error(authError);
-    }
-
-    if (!execution.session) {
-      updateExecutionState(attemptKey, {
-        phase: 'exchanging',
-        statusText: 'Intercambiando codigo por sesion segura...',
-        errorMessage: '',
-        canRetrySync: false,
-        canRestartLogin: false,
-      });
-
-      let session: Session | null = null;
-      let exchangeError: unknown = null;
-
-      if (code) {
-        try {
-          session = await exchangeDashboardCodeForSession(code);
-        } catch (error: unknown) {
-          exchangeError = error;
-        }
-      }
-
-      if (!session) {
-        session = await recoverExistingSession();
-      }
-
-      if (!session && exchangeError) {
-        throw exchangeError;
-      }
-
-      if (!session) {
-        throw new Error('No llego ninguna sesion valida al callback. Vuelve a iniciar sesion desde el dashboard.');
-      }
-
-      execution.session = session;
-      persistExecutionStorage(attemptKey, execution);
-
-      console.log('[dashboard-auth] callback:exchange:done', {
-        attemptKey,
-        hasSession: Boolean(session),
-        hasProviderToken: Boolean(session?.provider_token),
-        userId: session?.user?.id ?? null,
-      });
-    } else {
-      console.log('[dashboard-auth] callback:exchange:reuse-session', {
-        attemptKey,
-        hasProviderToken: Boolean(execution.session.provider_token),
-        userId: execution.session.user?.id ?? null,
-      });
-    }
-
-    if (!execution.session?.provider_token) {
-      throw new Error('Discord no devolvio provider_token. Repite el login para sincronizar servidores.');
-    }
-
-    updateExecutionState(attemptKey, {
-      phase: 'syncing',
-      statusText: 'Sincronizando servidores administrables con Supabase...',
-      errorMessage: '',
-      canRetrySync: false,
-      canRestartLogin: false,
-    });
-
-    const syncResult = await syncDiscordGuilds(execution.session.provider_token);
-    const redirectGuildId =
-      execution.requestedGuildId && syncResult.guilds.some((guild) => guild.guildId === execution.requestedGuildId)
-        ? execution.requestedGuildId
-        : syncResult.guilds[0]?.guildId ?? null;
-
-    await invalidateDashboardQueries(queryClient, redirectGuildId);
-
-    const redirectPath = buildRedirectPath(
-      execution,
-      syncResult.guilds.map((guild) => guild.guildId),
-    );
-    clearDashboardAuthIntent();
-
-    updateExecutionState(attemptKey, {
-      phase: 'redirecting',
-      statusText: syncResult.guilds.length
-        ? 'Listo. Redirigiendo al panel con tus servidores sincronizados...'
-        : 'Listo. Redirigiendo al dashboard para continuar con la cuenta autenticada...',
-      errorMessage: '',
-      isCompleted: true,
-      canRetrySync: false,
-      canRestartLogin: false,
-      redirectPath,
-    });
-
-    console.log('[dashboard-auth] callback:complete', {
-      attemptKey,
-      guildCount: syncResult.guilds.length,
-      redirectGuildId,
-      redirectPath,
-    });
-
-    return redirectPath;
-  })().catch((error: unknown) => {
-    const message =
-      error instanceof Error && error.message
-        ? error.message
-        : 'No se pudo completar el callback del dashboard.';
-    const retryFlags = resolveRetryFlags(message, execution);
-
-    console.error('[dashboard-auth] callback:error', {
-      attemptKey,
-      message,
-      hasCachedSession: Boolean(execution.session),
-      hasProviderToken: Boolean(execution.session?.provider_token),
-      requestedGuildId: execution.requestedGuildId,
-      error,
-    });
-
-    updateExecutionState(attemptKey, {
-      phase: 'error',
-      statusText: 'El acceso seguro no pudo completarse.',
-      errorMessage: message,
-      isCompleted: false,
-      canRetrySync: retryFlags.canRetrySync,
-      canRestartLogin: retryFlags.canRestartLogin,
-      redirectPath: null,
-    });
-
-    throw error;
-  }).finally(() => {
-    const currentExecution = callbackExecutions.get(attemptKey);
-    if (currentExecution) {
-      currentExecution.promise = null;
-    }
-  });
-
-  return execution.promise;
-}
+import {
+  CALLBACK_REDIRECT_DELAY_MS,
+  type CallbackViewState,
+  getOrCreateExecution,
+  normalizeAuthError,
+  restartAuthCallbackFlow,
+  restartDiscordLogin,
+  runAuthCallbackFlow,
+  subscribeToExecution,
+  updateExecutionState,
+} from './authCallbackFlow';
 
 export default function AuthCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -429,29 +58,12 @@ export default function AuthCallbackPage() {
   }, [attemptKey, authError, code, navigate, queryClient, retryNonce]);
 
   function handleRetrySync() {
-    const execution = getOrCreateExecution(attemptKey);
-    updateExecutionState(attemptKey, {
-      phase: 'syncing',
-      statusText: 'Reintentando sincronizacion de servidores...',
-      errorMessage: '',
-      canRetrySync: false,
-      canRestartLogin: false,
-    });
-    execution.promise = null;
-    persistExecutionStorage(attemptKey, execution);
+    restartAuthCallbackFlow(attemptKey);
     setRetryNonce((current) => current + 1);
   }
 
   function handleRestartLogin() {
-    const execution = getOrCreateExecution(attemptKey);
-    execution.promise = null;
-    execution.session = null;
-    persistExecutionStorage(attemptKey, execution);
-    console.log('[dashboard-auth] callback:restart-login', {
-      attemptKey,
-      requestedGuildId: execution.requestedGuildId,
-    });
-    void signInWithDiscord(execution.requestedGuildId).catch((error: unknown) => {
+    void restartDiscordLogin(attemptKey).catch((error: unknown) => {
       const message =
         error instanceof Error && error.message
           ? error.message
@@ -490,56 +102,44 @@ export default function AuthCallbackPage() {
             <div className="flex items-start gap-3">
               <AlertOctagon className="mt-0.5 h-5 w-5" />
               <div className="w-full">
-                <p className="font-semibold">No pudimos completar el acceso</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em]">No se completo el acceso</p>
+                <p className="mt-2 text-lg font-semibold">Necesitamos una accion para continuar.</p>
                 <p className="mt-2 text-sm leading-relaxed text-current/80">{viewState.errorMessage}</p>
-                <p className="mt-3 text-xs leading-6 text-current/70">
-                  Revisa la consola del navegador para ver los logs de diagnostico bajo `dashboard-auth`.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-5 flex flex-wrap gap-3">
                   {viewState.canRetrySync ? (
-                    <button
-                      type="button"
-                      onClick={handleRetrySync}
-                      className="inline-flex items-center gap-2 rounded-xl border border-current/20 px-4 py-2 text-sm font-semibold transition hover:bg-current/10"
-                    >
+                    <button type="button" onClick={handleRetrySync} className="dashboard-primary-button">
                       <RotateCcw className="h-4 w-4" />
                       Reintentar sincronizacion
                     </button>
                   ) : null}
                   {viewState.canRestartLogin ? (
-                    <button
-                      type="button"
-                      onClick={handleRestartLogin}
-                      className="inline-flex items-center gap-2 rounded-xl bg-rose-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-800"
-                    >
+                    <button type="button" onClick={handleRestartLogin} className="dashboard-secondary-button">
+                      Reiniciar login con Discord
                       <ArrowRight className="h-4 w-4" />
-                      Iniciar sesion otra vez
                     </button>
                   ) : null}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/dashboard', { replace: true })}
-                    className="inline-flex items-center gap-2 rounded-xl border border-current/20 px-4 py-2 text-sm font-semibold transition hover:bg-current/10"
-                  >
-                    Volver al dashboard
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="relative z-[1] mt-8 rounded-[1.75rem] border border-emerald-200/70 bg-emerald-50/90 p-5 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-200 sm:p-6">
+          <div className="relative z-[1] mt-8 rounded-[1.75rem] border border-slate-200/70 bg-white/80 p-5 dark:border-surface-600 dark:bg-surface-800/70 sm:p-6">
             <div className="flex items-start gap-3">
               {viewState.isCompleted ? (
-                <CheckCircle2 className="mt-0.5 h-5 w-5" />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-500" />
               ) : (
-                <Loader2 className="mt-0.5 h-5 w-5 animate-spin" />
+                <Loader2 className="mt-0.5 h-5 w-5 animate-spin text-brand-500" />
               )}
-              <div>
-                <p className="font-semibold">
-                  {viewState.phase === 'redirecting' ? 'Acceso confirmado' : 'Procesando acceso seguro'}
+              <div className="w-full">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  {viewState.phase === 'redirecting' ? 'Finalizando acceso' : 'Acceso en progreso'}
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-current/80">{viewState.statusText}</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{viewState.statusText}</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                  {viewState.phase === 'syncing'
+                    ? 'Estamos dejando lista la cuenta autenticada para entrar al dashboard con tus guilds administrables ya resueltos.'
+                    : 'El callback mantiene el contexto del login para que no pierdas el servidor que querias abrir.'}
+                </p>
               </div>
             </div>
           </div>

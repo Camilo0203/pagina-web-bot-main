@@ -10,7 +10,13 @@ import {
 } from 'lucide-react';
 import PanelCard from '../components/PanelCard';
 import StateCard from '../components/StateCard';
-import type { DashboardGuild, GuildConfigMutation, GuildEvent } from '../types';
+import DashboardDegradationNotice from '../components/DashboardDegradationNotice';
+import type {
+  DashboardGuild,
+  DashboardPartialFailure,
+  GuildConfigMutation,
+  GuildEvent,
+} from '../types';
 import { formatTimelineTimestamp, getTimelineItems, type InsightTone, type TimelineSource } from '../insights';
 import { summarizeMutationPayload } from '../utils';
 
@@ -18,6 +24,7 @@ interface ActivityModuleProps {
   guild: DashboardGuild;
   events: GuildEvent[];
   mutations: GuildConfigMutation[];
+  partialFailure: DashboardPartialFailure | null;
 }
 
 type ActivityFilter = 'all' | TimelineSource;
@@ -105,6 +112,7 @@ export default function ActivityModule({
   guild,
   events,
   mutations,
+  partialFailure,
 }: ActivityModuleProps) {
   const [sourceFilter, setSourceFilter] = useState<ActivityFilter>('all');
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
@@ -123,6 +131,18 @@ export default function ActivityModule({
   const pendingMutations = mutations.filter((mutation) => mutation.status === 'pending').length;
   const failedMutations = mutations.filter((mutation) => mutation.status === 'failed').length;
 
+  if (!events.length && !mutations.length && partialFailure) {
+    return (
+      <StateCard
+        eyebrow="Actividad degradada"
+        title="La auditoria reciente no esta disponible por ahora"
+        description={partialFailure.message}
+        icon={AlertTriangle}
+        tone="warning"
+      />
+    );
+  }
+
   if (!events.length && !mutations.length) {
     return (
       <StateCard
@@ -137,7 +157,13 @@ export default function ActivityModule({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.32fr)_minmax(21rem,0.8fr)]">
+    <div className="space-y-6">
+      <DashboardDegradationNotice
+        failures={partialFailure ? [partialFailure] : []}
+        title="La linea de tiempo esta operando con cobertura parcial"
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.32fr)_minmax(21rem,0.8fr)]">
       <PanelCard
         eyebrow="Timeline"
         title="Actividad reciente del panel y del bot"
@@ -326,6 +352,7 @@ export default function ActivityModule({
             </div>
           </div>
         </PanelCard>
+      </div>
       </div>
     </div>
   );

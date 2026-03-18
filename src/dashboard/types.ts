@@ -413,6 +413,18 @@ export interface TicketWorkspaceSnapshot {
   macros: TicketMacro[];
 }
 
+export type DashboardPartialFailureId =
+  | 'activity'
+  | 'metrics'
+  | 'ticket_events'
+  | 'ticket_macros';
+
+export interface DashboardPartialFailure {
+  id: DashboardPartialFailureId;
+  label: string;
+  message: string;
+}
+
 export interface GuildConfigMutation {
   id: string;
   guildId: string;
@@ -465,6 +477,7 @@ export interface GuildDashboardSnapshot {
   backups: GuildBackupManifest[];
   syncStatus: GuildSyncStatus | null;
   ticketWorkspace: TicketWorkspaceSnapshot;
+  partialFailures: DashboardPartialFailure[];
 }
 
 export interface DashboardSyncResult {

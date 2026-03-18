@@ -1,7 +1,8 @@
 import { BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
+import DashboardDegradationNotice from '../components/DashboardDegradationNotice';
 import PanelCard from '../components/PanelCard';
 import StateCard from '../components/StateCard';
-import type { DashboardGuild, GuildMetricsDaily } from '../types';
+import type { DashboardGuild, DashboardPartialFailure, GuildMetricsDaily } from '../types';
 import {
   formatCompactNumber,
   formatMinutes,
@@ -16,6 +17,7 @@ import { formatMetricDate, getMetricsSummary } from '../utils';
 interface AnalyticsModuleProps {
   guild: DashboardGuild;
   metrics: GuildMetricsDaily[];
+  partialFailure: DashboardPartialFailure | null;
 }
 
 function getToneRing(tone: AnalyticsSeriesCard['tone']) {
@@ -86,6 +88,7 @@ function renderDelta(delta: ReturnType<typeof getMetricDelta>) {
 export default function AnalyticsModule({
   guild,
   metrics,
+  partialFailure,
 }: AnalyticsModuleProps) {
   if (!guild.botInstalled) {
     return (
@@ -93,6 +96,18 @@ export default function AnalyticsModule({
         eyebrow="Instalacion"
         title="La analitica se activara cuando el bot este dentro del servidor"
         description="El bot necesita instalarse y publicar snapshots diarios en guild_metrics_daily para mostrar uso real, tickets y estabilidad."
+        icon={BarChart3}
+        tone="warning"
+      />
+    );
+  }
+
+  if (!metrics.length && partialFailure) {
+    return (
+      <StateCard
+        eyebrow="Analitica degradada"
+        title="La telemetria diaria no esta disponible por ahora"
+        description={partialFailure.message}
         icon={BarChart3}
         tone="warning"
       />
@@ -118,6 +133,11 @@ export default function AnalyticsModule({
 
   return (
     <div className="space-y-6">
+      <DashboardDegradationNotice
+        failures={partialFailure ? [partialFailure] : []}
+        title="La analitica se esta mostrando con cobertura parcial"
+      />
+
       <PanelCard
         eyebrow="Analitica"
         title="Tendencias de los ultimos 14 dias"

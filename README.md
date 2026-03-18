@@ -1,31 +1,34 @@
 # ton618-web
 
-Landing y dashboard web para TON618, construidos con Vite, React, TypeScript, Tailwind, React Query y Supabase.
+Frontend de landing y dashboard web para TON618, construido con Vite, React, TypeScript, Tailwind, React Query y Supabase.
+
+## Estado actual
+
+- Landing comercial lista para presentar valor, confianza y CTA hacia invite, dashboard, docs y soporte.
+- Dashboard operativo en `/dashboard` con auth vía Supabase + Discord.
+- Callback OAuth endurecido en `/auth/callback`.
+- Snapshot del dashboard con degradación parcial para `activity`, `metrics`, `ticket events` y `ticket macros`.
 
 ## Scripts
 
 - `npm install`
 - `npm run dev`
-- `npm run build`
-- `npm run preview`
 - `npm run typecheck`
 - `npm run lint`
 - `npm run test`
+- `npm run build`
+- `npm run preview`
 
-## Variables de entorno criticas
+## Entorno
 
-Parte del proyecto degrada con gracia, pero para release completo hay variables que deben estar correctas:
+Variables críticas:
 
 - `VITE_DISCORD_CLIENT_ID`
-  Habilita la invitacion del bot.
 - `VITE_SUPABASE_URL`
-  Necesaria para auth, dashboard y telemetria.
 - `VITE_SUPABASE_ANON_KEY`
-  Necesaria para auth, dashboard y telemetria.
 - `VITE_SITE_URL`
-  Canonical URL y base para redirects OAuth.
 
-Variables operativas recomendadas:
+Variables recomendadas:
 
 - `VITE_SUPPORT_SERVER_URL`
 - `VITE_DOCS_URL`
@@ -34,39 +37,18 @@ Variables operativas recomendadas:
 - `VITE_GITHUB_URL`
 - `VITE_TWITTER_URL`
 - `VITE_DASHBOARD_URL`
-  Solo si quieres forzar un dashboard externo en vez de `/dashboard`.
 
-Usa [.env.example](/c:/Users/Camilo/Desktop/ton618-web/.env.example) como plantilla local.
+Usa [.env.example](/c:/Users/Camilo/Desktop/ton618-web/.env.example) como base local.
 
 ## Setup local
 
-1. Copia `.env.example` a `.env` y completa los valores.
-2. Instala dependencias con `npm install`.
-3. Inicia el entorno con `npm run dev`.
-4. Abre `http://localhost:5173`.
+1. Copia `.env.example` a `.env`.
+2. Completa variables.
+3. Ejecuta `npm install`.
+4. Inicia con `npm run dev`.
+5. Abre `http://localhost:5173`.
 
-## Validacion local de landing
-
-Valida al menos esto antes de release:
-
-- Hero, navbar, footer y CTAs sin overflow en mobile y desktop.
-- Cambio de idioma y navegacion por teclado.
-- Estados live/fallback en la seccion de estadisticas.
-- Metadatos y canonical con `VITE_SITE_URL` correcto.
-- Video hero con poster funcional si el autoplay falla.
-
-## Validacion local de dashboard
-
-Valida al menos esto antes de release:
-
-- Login con Discord via Supabase.
-- Callback en `/auth/callback`.
-- Carga del selector de servidores.
-- Cambio entre modulos sin errores silenciosos.
-- Formularios con validaciones visibles y botones de guardado/reset.
-- Inbox, activity y analytics en mobile sin bloquear lectura.
-
-## Supabase
+## Supabase y contratos
 
 Migraciones relevantes:
 
@@ -82,11 +64,13 @@ Edge Function requerida:
 Requisitos operativos:
 
 1. Activar Discord como provider en Supabase Auth.
-2. Registrar redirects local/prod terminando en `/auth/callback`.
-3. Desplegar la Edge Function con los secretos necesarios.
-4. Mantener el bot/backend como escritor de `bot_stats`, `bot_guilds` y `guild_metrics_daily`.
+2. Configurar redirects terminando en `/auth/callback`.
+3. Desplegar `sync-discord-guilds` con sus secretos.
+4. Mantener al bot publicando `bot_stats`, `bot_guilds`, `guild_metrics_daily` y tablas operativas del dashboard.
 
 ## Release
 
 - Checklist de release: [docs/release-readiness-checklist.md](/c:/Users/Camilo/Desktop/ton618-web/docs/release-readiness-checklist.md)
 - Checklist de QA manual: [docs/manual-qa-checklist.md](/c:/Users/Camilo/Desktop/ton618-web/docs/manual-qa-checklist.md)
+- Deuda técnica resuelta: [docs/technical-debt-resolved.md](/c:/Users/Camilo/Desktop/ton618-web/docs/technical-debt-resolved.md)
+- Verificación final: [docs/final-verification-report.md](/c:/Users/Camilo/Desktop/ton618-web/docs/final-verification-report.md)

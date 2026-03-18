@@ -1,50 +1,84 @@
-import { BookOpen, TerminalSquare } from 'lucide-react';
-import { config } from '../config';
+import { BookOpen, ExternalLink, LifeBuoy, ShieldCheck } from 'lucide-react';
+import { config, getDashboardUrl, getDiscordInviteUrl } from '../config';
+
+const resourceCards = [
+  {
+    id: 'docs',
+    title: 'Documentacion operativa',
+    description:
+      'Guia de setup, modulos y decisiones de operacion para pasar de instalacion a uso real sin depender de conocimiento tribal.',
+    icon: BookOpen,
+    href: config.docsUrl || '#join',
+    external: Boolean(config.docsUrl),
+    cta: config.docsUrl ? 'Abrir docs' : 'Ir al cierre',
+  },
+  {
+    id: 'dashboard',
+    title: 'Dashboard listo para staff',
+    description:
+      'Abre configuracion, tickets y seguimiento operativo desde un panel que ya degrada con gracia cuando una fuente secundaria falla.',
+    icon: ShieldCheck,
+    href: getDashboardUrl(),
+    external: getDashboardUrl().startsWith('http'),
+    cta: 'Ver dashboard',
+  },
+  {
+    id: 'support',
+    title: 'Ruta de soporte y confianza',
+    description:
+      'Status, soporte y contacto quedan visibles para reducir friccion en evaluacion, onboarding y resolucion de incidencias.',
+    icon: LifeBuoy,
+    href: config.supportServerUrl || getDiscordInviteUrl() || '#join',
+    external: Boolean(config.supportServerUrl || getDiscordInviteUrl()),
+    cta: config.supportServerUrl ? 'Entrar a soporte' : 'Ver CTA principal',
+  },
+];
 
 export default function DocsSection() {
   return (
-    <section id="docs" className="py-32 bg-[#010208] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">Core <span className="text-brand-gradient">Protocols</span></h2>
-          <p className="text-xl text-slate-400 font-bold uppercase tracking-widest max-w-2xl mx-auto">
-            Technical specifications for high-mass server management.
+    <section id="docs" aria-labelledby="docs-heading" className="relative overflow-hidden bg-black py-24">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-cyan-500/5 blur-[120px]" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-end">
+          <div className="max-w-2xl">
+            <p className="mb-6 text-[10px] font-black uppercase tracking-[0.38em] text-cyan-300">Cierre comercial</p>
+            <h2 id="docs-heading" className="text-4xl font-black uppercase leading-[0.92] tracking-tightest text-white sm:text-6xl">
+              Todo Lo Necesario
+              <br />
+              <span className="headline-accent headline-accent-solid">Para Evaluar Y Lanzar</span>
+            </h2>
+          </div>
+
+          <p className="max-w-2xl text-base font-medium leading-relaxed text-slate-400 md:text-lg">
+            TON618 ya no se presenta solo como una landing bonita: invita, explica valor, abre dashboard y deja visibles los recursos que un equipo serio necesita antes de adoptar el producto.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-          <div className="hud-border rounded-3xl p-10 flex flex-col items-center text-center transition-all duration-500 hover:border-amber-500/40 group">
-            <div className="p-4 rounded-2xl bg-amber-500/10 mb-8 shadow-[0_0_20px_rgba(245,158,11,0.1)] group-hover:scale-110 transition-transform duration-500">
-              <BookOpen className="w-10 h-10 text-amber-500" />
-            </div>
-            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Main Frame</h3>
-            <p className="text-slate-400 font-bold mb-10 leading-relaxed uppercase text-xs tracking-wider">Comprehensive guides, neural maps, and integration manifests.</p>
-            {config.docsUrl ? (
-              <a
-                href={config.docsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex px-10 py-4 rounded-2xl bg-amber-500 text-black font-black uppercase tracking-widest hover:bg-amber-400 transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(245,158,11,0.3)]"
-              >
-                Access Core
-              </a>
-            ) : (
-              <a href="#guide" className="inline-flex px-10 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                Baseline Guide
-              </a>
-            )}
-          </div>
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          {resourceCards.map((card) => {
+            const Icon = card.icon;
 
-          <div className="hud-border rounded-3xl p-10 flex flex-col items-center text-center transition-all duration-500 hover:border-amber-500/40 group">
-            <div className="p-4 rounded-2xl bg-amber-500/10 mb-8 shadow-[0_0_20px_rgba(245,158,11,0.1)] group-hover:scale-110 transition-transform duration-500">
-              <TerminalSquare className="w-10 h-10 text-amber-500" />
-            </div>
-            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Command Manifest</h3>
-            <p className="text-slate-400 font-bold mb-10 leading-relaxed uppercase text-xs tracking-wider">Direct slash command reference and syntax stabilization logs.</p>
-            <a href="#commands" className="inline-flex px-10 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              View Manifest
-            </a>
-          </div>
+            return (
+              <article key={card.id} className="tech-card flex h-full flex-col overflow-hidden">
+                <div className="premium-icon-tile mb-7 h-14 w-14">
+                  <Icon className="h-6 w-6 text-slate-200" />
+                </div>
+                <h3 className="text-2xl font-bold tracking-tight text-white">{card.title}</h3>
+                <p className="mt-4 flex-1 text-sm font-medium leading-relaxed text-slate-400">{card.description}</p>
+                <a
+                  href={card.href}
+                  target={card.external ? '_blank' : undefined}
+                  rel={card.external ? 'noopener noreferrer' : undefined}
+                  className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-white"
+                >
+                  <span>{card.cta}</span>
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

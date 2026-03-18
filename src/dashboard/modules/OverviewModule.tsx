@@ -11,8 +11,10 @@ import {
   Ticket,
   Zap,
 } from 'lucide-react';
+import DashboardDegradationNotice from '../components/DashboardDegradationNotice';
 import PanelCard from '../components/PanelCard';
 import type {
+  DashboardPartialFailure,
   DashboardGuild,
   DashboardSectionId,
   GuildBackupManifest,
@@ -46,6 +48,7 @@ interface OverviewModuleProps {
   sectionStates: DashboardSectionState[];
   checklist: DashboardChecklistStep[];
   quickActions: DashboardQuickAction[];
+  partialFailures: DashboardPartialFailure[];
 }
 
 function getStatusLabel(status: DashboardSectionState['status']) {
@@ -130,6 +133,7 @@ export default function OverviewModule({
   sectionStates,
   checklist,
   quickActions,
+  partialFailures,
 }: OverviewModuleProps) {
   const insight = getOverviewInsight(
     guild,
@@ -171,6 +175,11 @@ export default function OverviewModule({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(23rem,0.95fr)] 2xl:grid-cols-[minmax(0,1.52fr)_minmax(24rem,0.88fr)]">
       <div className="space-y-6">
+        <DashboardDegradationNotice
+          failures={partialFailures}
+          title="La portada sigue disponible con datos parciales"
+        />
+
         <PanelCard
           eyebrow="Overview"
           title="Centro operativo del servidor"
