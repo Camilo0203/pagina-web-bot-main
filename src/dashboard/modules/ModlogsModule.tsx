@@ -3,8 +3,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ShieldCheck } from 'lucide-react';
+import {
+  ConfigFormActions,
+  FieldShell,
+  InventoryNotice,
+  ToggleCard,
+  ValidationSummary,
+} from '../components/ConfigForm';
 import PanelCard from '../components/PanelCard';
-import SaveRequestButton from '../components/SaveRequestButton';
 import SectionMutationBanner from '../components/SectionMutationBanner';
 import StateCard from '../components/StateCard';
 import { modlogSettingsSchema } from '../schemas';
@@ -17,6 +23,7 @@ import type {
   ModlogSettings,
 } from '../types';
 import { getChannelOptions } from '../utils';
+import { findMissingSelections, flattenFormErrors, getInventoryState } from '../validation';
 
 type ModlogsModuleValues = z.infer<typeof modlogSettingsSchema>;
 
@@ -46,7 +53,7 @@ export default function ModlogsModule({
     handleSubmit,
     reset,
     watch,
-    formState: { isDirty },
+    formState: { errors, isDirty },
   } = useForm<ModlogsModuleValues>({
     resolver: zodResolver(modlogSettingsSchema) as never,
     defaultValues: config.modlogSettings,
@@ -57,6 +64,12 @@ export default function ModlogsModule({
   }, [config.modlogSettings, reset]);
 
   const enabled = watch('enabled');
+  const validationErrors = flattenFormErrors(errors);
+  const inventoryState = getInventoryState(inventory);
+  const missingSelections = findMissingSelections(
+    [{ label: 'Canal de modlogs', value: config.modlogSettings.channelId }],
+    channelOptions,
+  );
 
   if (!guild.botInstalled) {
     return (
@@ -81,28 +94,46 @@ export default function ModlogsModule({
         eyebrow="Modlogs"
         title="Canal de auditoria"
         description="Deja una bitacora clara de moderacion para que el equipo pueda revisar que paso y cuando paso."
-        actions={<SaveRequestButton isDirty={isDirty} isSaving={isSaving} />}
+        actions={(
+          <ConfigFormActions
+            isDirty={isDirty}
+            isSaving={isSaving}
+            onReset={() => reset(config.modlogSettings)}
+            saveLabel="Guardar modlogs"
+          />
+        )}
       >
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
+        <div className="mt-6 space-y-4">
+          <ValidationSummary errors={[...validationErrors, ...missingSelections]} />
+          {!inventoryState.hasInventory ? (
+            <InventoryNotice
+              title="Inventario vacio"
+              message="No llegaron canales del servidor, asi que no podemos validar el destino real de los modlogs."
+            />
+          ) : null}
+        </div>
 
         <div className="mt-8 space-y-5">
-          <label className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
+          <ToggleCard
+            title="Modlogs activos"
+            description="El bot escribira eventos de moderacion y cambios de miembros."
+          >
             <input type="checkbox" {...register('enabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-            <span>
-              <span className="block font-semibold text-slate-950 dark:text-white">Modlogs activos</span>
-              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">El bot escribira eventos de moderacion y cambios de miembros.</span>
-            </span>
-          </label>
+          </ToggleCard>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Canal</span>
+          <FieldShell
+            label="Canal"
+            hint="Canal central donde quedara la auditoria."
+            error={errors.channelId?.message}
+          >
             <select {...register('channelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
               <option value="">No configurado</option>
               {channelOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </label>
+          </FieldShell>
         </div>
       </PanelCard>
 
@@ -121,10 +152,9 @@ export default function ModlogsModule({
             ['logLeaves', 'Salidas'],
             ['logVoice', 'Eventos de voz'],
           ].map(([field, label]) => (
-            <label key={field} className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
+            <ToggleCard key={field} title={label}>
               <input type="checkbox" {...register(field as keyof ModlogSettings)} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-              <span className="block font-semibold text-slate-950 dark:text-white">{label}</span>
-            </label>
+            </ToggleCard>
           ))}
         </div>
       </PanelCard>

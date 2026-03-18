@@ -3,8 +3,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Command, Plus, Trash2 } from 'lucide-react';
+import {
+  ConfigFormActions,
+  FieldShell,
+  FormSection,
+  InventoryNotice,
+  ToggleCard,
+  ValidationSummary,
+} from '../components/ConfigForm';
 import PanelCard from '../components/PanelCard';
-import SaveRequestButton from '../components/SaveRequestButton';
 import SectionMutationBanner from '../components/SectionMutationBanner';
 import StateCard from '../components/StateCard';
 import { commandSettingsSchema } from '../schemas';
@@ -17,6 +24,7 @@ import type {
   GuildSyncStatus,
 } from '../types';
 import { getCommandOptions } from '../utils';
+import { flattenFormErrors, getInventoryState } from '../validation';
 
 const commandOverrideRowSchema = z.object({
   commandName: z.string().trim().min(1).max(64),
@@ -25,9 +33,23 @@ const commandOverrideRowSchema = z.object({
   enabled: z.boolean(),
 });
 
-const commandModuleSchema = commandSettingsSchema.extend({
-  overrides: z.array(commandOverrideRowSchema).max(12),
-});
+const commandModuleSchema = commandSettingsSchema
+  .extend({
+    overrides: z.array(commandOverrideRowSchema).max(12),
+  })
+  .superRefine((value, context) => {
+    const duplicateCommands = value.overrides
+      .map((override) => override.commandName)
+      .filter((command, index, commands) => commands.indexOf(command) !== index);
+
+    if (duplicateCommands.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Ya existe un override para: ${Array.from(new Set(duplicateCommands)).join(', ')}.`,
+        path: ['overrides'],
+      });
+    }
+  });
 
 type CommandModuleValues = z.infer<typeof commandModuleSchema>;
 
@@ -71,7 +93,7 @@ export default function CommandsModule({
     watch,
     control,
     setValue,
-    formState: { isDirty },
+    formState: { errors, isDirty },
   } = useForm<CommandModuleValues>({
     resolver: zodResolver(commandModuleSchema),
     defaultValues: toFormValues(config.commandSettings),
@@ -87,6 +109,15 @@ export default function CommandsModule({
   }, [config.commandSettings, reset]);
 
   const disabledCommands = watch('disabledCommands');
+  const validationErrors = flattenFormErrors(errors);
+  const inventoryState = getInventoryState(inventory);
+  const commandNames = new Set(commandOptions.map((command) => command.value));
+  const missingDisabledCommands = config.commandSettings.disabledCommands
+    .filter((command) => !commandNames.has(command))
+    .map((command) => `/${command} aparece deshabilitado, pero ya no existe en el inventario actual.`);
+  const missingOverrides = Object.keys(config.commandSettings.commandRateLimitOverrides)
+    .filter((command) => !commandNames.has(command))
+    .map((command) => `/${command} tiene override guardado, pero el comando no existe en el inventario actual.`);
 
   if (!guild.botInstalled) {
     return (
@@ -131,36 +162,62 @@ export default function CommandsModule({
         eyebrow="Comandos"
         title="Disponibilidad y limites"
         description="Controla que comandos estan activos y como se rate-limitan en este servidor."
-        actions={<SaveRequestButton isDirty={isDirty} isSaving={isSaving} />}
+        actions={(
+          <ConfigFormActions
+            isDirty={isDirty}
+            isSaving={isSaving}
+            onReset={() => reset(toFormValues(config.commandSettings))}
+            saveLabel="Guardar politicas de comandos"
+          />
+        )}
       >
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
-
-        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            ['rateLimitEnabled', 'Rate limit global'],
-            ['rateLimitBypassAdmin', 'Admins sin limite'],
-            ['commandRateLimitEnabled', 'Rate limit por comando'],
-            ['simpleHelpMode', 'Help simple'],
-          ].map(([field, label]) => (
-            <label key={field} className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
-              <input type="checkbox" {...register(field as keyof CommandModuleValues)} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-              <span className="block font-semibold text-slate-950 dark:text-white">{label}</span>
-            </label>
-          ))}
+        <div className="mt-6 space-y-4">
+          <ValidationSummary errors={[...validationErrors, ...missingDisabledCommands, ...missingOverrides]} />
+          {!inventoryState.hasInventory ? (
+            <InventoryNotice
+              title="Inventario de comandos vacio"
+              message="Todavia no llegaron slash commands del bot. Puedes revisar la configuracion cargada, pero conviene re-sincronizar antes de cambiar listas u overrides."
+            />
+          ) : null}
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            ['rateLimitWindowSeconds', 'Ventana global (seg)', 3, 120],
-            ['rateLimitMaxActions', 'Max acciones global', 1, 50],
-            ['commandRateLimitWindowSeconds', 'Ventana comando (seg)', 1, 300],
-            ['commandRateLimitMaxActions', 'Max acciones comando', 1, 50],
-          ].map(([field, label, min, max]) => (
-            <label key={field} className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">{label}</span>
-              <input type="number" min={Number(min)} max={Number(max)} {...register(field as keyof CommandModuleValues, { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-            </label>
-          ))}
+        <div className="mt-8 space-y-8">
+          <FormSection
+            title="Politica general"
+            description="Define si el servidor usa ayuda simplificada y que capas de limitacion estan activas por defecto."
+          >
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                ['rateLimitEnabled', 'Rate limit global', 'Aplica una cuota comun a todos los comandos.'],
+                ['rateLimitBypassAdmin', 'Admins sin limite', 'Deja a los administradores fuera del rate limit general.'],
+                ['commandRateLimitEnabled', 'Rate limit por comando', 'Permite una cuota base para comandos individuales.'],
+                ['simpleHelpMode', 'Help simple', 'Usa una ayuda mas directa para admins y miembros.'],
+              ].map(([field, label, description]) => (
+                <ToggleCard key={field} title={label} description={description}>
+              <input type="checkbox" {...register(field as keyof CommandModuleValues)} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                </ToggleCard>
+              ))}
+            </div>
+          </FormSection>
+
+          <FormSection
+            title="Limites base"
+            description="Los admins entienden mejor el comportamiento cuando la cuota general y la cuota por comando estan claramente separadas."
+          >
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                ['rateLimitWindowSeconds', 'Ventana global (seg)', 3, 120],
+                ['rateLimitMaxActions', 'Max acciones global', 1, 50],
+                ['commandRateLimitWindowSeconds', 'Ventana comando (seg)', 1, 300],
+                ['commandRateLimitMaxActions', 'Max acciones comando', 1, 50],
+              ].map(([field, label, min, max]) => (
+                <FieldShell key={String(field)} label={String(label)}>
+                  <input type="number" min={Number(min)} max={Number(max)} {...register(field as keyof CommandModuleValues, { valueAsNumber: true })} className="dashboard-form-field" />
+                </FieldShell>
+              ))}
+            </div>
+          </FormSection>
         </div>
       </PanelCard>
 
@@ -228,7 +285,7 @@ export default function CommandsModule({
                 <div key={field.id} className="grid gap-4 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70 md:grid-cols-[1.1fr_0.7fr_0.7fr_auto_auto]">
                   <label className="block">
                     <span className="mb-2 block text-sm text-slate-600 dark:text-slate-300">Comando</span>
-                    <select {...register(`overrides.${index}.commandName`)} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-800">
+                    <select {...register(`overrides.${index}.commandName`)} className="dashboard-form-field dark:bg-surface-800">
                       {commandOptions.map((option) => (
                         <option key={option.value} value={option.value}>/{option.value}</option>
                       ))}
@@ -236,11 +293,11 @@ export default function CommandsModule({
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-sm text-slate-600 dark:text-slate-300">Max</span>
-                    <input type="number" min={1} max={50} {...register(`overrides.${index}.maxActions`, { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-800" />
+                    <input type="number" min={1} max={50} {...register(`overrides.${index}.maxActions`, { valueAsNumber: true })} className="dashboard-form-field dark:bg-surface-800" />
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-sm text-slate-600 dark:text-slate-300">Ventana</span>
-                    <input type="number" min={1} max={300} {...register(`overrides.${index}.windowSeconds`, { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-800" />
+                    <input type="number" min={1} max={300} {...register(`overrides.${index}.windowSeconds`, { valueAsNumber: true })} className="dashboard-form-field dark:bg-surface-800" />
                   </label>
                   <label className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 dark:border-surface-600 dark:bg-surface-800 dark:text-white">
                     <input type="checkbox" {...register(`overrides.${index}.enabled`)} className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />

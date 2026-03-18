@@ -58,7 +58,7 @@ export default function AuthCard({
             Inicia sesion para entrar al panel de control
           </h1>
           <p className="mx-auto max-w-xl text-sm leading-7 text-slate-700 dark:text-slate-300 sm:text-[0.95rem]">
-            {errorMessage || 'Accede con Discord para administrar tus servidores, sincronizar configuraciones y operar el dashboard con permisos reales.'}
+            {errorMessage || 'Accede con Discord para validar tu sesion, sincronizar guilds administrables y operar el dashboard con permisos reales.'}
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export default function AuthCard({
         </div>
 
         <p className="mt-5 text-xs leading-6 text-slate-500 dark:text-slate-400">
-          Cifrado seguro · Sincronizacion de servidores · Acceso con Supabase
+          Cifrado seguro - Sincronizacion de servidores - Acceso con Supabase
         </p>
       </div>
       <div className="relative z-[1] mt-7 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">

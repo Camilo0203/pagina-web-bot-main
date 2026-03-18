@@ -3,8 +3,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Shield } from 'lucide-react';
+import {
+  ConfigFormActions,
+  FieldShell,
+  FormSection,
+  InventoryNotice,
+  ToggleCard,
+  ValidationSummary,
+} from '../components/ConfigForm';
 import PanelCard from '../components/PanelCard';
-import SaveRequestButton from '../components/SaveRequestButton';
 import SectionMutationBanner from '../components/SectionMutationBanner';
 import StateCard from '../components/StateCard';
 import { verificationSettingsSchema } from '../schemas';
@@ -17,6 +24,7 @@ import type {
   VerificationSettings,
 } from '../types';
 import { getChannelOptions, getRoleOptions } from '../utils';
+import { findMissingSelections, flattenFormErrors, getInventoryState } from '../validation';
 
 type VerificationModuleValues = z.infer<typeof verificationSettingsSchema>;
 
@@ -59,6 +67,24 @@ export default function VerificationModule({
 
   const enabled = watch('enabled');
   const mode = watch('mode');
+  const validationErrors = flattenFormErrors(errors);
+  const inventoryState = getInventoryState(inventory);
+  const missingSelections = [
+    ...findMissingSelections(
+      [
+        { label: 'Canal del panel', value: config.verificationSettings.channelId },
+        { label: 'Canal de logs', value: config.verificationSettings.logChannelId },
+      ],
+      channelOptions,
+    ),
+    ...findMissingSelections(
+      [
+        { label: 'Rol verificado', value: config.verificationSettings.verifiedRoleId },
+        { label: 'Rol no verificado', value: config.verificationSettings.unverifiedRoleId },
+      ],
+      roleOptions,
+    ),
+  ];
 
   if (!guild.botInstalled) {
     return (
@@ -83,124 +109,122 @@ export default function VerificationModule({
         eyebrow="Verificacion"
         title="Flujo de acceso al servidor"
         description="Configura como entra la gente al servidor, que rol recibe al completar el proceso y que pasa si llega una oleada sospechosa."
-        actions={<SaveRequestButton isDirty={isDirty} isSaving={isSaving} />}
+        actions={(
+          <ConfigFormActions
+            isDirty={isDirty}
+            isSaving={isSaving}
+            onReset={() => reset(config.verificationSettings)}
+            saveLabel="Guardar acceso"
+          />
+        )}
       >
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
+        <div className="mt-6 space-y-4">
+          <ValidationSummary errors={[...validationErrors, ...missingSelections]} />
+          {!inventoryState.hasInventory ? (
+            <InventoryNotice
+              title="Inventario incompleto"
+              message="No llegaron roles o canales suficientes para validar el flujo completo de verificacion."
+            />
+          ) : null}
+        </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          <label className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 md:col-span-2 dark:border-surface-600 dark:bg-surface-700/70">
+        <div className="mt-8 space-y-8">
+          <FormSection
+            title="Flujo principal"
+            description="Primero define donde vive el panel y que roles participan. Luego decide el modo exacto de verificacion."
+          >
+            <div className="grid gap-5 md:grid-cols-2">
+              <ToggleCard title="Sistema activo" description="Activa el panel y las reglas de acceso verificable.">
             <input type="checkbox" {...register('enabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-            <span>
-              <span className="block font-semibold text-slate-950 dark:text-white">Sistema activo</span>
-              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">Activa el panel y las reglas de acceso verificable.</span>
-            </span>
-          </label>
+              </ToggleCard>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Canal del panel</span>
+              <FieldShell label="Canal del panel" error={errors.channelId?.message}>
             <select {...register('channelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
               <option value="">No configurado</option>
               {channelOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </label>
+              </FieldShell>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Canal de logs</span>
+              <FieldShell label="Canal de logs">
             <select {...register('logChannelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
               <option value="">No configurado</option>
               {channelOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </label>
+              </FieldShell>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Rol verificado</span>
+              <FieldShell label="Rol verificado" error={errors.verifiedRoleId?.message}>
             <select {...register('verifiedRoleId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
               <option value="">No configurado</option>
               {roleOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </label>
+              </FieldShell>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Rol no verificado</span>
+              <FieldShell label="Rol no verificado">
             <select {...register('unverifiedRoleId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
               <option value="">No configurado</option>
               {roleOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </label>
+              </FieldShell>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Modo</span>
+              <FieldShell label="Modo">
             <select {...register('mode')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
               <option value="button">Boton</option>
               <option value="code">Codigo</option>
               <option value="question">Pregunta</option>
             </select>
-          </label>
+              </FieldShell>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Autokick (horas)</span>
-            <input type="number" min={0} max={168} {...register('kickUnverifiedHours', { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-          </label>
+              <FieldShell label="Autokick (horas)" hint="0 desactiva el retiro automatico.">
+                <input type="number" min={0} max={168} {...register('kickUnverifiedHours', { valueAsNumber: true })} className="dashboard-form-field" />
+              </FieldShell>
+            </div>
+          </FormSection>
         </div>
       </PanelCard>
 
       <PanelCard title="Panel visual y antiraid" description="Textos, apariencia y reglas defensivas para que el acceso sea claro para miembros y seguro para el staff.">
-        <div className="space-y-5">
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Titulo</span>
-            <input {...register('panelTitle')} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Descripcion</span>
-            <textarea {...register('panelDescription')} rows={4} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-          </label>
+        <div className="space-y-6">
+          <FieldShell label="Titulo">
+            <input {...register('panelTitle')} className="dashboard-form-field" />
+          </FieldShell>
+          <FieldShell label="Descripcion">
+            <textarea {...register('panelDescription')} rows={4} className="dashboard-form-field" />
+          </FieldShell>
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Color HEX</span>
-              <input {...register('panelColor')} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-              {errors.panelColor ? <span className="mt-2 block text-sm text-rose-500">{errors.panelColor.message}</span> : null}
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Imagen</span>
-              <input {...register('panelImage')} placeholder="https://..." className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-            </label>
+            <FieldShell label="Color HEX" error={errors.panelColor?.message}>
+              <input {...register('panelColor')} className="dashboard-form-field" />
+            </FieldShell>
+            <FieldShell label="Imagen">
+              <input {...register('panelImage')} placeholder="https://..." className="dashboard-form-field" />
+            </FieldShell>
           </div>
           {mode === 'question' ? (
             <div className="grid gap-5 md:grid-cols-2">
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Pregunta</span>
-                <input {...register('question')} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Respuesta esperada</span>
-                <input {...register('questionAnswer')} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-              </label>
+              <FieldShell label="Pregunta" error={errors.question?.message}>
+                <input {...register('question')} className="dashboard-form-field" />
+              </FieldShell>
+              <FieldShell label="Respuesta esperada" error={errors.questionAnswer?.message}>
+                <input {...register('questionAnswer')} className="dashboard-form-field" />
+              </FieldShell>
             </div>
           ) : null}
 
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
+            <ToggleCard title="Antiraid" description="Controla joins anormales antes de verificar.">
               <input type="checkbox" {...register('antiraidEnabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-              <span>
-                <span className="block font-semibold text-slate-950 dark:text-white">Antiraid</span>
-                <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">Controla joins anormales antes de verificar.</span>
-              </span>
-            </label>
-            <label className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
+            </ToggleCard>
+            <ToggleCard title="DM al verificar" description="Confirma por mensaje directo cuando alguien completa el proceso.">
               <input type="checkbox" {...register('dmOnVerify')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-              <span>
-                <span className="block font-semibold text-slate-950 dark:text-white">DM al verificar</span>
-                <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">Confirma por mensaje directo cuando alguien completa el proceso.</span>
-              </span>
-            </label>
+            </ToggleCard>
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">

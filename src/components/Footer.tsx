@@ -1,109 +1,179 @@
-import { Twitter, Github, MessageCircle, Mail, Map } from 'lucide-react';
+import { Twitter, Github, MessageCircle, Mail, Map, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { config } from '../config';
+import { config, getDashboardUrl, getDiscordInviteUrl } from '../config';
 import Logo from './Logo';
 
 interface FooterProps {
   onOpenLegal: (type: 'terms' | 'privacy' | 'cookies') => void;
 }
 
+function FooterLink({
+  href,
+  label,
+}: {
+  href: string;
+  label: string;
+}) {
+  const isHash = href.startsWith('#');
+  const isInternal = href.startsWith('/');
+
+  if (isHash) {
+    return (
+      <a href={href} className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black">
+        <span>{label}</span>
+      </a>
+    );
+  }
+
+  if (isInternal) {
+    return (
+      <a href={href} className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black">
+        <span>{label}</span>
+      </a>
+    );
+  }
+
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black">
+      <span>{label}</span>
+      <ExternalLink className="h-3.5 w-3.5" />
+    </a>
+  );
+}
+
 export default function Footer({ onOpenLegal }: FooterProps) {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
+  const inviteUrl = getDiscordInviteUrl();
+  const dashboardUrl = getDashboardUrl();
+
+  const productLinks = [
+    { href: '#features', label: t('footer.nav.features') },
+    { href: '#experience', label: t('footer.nav.experience') },
+    { href: '#why', label: t('footer.nav.why') },
+    { href: '#stats', label: t('footer.nav.stats') },
+  ];
+
+  const resourceLinks = [
+    inviteUrl ? { href: inviteUrl, label: t('footer.nav.invite') } : null,
+    { href: dashboardUrl, label: t('footer.nav.dashboard') },
+    config.docsUrl ? { href: config.docsUrl, label: t('footer.nav.docs') } : null,
+    config.statusUrl ? { href: config.statusUrl, label: t('footer.nav.status') } : null,
+    config.githubUrl ? { href: config.githubUrl, label: t('footer.nav.github') } : null,
+  ].filter(Boolean) as { href: string; label: string }[];
+
+  const supportLinks = [
+    config.supportServerUrl ? { href: config.supportServerUrl, label: t('footer.nav.support') } : null,
+    config.contactEmail ? { href: `mailto:${config.contactEmail}`, label: config.contactEmail } : null,
+  ].filter(Boolean) as { href: string; label: string }[];
+
+  const socialLinks = [
+    { url: config.twitterUrl, Icon: Twitter, label: 'Twitter' },
+    { url: config.githubUrl, Icon: Github, label: 'GitHub' },
+    { url: config.supportServerUrl, Icon: MessageCircle, label: 'Discord' },
+    { url: config.contactEmail ? `mailto:${config.contactEmail}` : null, Icon: Mail, label: 'Email' },
+  ].filter((item) => item.url);
 
   return (
-    <footer className="relative bg-black border-t border-white/5 pt-40 pb-20 overflow-hidden">
-      {/* Decorative Gradient */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
+    <footer className="relative overflow-hidden border-t border-white/5 bg-black pb-16 pt-24" aria-label="Footer">
+      <div className="absolute left-1/2 top-0 h-px w-full -translate-x-1/2 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-20 mb-32">
-          <div className="col-span-1 lg:col-span-2">
-            <div className="flex items-center gap-4 mb-10">
-              <Logo
-                size="xl"
-                subtitle="TON618"
-                frameClassName="h-28 w-28 md:h-32 md:w-32"
-                imageClassName="scale-[1.06]"
-              />
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
+        <h2 className="sr-only">Footer</h2>
+        <div className="mb-16 grid gap-12 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))]">
+          <div>
+            <div className="mb-8 flex items-center gap-4">
+              <Logo size="xl" subtitle="TON618" frameClassName="h-24 w-24 md:h-28 md:w-28" imageClassName="scale-[1.06]" />
             </div>
-            <p className="text-slate-500 max-w-sm font-medium leading-relaxed mb-10 text-lg">
+
+            <p className="mb-8 max-w-md text-base font-medium leading-relaxed text-slate-400">
               {t('footer.tagline')}
             </p>
-            <div className="flex gap-4">
-               {[
-                 { url: config.twitterUrl,      Icon: Twitter,        label: 'Twitter' },
-                 { url: config.githubUrl,       Icon: Github,         label: 'GitHub' },
-                 { url: config.supportServerUrl,Icon: MessageCircle,  label: 'Discord' },
-                 { url: config.contactEmail ? `mailto:${config.contactEmail}` : null, Icon: Mail, label: 'Email' },
-               ].filter(s => s.url).map(({ url, Icon, label }) => (
-                 <a key={label} href={url!} target={label !== 'Email' ? '_blank' : undefined}
-                   rel={label !== 'Email' ? 'noopener noreferrer' : undefined}
-                   className="cinematic-glass flex h-14 w-14 items-center justify-center rounded-xl text-slate-400 transition-all duration-500 hover:scale-110 hover:text-white"
-                   aria-label={label}>
-                   <Icon className="w-6 h-6" />
-                 </a>
-               ))}
+
+            {inviteUrl ? (
+              <a href={inviteUrl} className="btn-premium-primary mb-8 !px-5 !py-3 !text-[10px]">
+                <span>{t('footer.inviteCta')}</span>
+              </a>
+            ) : null}
+
+            <div className="flex flex-wrap gap-4">
+              {socialLinks.map(({ url, Icon, label }) => (
+                <a
+                  key={label}
+                  href={url!}
+                  target={label !== 'Email' ? '_blank' : undefined}
+                  rel={label !== 'Email' ? 'noopener noreferrer' : undefined}
+                  className="cinematic-glass flex h-12 w-12 items-center justify-center rounded-xl text-slate-400 transition-all duration-500 hover:scale-105 hover:text-white"
+                  aria-label={label}
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
             </div>
           </div>
 
           <div>
-             <h3 className="text-xs font-bold text-white uppercase tracking-[0.5em] mb-12 flex items-center gap-3">
-                <div className="w-5 h-px bg-indigo-500"></div>
-                {t('footer.navTitle')}
-             </h3>
-             <ul className="space-y-6">
-                {[
-                  { href: '#features', label: t('footer.nav.features') },
-                  { href: '#experience', label: t('nav.architecture') },
-                  { href: '#why', label: t('nav.whyTon') },
-                  { href: '#stats', label: t('footer.nav.stats') }
-                ].map((item) => (
-                  <li key={item.href}>
-                    <a href={item.href} className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 inline-block">
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-             </ul>
+            <h3 className="mb-6 text-[11px] font-bold uppercase tracking-[0.35em] text-white">{t('footer.productTitle')}</h3>
+            <ul className="space-y-4">
+              {productLinks.map((item) => (
+                <li key={item.href}>
+                  <FooterLink href={item.href} label={item.label} />
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div>
-             <h3 className="text-xs font-bold text-white uppercase tracking-[0.5em] mb-12 flex items-center gap-3">
-                <div className="w-5 h-px bg-purple-500"></div>
-                {t('footer.govTitle')}
-             </h3>
-             <ul className="space-y-6">
-                {(['terms','privacy','cookies'] as const).map((type) => (
-                  <li key={type}>
-                    <button type="button" onClick={() => onOpenLegal(type)}
-                      className="text-xs text-slate-500 hover:text-indigo-400 font-bold uppercase tracking-[0.2em] transition-all hover:translate-x-2 text-left">
-                      {t(`footer.gov.${type}`)}
-                    </button>
-                  </li>
-                ))}
-             </ul>
+            <h3 className="mb-6 text-[11px] font-bold uppercase tracking-[0.35em] text-white">{t('footer.resourcesTitle')}</h3>
+            <ul className="space-y-4">
+              {resourceLinks.map((item) => (
+                <li key={item.href}>
+                  <FooterLink href={item.href} label={item.label} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-6 text-[11px] font-bold uppercase tracking-[0.35em] text-white">{t('footer.supportTitle')}</h3>
+            <ul className="space-y-4">
+              {supportLinks.map((item) => (
+                <li key={item.href}>
+                  <FooterLink href={item.href} label={item.label} />
+                </li>
+              ))}
+              {(['terms', 'privacy', 'cookies'] as const).map((type) => (
+                <li key={type}>
+                  <button
+                    type="button"
+                    onClick={() => onOpenLegal(type)}
+                    className="text-left text-sm text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  >
+                    {t(`footer.gov.${type}`)}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
-        <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10">
-           <div className="flex flex-wrap justify-center md:justify-start items-center gap-8">
-              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em]">
-                {t('footer.copyright', { year: currentYear })}
+        <div className="flex flex-col gap-6 border-t border-white/5 pt-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
+              {t('footer.copyright', { year: currentYear })}
+            </span>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-indigo-500/60"></div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500">
+                {t('footer.stabilized')}
               </span>
-              <div className="hidden md:block w-px h-4 bg-white/10"></div>
-              <div className="flex items-center gap-2">
-                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/30"></div>
-                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">
-                   {t('footer.stabilized')}
-                 </span>
-              </div>
-           </div>
-           
-           <div className="flex items-center gap-3 text-[10px] font-bold text-slate-600 uppercase tracking-[0.4em] group">
-              <Map className="w-3 h-3 group-hover:text-indigo-500 transition-colors" />
-              <span>{t('footer.commanded')}</span>
-           </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.32em] text-slate-600">
+            <Map className="h-3 w-3" />
+            <span>{t('footer.commanded')}</span>
+          </div>
         </div>
       </div>
     </footer>

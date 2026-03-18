@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const languages = [
   { code: 'en', name: 'English', short: 'EN' },
-  { code: 'es', name: 'Español', short: 'ES' },
+  { code: 'es', name: 'Espanol', short: 'ES' },
 ];
 
 const normalizeLanguageCode = (language?: string) =>
@@ -15,10 +15,21 @@ export default function LanguageSelector() {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const normalizedLanguage = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language);
 
   const currentLanguage =
     languages.find((language) => language.code === normalizedLanguage) || languages[0];
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const activeIndex = languages.findIndex((language) => language.code === normalizedLanguage);
+    itemRefs.current[activeIndex >= 0 ? activeIndex : 0]?.focus();
+  }, [isOpen, normalizedLanguage]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -37,6 +48,7 @@ export default function LanguageSelector() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
+        triggerRef.current?.focus();
       }
     };
 
@@ -52,13 +64,58 @@ export default function LanguageSelector() {
   const toggleLanguage = async (code: string) => {
     await i18n.changeLanguage(code);
     setIsOpen(false);
+    triggerRef.current?.focus();
   };
 
   const getIsActiveLanguage = (code: string) => code === normalizedLanguage;
 
+  function moveFocus(nextIndex: number) {
+    const boundedIndex = (nextIndex + languages.length) % languages.length;
+    itemRefs.current[boundedIndex]?.focus();
+  }
+
+  function handleTriggerKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setIsOpen(true);
+    }
+  }
+
+  function handleMenuItemKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveFocus(index + 1);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveFocus(index - 1);
+      return;
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault();
+      moveFocus(0);
+      return;
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault();
+      moveFocus(languages.length - 1);
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setIsOpen(false);
+      triggerRef.current?.focus();
+    }
+  }
+
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex items-center rounded-xl border border-white/5 cinematic-glass sm:hidden">
+      <div className="cinematic-glass flex items-center rounded-xl border border-white/5 sm:hidden">
         {languages.map((language) => {
           const isActive = getIsActiveLanguage(language.code);
 
@@ -68,10 +125,9 @@ export default function LanguageSelector() {
               type="button"
               onClick={() => toggleLanguage(language.code)}
               aria-pressed={isActive}
-              className={`flex min-w-[3.25rem] items-center justify-center px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
-                isActive
-                  ? 'bg-indigo-500/20 text-white'
-                  : 'text-slate-400 hover:text-white'
+              aria-label={language.name}
+              className={`flex min-w-[3.25rem] items-center justify-center px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 ${
+                isActive ? 'bg-indigo-500/20 text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
               {language.short}
@@ -81,9 +137,11 @@ export default function LanguageSelector() {
       </div>
 
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        className="hidden items-center gap-2 rounded-xl border border-white/5 px-4 py-2 transition-all duration-300 cinematic-glass group hover:border-indigo-500/30 sm:flex"
+        onKeyDown={handleTriggerKeyDown}
+        className="cinematic-glass group hidden items-center gap-2 rounded-xl border border-white/5 px-4 py-2 transition-all duration-300 hover:border-indigo-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 sm:flex"
         aria-label="Change language"
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -105,35 +163,39 @@ export default function LanguageSelector() {
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             role="menu"
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-[140] hidden w-40 overflow-hidden rounded-2xl border border-white/10 cinematic-glass shadow-3xl sm:block"
+            aria-label="Language selector"
+            className="cinematic-glass shadow-3xl absolute right-0 top-[calc(100%+0.75rem)] z-[140] hidden w-40 overflow-hidden rounded-2xl border border-white/10 sm:block"
           >
             <div className="flex flex-col gap-1 p-2">
-              {languages.map((language) => {
+              {languages.map((language, index) => {
                 const isActive = getIsActiveLanguage(language.code);
 
                 return (
                   <button
                     key={language.code}
+                    ref={(element) => {
+                      itemRefs.current[index] = element;
+                    }}
                     type="button"
                     onClick={() => toggleLanguage(language.code)}
+                    onKeyDown={(event) => handleMenuItemKeyDown(event, index)}
                     role="menuitemradio"
                     aria-checked={isActive}
-                    className={`group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 ${
+                    aria-label={language.name}
+                    className={`group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 ${
                       isActive
                         ? 'bg-indigo-500/20 text-white'
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     <span className="text-[10px] font-bold uppercase tracking-widest">{language.name}</span>
-                    {isActive ? (
-                      <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
-                    ) : null}
+                    {isActive ? <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" aria-hidden="true" /> : null}
                   </button>
                 );
               })}
             </div>
 
-            <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent"></div>
+            <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
           </motion.div>
         ) : null}
       </AnimatePresence>

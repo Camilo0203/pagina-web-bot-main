@@ -696,6 +696,27 @@ interface GuildTicketMacroRow {
   is_system?: boolean | null;
 }
 
+function normalizeDashboardPreferencesInput(value: unknown) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return value;
+  }
+
+  const preferences = value as Record<string, unknown>;
+  const defaultSection =
+    typeof preferences.defaultSection === 'string'
+      ? preferences.defaultSection.trim().toLowerCase()
+      : null;
+
+  if (defaultSection !== 'moderation') {
+    return value;
+  }
+
+  return {
+    ...preferences,
+    defaultSection: 'system',
+  };
+}
+
 export function createDefaultGuildConfig(guildId: string): GuildConfig {
   return {
     guildId,
@@ -800,7 +821,8 @@ export function normalizeGuildConfig(
             ...defaultSystemSettings,
             legacyProtectionSettings: row.moderation_settings ?? defaultLegacyProtectionSettings,
           },
-    dashboardPreferences: row.dashboard_preferences ?? defaultDashboardPreferences,
+    dashboardPreferences:
+      normalizeDashboardPreferencesInput(row.dashboard_preferences) ?? defaultDashboardPreferences,
     updatedBy: row.updated_by ?? null,
     updatedAt: row.updated_at ?? null,
     configSource: row.config_source ?? 'bot',

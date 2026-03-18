@@ -29,6 +29,8 @@ function BannerShell({
       initial="hidden"
       animate="show"
       className={`rounded-[1.55rem] border p-4 ${className}`}
+      role="status"
+      aria-live="polite"
     >
       <div className="flex items-start gap-3">
         <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border border-current/15 bg-white/20 dark:bg-white/5">
@@ -61,6 +63,8 @@ export default function SectionMutationBanner({
         initial="hidden"
         animate="show"
         className="dashboard-surface-soft rounded-[1.45rem] p-4 text-sm text-slate-700 dark:text-slate-300"
+        role="status"
+        aria-live="polite"
       >
         Sin cambios pendientes para esta seccion. El bot sigue mostrando el ultimo estado aplicado.
       </motion.div>

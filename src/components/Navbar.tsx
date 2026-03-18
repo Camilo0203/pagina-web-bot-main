@@ -1,18 +1,54 @@
-import { useState, useEffect } from 'react';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Menu, X, ChevronRight, ExternalLink, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { getDashboardUrl } from '../config';
+import { Link } from 'react-router-dom';
+import { config, getDashboardUrl, getDiscordInviteUrl } from '../config';
 import LanguageSelector from './LanguageSelector';
 import Logo from './Logo';
+
+function NavAction({
+  href,
+  label,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  onClick?: () => void;
+}) {
+  const isInternal = href.startsWith('/');
+
+  if (isInternal) {
+    return (
+      <Link to={href} onClick={onClick} className="text-sm font-semibold text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+        {label}
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      href={href}
+      onClick={onClick}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm font-semibold text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+    >
+      {label}
+    </a>
+  );
+}
 
 export default function Navbar() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const dashboardUrl = getDashboardUrl();
+  const inviteUrl = getDiscordInviteUrl();
+  const canInvite = Boolean(inviteUrl);
   const navbarClassName = scrolled
-    ? 'bg-[linear-gradient(180deg,rgba(5,6,15,0.88),rgba(5,6,15,0.72))] backdrop-blur-xl border-0 shadow-[0_18px_55px_rgba(0,0,0,0.52)]'
-    : 'bg-transparent border-0 shadow-none';
+    ? 'bg-[linear-gradient(180deg,rgba(5,6,15,0.9),rgba(5,6,15,0.76))] backdrop-blur-2xl border border-white/10 shadow-[0_18px_55px_rgba(0,0,0,0.52)]'
+    : 'bg-[linear-gradient(180deg,rgba(5,6,15,0.42),rgba(5,6,15,0.2))] backdrop-blur-md border border-white/5 shadow-none';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -42,8 +78,6 @@ export default function Navbar() {
     };
   }, []);
 
-  const dashboardUrl = getDashboardUrl();
-
   const navLinks = [
     { name: t('nav.features'), href: '#features' },
     { name: t('nav.architecture'), href: '#experience' },
@@ -51,102 +85,167 @@ export default function Navbar() {
     { name: t('nav.network'), href: '#stats' },
   ];
 
+  const utilityLinks = [
+    config.docsUrl ? { href: config.docsUrl, label: 'Docs' } : null,
+    config.statusUrl ? { href: config.statusUrl, label: 'Status' } : null,
+    config.supportServerUrl ? { href: config.supportServerUrl, label: 'Support' } : null,
+  ].filter(Boolean) as { href: string; label: string }[];
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[90] transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}>
-      <div className="relative max-w-7xl mx-auto px-6">
-        <div className={`relative flex items-center justify-between overflow-visible px-6 py-3 rounded-[1.75rem] transition-all duration-500 ${navbarClassName}`}>
-          
-          <div className="flex items-center gap-10 lg:gap-16">
-            <a href="/" className="flex items-center gap-3 group">
+    <nav className={`fixed left-0 right-0 top-0 z-[90] transition-all duration-500 ${scrolled ? 'py-4' : 'py-5 md:py-6'}`} aria-label="Primary">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+        <div className={`relative flex items-center justify-between overflow-visible rounded-[1.75rem] px-4 py-3 transition-all duration-500 md:px-6 ${navbarClassName}`}>
+          <div className="flex min-w-0 items-center gap-6 lg:gap-10">
+            <Link to="/" className="flex min-w-0 items-center gap-3 group" aria-label={t('nav.homeAria')}>
               <Logo
                 size="lg"
                 subtitle="TON618"
                 className="transition-transform duration-500 group-hover:scale-[1.02]"
-                textClassName="group-hover:text-indigo-200 transition-colors duration-500"
-                frameClassName="h-[5.25rem] w-[5.25rem] md:h-[5.75rem] md:w-[5.75rem]"
+                textClassName="transition-colors duration-500 group-hover:text-indigo-200"
+                frameClassName="h-[4.7rem] w-[4.7rem] md:h-[5.1rem] md:w-[5.1rem]"
                 imageClassName="transition-transform duration-500 group-hover:scale-[1.9]"
               />
-            </a>
+            </Link>
 
-            <div className="hidden lg:flex items-center gap-10">
+            <div className="hidden items-center gap-8 xl:flex">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 hover:text-white transition-all duration-300 relative group"
+                  className="relative text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 transition-all duration-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   {link.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-indigo-500 transition-all duration-500 group-hover:w-full"></span>
+                  <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-indigo-500 transition-all duration-500 hover:w-full"></span>
                 </a>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-4 lg:gap-8">
+          <div className="hidden items-center gap-5 lg:flex">
+            {utilityLinks.length > 0 ? (
+              <div className="hidden items-center gap-4 xl:flex">
+                {utilityLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  >
+                    <span>{link.label}</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ))}
+              </div>
+            ) : null}
+
             <LanguageSelector />
 
-            <a
-              href={dashboardUrl}
-              className="hidden md:flex btn-premium-primary !px-6 !py-2.5 !text-[10px] !rounded-lg"
-            >
-              <span>{t('nav.cta')}</span>
-              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </a>
+            <NavAction href={dashboardUrl} label={t('nav.secondaryCta')} />
+
+            {canInvite ? (
+              <a href={inviteUrl} className="btn-premium-primary !px-5 !py-3 !text-[10px] !rounded-xl">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>{t('nav.primaryCta')}</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="btn-premium-primary !cursor-not-allowed !px-5 !py-3 !text-[10px] !rounded-xl opacity-60"
+                title={t('hero.inviteUnavailable')}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>{t('nav.primaryCta')}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 lg:hidden">
+            <LanguageSelector />
 
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-300 hover:text-white transition-colors"
-              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-200 transition hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80"
+              aria-label={mobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
       </div>
 
       <AnimatePresence>
-        {mobileMenuOpen && (
+        {mobileMenuOpen ? (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             id="mobile-navigation"
-            className="lg:hidden absolute top-full left-0 right-0 z-[95] px-6 pt-2 overflow-hidden"
+            className="absolute left-0 right-0 top-full z-[95] overflow-hidden px-4 pt-2 sm:px-6"
           >
-            <div className="cinematic-glass rounded-2xl border-white/5 p-8 flex flex-col gap-8 shadow-3xl shadow-black">
-              <div className="flex items-center justify-between mb-4">
-                <Logo
-                  size="md"
-                  subtitle="TON618"
-                  frameClassName="h-[4.75rem] w-[4.75rem]"
-                />
-                <LanguageSelector />
+            <div className="cinematic-glass flex flex-col gap-6 rounded-[1.75rem] border-white/10 p-6 shadow-3xl shadow-black">
+              <div className="grid gap-4">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-4 text-base font-bold text-white transition hover:border-white/15 hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80"
+                  >
+                    {link.name}
+                  </a>
+                ))}
               </div>
 
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-lg font-bold uppercase tracking-[0.15em] text-slate-400 hover:text-white"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <hr className="border-white/5" />
-              <a
-                href={dashboardUrl}
-                className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest shadow-xl"
-              >
-                <span>{t('nav.mobileCta')}</span>
-                <ChevronRight className="w-4 h-4" />
-              </a>
+              {utilityLinks.length > 0 ? (
+                <div className="grid gap-3">
+                  {utilityLinks.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3 text-sm font-semibold text-slate-300 transition hover:border-white/15 hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80"
+                    >
+                      <span>{link.label}</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+
+              <div className="grid gap-3 border-t border-white/8 pt-4">
+                <NavAction href={dashboardUrl} label={t('nav.mobileSecondaryCta')} onClick={() => setMobileMenuOpen(false)} />
+
+                {canInvite ? (
+                  <a
+                    href={inviteUrl}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="btn-premium-primary w-full justify-center"
+                  >
+                    <span>{t('nav.mobilePrimaryCta')}</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="btn-premium-primary w-full cursor-not-allowed justify-center opacity-60"
+                    title={t('hero.inviteUnavailable')}
+                  >
+                    <span>{t('nav.mobilePrimaryCta')}</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </nav>
   );

@@ -1,60 +1,92 @@
-# Discord Bot Landing (Vite + React + TypeScript + Tailwind)
+# ton618-web
+
+Landing y dashboard web para TON618, construidos con Vite, React, TypeScript, Tailwind, React Query y Supabase.
 
 ## Scripts
+
 - `npm install`
 - `npm run dev`
 - `npm run build`
 - `npm run preview`
 - `npm run typecheck`
+- `npm run lint`
+- `npm run test`
 
-## Environment Variables
-Copy `.env.example` to `.env` and fill values:
-- `VITE_BOT_NAME`: Brand name shown in UI and metadata.
-- `VITE_DISCORD_CLIENT_ID`: Required to enable Invite CTA.
-- `VITE_DISCORD_PERMISSIONS`: Discord permissions integer (default `8`).
-- `VITE_SUPPORT_SERVER_URL`: Public support server link.
-- `VITE_DASHBOARD_URL`: Optional legacy external dashboard override. Leave empty to use the internal `/dashboard` route.
-- `VITE_DOCS_URL`: Docs site link.
-- `VITE_STATUS_URL`: Public status page link.
-- `VITE_GITHUB_URL`: GitHub profile/repo link.
-- `VITE_TWITTER_URL`: X/Twitter link.
-- `VITE_CONTACT_EMAIL`: Contact/support email.
-- `VITE_SUPABASE_URL`: Supabase project URL (required for dashboard auth + data; optional only if you want landing-only mode).
-- `VITE_SUPABASE_ANON_KEY`: Supabase anon key (required for dashboard auth + data).
-- `VITE_SITE_URL`: Canonical website URL for OG, sitemap, and Discord OAuth redirect setup.
+## Variables de entorno criticas
 
-If a variable is missing, the UI degrades gracefully (disabled CTA, hidden social icon, or internal fallback anchor).
-After changing any `VITE_*` variable, restart the Vite dev server so the new values are picked up.
+Parte del proyecto degrada con gracia, pero para release completo hay variables que deben estar correctas:
 
-## Supabase `bot_stats` Setup
-Use the migration in `supabase/migrations/20260305063924_create_bot_stats_table.sql` to create:
-- `bot_stats.servers`
-- `bot_stats.users`
-- `bot_stats.commands_executed`
-- `bot_stats.uptime_percentage`
-- `bot_stats.updated_at`
+- `VITE_DISCORD_CLIENT_ID`
+  Habilita la invitacion del bot.
+- `VITE_SUPABASE_URL`
+  Necesaria para auth, dashboard y telemetria.
+- `VITE_SUPABASE_ANON_KEY`
+  Necesaria para auth, dashboard y telemetria.
+- `VITE_SITE_URL`
+  Canonical URL y base para redirects OAuth.
 
-The landing page reads the latest row (ordered by `updated_at`) every 30 seconds.
+Variables operativas recomendadas:
 
-## Dashboard Setup
-Apply the dashboard migration in `supabase/migrations/20260313183000_create_dashboard_tables.sql` and deploy the edge function in `supabase/functions/sync-discord-guilds`.
+- `VITE_SUPPORT_SERVER_URL`
+- `VITE_DOCS_URL`
+- `VITE_STATUS_URL`
+- `VITE_CONTACT_EMAIL`
+- `VITE_GITHUB_URL`
+- `VITE_TWITTER_URL`
+- `VITE_DASHBOARD_URL`
+  Solo si quieres forzar un dashboard externo en vez de `/dashboard`.
 
-Required Supabase / Discord setup:
-1. Enable Discord as a Supabase Auth provider.
-2. Add redirect URLs for local and production ending in `/auth/callback`.
-3. Deploy the `sync-discord-guilds` Edge Function with access to `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `DISCORD_BOT_TOKEN` (used as a fallback when Discord OAuth does not return manageable guilds correctly).
-4. Keep your bot backend as the writer for `bot_guilds` and `guild_metrics_daily`.
+Usa [.env.example](/c:/Users/Camilo/Desktop/ton618-web/.env.example) como plantilla local.
 
-The frontend dashboard:
-- Uses `/dashboard` as the default internal route.
-- Signs in with Discord through Supabase OAuth.
-- Syncs manageable guilds through the edge function after `/auth/callback`.
-- Reads `guild_configs`, `guild_dashboard_events`, and `guild_metrics_daily` only when RLS grants access.
+## Setup local
 
-## Updating Stats From Your Bot (High Level)
-1. Keep your bot backend as the only writer to `bot_stats`.
-2. Periodically upsert a single row with latest counters and uptime.
-3. Refresh `updated_at` on every write.
-4. Keep Row Level Security read-only for public clients.
+1. Copia `.env.example` a `.env` y completa los valores.
+2. Instala dependencias con `npm install`.
+3. Inicia el entorno con `npm run dev`.
+4. Abre `http://localhost:5173`.
 
-No backend is included in this repo; this project is frontend-only.
+## Validacion local de landing
+
+Valida al menos esto antes de release:
+
+- Hero, navbar, footer y CTAs sin overflow en mobile y desktop.
+- Cambio de idioma y navegacion por teclado.
+- Estados live/fallback en la seccion de estadisticas.
+- Metadatos y canonical con `VITE_SITE_URL` correcto.
+- Video hero con poster funcional si el autoplay falla.
+
+## Validacion local de dashboard
+
+Valida al menos esto antes de release:
+
+- Login con Discord via Supabase.
+- Callback en `/auth/callback`.
+- Carga del selector de servidores.
+- Cambio entre modulos sin errores silenciosos.
+- Formularios con validaciones visibles y botones de guardado/reset.
+- Inbox, activity y analytics en mobile sin bloquear lectura.
+
+## Supabase
+
+Migraciones relevantes:
+
+- `supabase/migrations/20260305063924_create_bot_stats_table.sql`
+- `supabase/migrations/20260313183000_create_dashboard_tables.sql`
+- `supabase/migrations/20260313193000_expand_dashboard_control_plane.sql`
+- `supabase/migrations/20260313220000_add_ticket_workspace.sql`
+
+Edge Function requerida:
+
+- `supabase/functions/sync-discord-guilds`
+
+Requisitos operativos:
+
+1. Activar Discord como provider en Supabase Auth.
+2. Registrar redirects local/prod terminando en `/auth/callback`.
+3. Desplegar la Edge Function con los secretos necesarios.
+4. Mantener el bot/backend como escritor de `bot_stats`, `bot_guilds` y `guild_metrics_daily`.
+
+## Release
+
+- Checklist de release: [docs/release-readiness-checklist.md](/c:/Users/Camilo/Desktop/ton618-web/docs/release-readiness-checklist.md)
+- Checklist de QA manual: [docs/manual-qa-checklist.md](/c:/Users/Camilo/Desktop/ton618-web/docs/manual-qa-checklist.md)

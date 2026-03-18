@@ -14,6 +14,7 @@ import {
   getDashboardChecklist,
   getDashboardQuickActions,
   getDashboardSectionStates,
+  normalizeGuildConfig,
   type DashboardChecklistStep,
   type DashboardSectionState,
 } from './utils';
@@ -133,6 +134,28 @@ function createChecklistStep(overrides: Partial<DashboardChecklistStep>): Dashbo
 }
 
 describe('getDashboardSectionStates', () => {
+  it('normaliza preferencias legacy de moderacion sin descartar la configuracion completa', () => {
+    const config = normalizeGuildConfig('guild-1', {
+      guild_id: 'guild-1',
+      general_settings: defaultGuildConfig.generalSettings,
+      server_roles_channels_settings: defaultGuildConfig.serverRolesChannelsSettings,
+      tickets_settings: defaultGuildConfig.ticketsSettings,
+      verification_settings: defaultGuildConfig.verificationSettings,
+      welcome_settings: defaultGuildConfig.welcomeSettings,
+      suggestion_settings: defaultGuildConfig.suggestionSettings,
+      modlog_settings: defaultGuildConfig.modlogSettings,
+      command_settings: defaultGuildConfig.commandSettings,
+      system_settings: defaultGuildConfig.systemSettings,
+      dashboard_preferences: {
+        ...defaultGuildConfig.dashboardPreferences,
+        defaultSection: 'moderation',
+      },
+    });
+
+    expect(config.dashboardPreferences.defaultSection).toBe('system');
+    expect(config.generalSettings.language).toBe(defaultGuildConfig.generalSettings.language);
+  });
+
   it('surfacea bloqueos base cuando el bot no esta instalado y no hay backup', () => {
     const states = getDashboardSectionStates(
       createConfig(),
@@ -311,12 +334,12 @@ describe('getDashboardChecklist', () => {
     expect(getStep(checklist, 'select-server')).toMatchObject({
       complete: false,
       status: 'basic',
-      summary: 'Servidor elegido, pero el bot aun no esta instalado.',
+      summary: 'El servidor ya fue elegido, pero el bot aun no esta dentro.',
     });
     expect(getStep(checklist, 'backup')).toMatchObject({
       complete: false,
       status: 'not_configured',
-      summary: 'Aun no existe un backup inicial.',
+      summary: 'Todavia no existe una copia segura inicial.',
     });
     expect(getStep(checklist, 'sync')).toMatchObject({
       complete: false,
@@ -395,7 +418,7 @@ describe('getDashboardChecklist', () => {
     expect(getStep(checklist, 'backup')).toMatchObject({
       complete: true,
       status: 'active',
-      summary: 'Backup disponible desde hace 2 horas.',
+      summary: 'Ya existe una copia segura desde hace 2 horas.',
     });
     expect(getStep(checklist, 'sync')).toMatchObject({
       complete: true,
@@ -459,8 +482,8 @@ describe('getDashboardQuickActions', () => {
 
     expect(actions).toContainEqual({
       id: 'review-sync',
-      label: 'Revisar sincronizacion',
-      description: 'El bot necesita revision tecnica para aplicar cambios.',
+      label: 'Revisar estado del bot',
+      description: 'El bot necesita revision antes de seguir aplicando cambios.',
       sectionId: 'system',
       priority: 98,
     });
@@ -517,8 +540,8 @@ describe('getDashboardQuickActions', () => {
 
     expect(actions).toContainEqual({
       id: 'member-experience',
-      label: 'Preparar acceso de miembros',
-      description: 'Activa bienvenida o verificacion para guiar a nuevos usuarios.',
+      label: 'Definir llegada de miembros',
+      description: 'Activa bienvenida o verificacion para que el acceso no quede improvisado.',
       sectionId: 'verification',
       priority: 88,
     });

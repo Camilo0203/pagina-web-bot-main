@@ -1,13 +1,46 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Clock3, LifeBuoy, MessageSquareText, Send, ShieldAlert, Tags, UserRoundCheck } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CircleUserRound,
+  Clock3,
+  FilterX,
+  LifeBuoy,
+  MessageSquareText,
+  Search,
+  Send,
+  ShieldAlert,
+  Sparkles,
+  Tags,
+  UserRoundCheck,
+  XCircle,
+} from 'lucide-react';
 import PanelCard from '../components/PanelCard';
 import SectionMutationBanner from '../components/SectionMutationBanner';
 import StateCard from '../components/StateCard';
 import { fadeInVariants, panelSwapVariants, staggerContainerVariants } from '../motion';
-import type { DashboardGuild, GuildConfigMutation, GuildSyncStatus, TicketDashboardActionId, TicketInboxItem, TicketWorkspaceSnapshot, TicketWorkflowStatus } from '../types';
-import { formatDateTime, formatMinutesLabel, formatRelativeTime, getCustomerProfileForTicket, getTicketEventsForTicket, getTicketQueueLabel, getTicketSlaLabel, getTicketStatusLabel, getTicketWorkspaceSummary } from '../utils';
-import Logo from '../../components/Logo';
+import type {
+  DashboardGuild,
+  GuildConfigMutation,
+  GuildSyncStatus,
+  TicketDashboardActionId,
+  TicketInboxItem,
+  TicketMacro,
+  TicketWorkspaceSnapshot,
+  TicketWorkflowStatus,
+} from '../types';
+import {
+  formatDateTime,
+  formatMinutesLabel,
+  formatRelativeTime,
+  getCustomerProfileForTicket,
+  getTicketEventsForTicket,
+  getTicketQueueLabel,
+  getTicketSlaLabel,
+  getTicketStatusLabel,
+  getTicketWorkspaceSummary,
+} from '../utils';
 
 interface InboxModuleProps {
   guild: DashboardGuild;
@@ -18,8 +51,20 @@ interface InboxModuleProps {
   onAction: (action: TicketDashboardActionId, payload: Record<string, unknown>) => Promise<void>;
 }
 
-const workflowOptions: Array<{ value: TicketWorkflowStatus | 'all'; label: string }> = [
-  { value: 'all', label: 'Todos los estados' },
+type OpenStateFilter = 'all' | 'open' | 'closed';
+type PriorityFilter = TicketInboxItem['priority'] | 'all';
+type SlaFilter = TicketInboxItem['slaState'] | 'all';
+type AssignmentFilter = 'all' | 'claimed' | 'unclaimed' | 'assigned' | 'unassigned';
+type ActionFeedbackTone = 'success' | 'error' | 'pending';
+
+interface ActionFeedback {
+  tone: ActionFeedbackTone;
+  message: string;
+  action: TicketDashboardActionId;
+  ticketId: string;
+}
+
+const workflowOptions: Array<{ value: TicketWorkflowStatus; label: string }> = [
   { value: 'new', label: 'Nuevo' },
   { value: 'triage', label: 'Triage' },
   { value: 'waiting_staff', label: 'Esperando staff' },
@@ -29,19 +74,36 @@ const workflowOptions: Array<{ value: TicketWorkflowStatus | 'all'; label: strin
   { value: 'closed', label: 'Cerrado' },
 ];
 
-const queueOptions = [
-  { value: 'all', label: 'Todas las colas' },
-  { value: 'support', label: 'Soporte premium' },
-  { value: 'community', label: 'Comunidad' },
-] as const;
+const openStateOptions: Array<{ value: OpenStateFilter; label: string }> = [
+  { value: 'all', label: 'Todos' },
+  { value: 'open', label: 'Abiertos' },
+  { value: 'closed', label: 'Cerrados' },
+];
 
-const priorityOptions = [
-  { value: 'all', label: 'Todas las prioridades' },
+const priorityOptions: Array<{ value: PriorityFilter; label: string }> = [
+  { value: 'all', label: 'Todas' },
   { value: 'urgent', label: 'Urgente' },
   { value: 'high', label: 'Alta' },
   { value: 'normal', label: 'Normal' },
   { value: 'low', label: 'Baja' },
-] as const;
+];
+
+const slaOptions: Array<{ value: SlaFilter; label: string }> = [
+  { value: 'all', label: 'Todos' },
+  { value: 'breached', label: 'Incumplido' },
+  { value: 'warning', label: 'Por vencer' },
+  { value: 'healthy', label: 'Saludable' },
+  { value: 'paused', label: 'Pausado' },
+  { value: 'resolved', label: 'Resuelto' },
+];
+
+const assignmentOptions: Array<{ value: AssignmentFilter; label: string }> = [
+  { value: 'all', label: 'Toda la cola' },
+  { value: 'unclaimed', label: 'Sin reclamar' },
+  { value: 'claimed', label: 'Reclamados' },
+  { value: 'unassigned', label: 'Sin asignar' },
+  { value: 'assigned', label: 'Asignados' },
+];
 
 function getStatusTone(status: TicketWorkflowStatus) {
   if (status === 'escalated') return 'border-rose-300/60 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-200';
@@ -86,26 +148,140 @@ function priorityWeight(priority: TicketInboxItem['priority']) {
   return 1;
 }
 
+function getActionLabel(action: TicketDashboardActionId) {
+  switch (action) {
+    case 'claim':
+      return 'reclamar el ticket';
+    case 'unclaim':
+      return 'liberar el ticket';
+    case 'assign_self':
+      return 'asignarte el ticket';
+    case 'unassign':
+      return 'desasignar el ticket';
+    case 'set_status':
+      return 'actualizar el estado';
+    case 'close':
+      return 'cerrar el ticket';
+    case 'reopen':
+      return 'reabrir el ticket';
+    case 'add_note':
+      return 'guardar la nota interna';
+    case 'add_tag':
+      return 'agregar el tag';
+    case 'remove_tag':
+      return 'remover el tag';
+    case 'reply_customer':
+      return 'enviar la respuesta';
+    case 'post_macro':
+      return 'publicar la macro';
+    case 'set_priority':
+      return 'actualizar la prioridad';
+    default:
+      return 'ejecutar la accion';
+  }
+}
+
+function getFeedbackClasses(tone: ActionFeedbackTone) {
+  if (tone === 'error') return 'dashboard-action-alert';
+  if (tone === 'success') return 'dashboard-action-success';
+  return 'dashboard-action-note';
+}
+
+function getFeedbackIcon(tone: ActionFeedbackTone) {
+  if (tone === 'error') return <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />;
+  if (tone === 'success') return <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />;
+  return <Clock3 className="mt-0.5 h-4 w-4 flex-shrink-0" />;
+}
+
+function FilterField({
+  label,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  children: ReactNode;
+}) {
+  return (
+    <label htmlFor={htmlFor} className="grid gap-2">
+      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+function getMacroVisibilityLabel(macro: TicketMacro) {
+  return macro.visibility === 'internal' ? 'Nota interna' : 'Respuesta publica';
+}
+
 export default function InboxModule({ guild, workspace, mutation, syncStatus, isMutating, onAction }: InboxModuleProps) {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<(typeof workflowOptions)[number]['value']>('all');
-  const [queueFilter, setQueueFilter] = useState<(typeof queueOptions)[number]['value']>('all');
-  const [priorityFilter, setPriorityFilter] = useState<(typeof priorityOptions)[number]['value']>('all');
+  const [openStateFilter, setOpenStateFilter] = useState<OpenStateFilter>('open');
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
+  const [slaFilter, setSlaFilter] = useState<SlaFilter>('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [assignmentFilter, setAssignmentFilter] = useState<AssignmentFilter>('all');
   const [replyDraft, setReplyDraft] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
   const [tagDraft, setTagDraft] = useState('');
   const [statusDraft, setStatusDraft] = useState<TicketWorkflowStatus>('triage');
   const [priorityDraft, setPriorityDraft] = useState<TicketInboxItem['priority']>('normal');
+  const [selectedMacroId, setSelectedMacroId] = useState('');
+  const [macroConfirmed, setMacroConfirmed] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<ActionFeedback | null>(null);
+  const lastDraftTicketIdRef = useRef<string | null>(null);
+
   const summary = useMemo(() => getTicketWorkspaceSummary(workspace.inbox), [workspace.inbox]);
+
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(new Set(workspace.inbox.map((ticket) => ticket.categoryLabel).filter(Boolean)))
+        .sort((left, right) => left.localeCompare(right, 'es'))
+        .map((label) => ({ value: label, label })),
+    [workspace.inbox],
+  );
 
   const filteredInbox = useMemo(() => {
     const query = search.trim().toLowerCase();
+
     return workspace.inbox
-      .filter((ticket) => (statusFilter === 'all' ? true : ticket.workflowStatus === statusFilter))
-      .filter((ticket) => (queueFilter === 'all' ? true : ticket.queueType === queueFilter))
+      .filter((ticket) => {
+        if (openStateFilter === 'open') return ticket.isOpen;
+        if (openStateFilter === 'closed') return !ticket.isOpen;
+        return true;
+      })
       .filter((ticket) => (priorityFilter === 'all' ? true : ticket.priority === priorityFilter))
-      .filter((ticket) => (!query ? true : [ticket.ticketId, ticket.categoryLabel, ticket.subject ?? '', ticket.userLabel ?? '', ticket.userId].join(' ').toLowerCase().includes(query)))
+      .filter((ticket) => (slaFilter === 'all' ? true : ticket.slaState === slaFilter))
+      .filter((ticket) => (categoryFilter === 'all' ? true : ticket.categoryLabel === categoryFilter))
+      .filter((ticket) => {
+        if (assignmentFilter === 'claimed') return Boolean(ticket.claimedBy);
+        if (assignmentFilter === 'unclaimed') return !ticket.claimedBy;
+        if (assignmentFilter === 'assigned') return Boolean(ticket.assigneeId);
+        if (assignmentFilter === 'unassigned') return !ticket.assigneeId;
+        return true;
+      })
+      .filter((ticket) => {
+        if (!query) {
+          return true;
+        }
+
+        return [
+          ticket.ticketId,
+          ticket.categoryLabel,
+          ticket.subject ?? '',
+          ticket.userLabel ?? '',
+          ticket.userId,
+          ticket.claimedByLabel ?? '',
+          ticket.assigneeLabel ?? '',
+          ticket.tags.join(' '),
+        ]
+          .join(' ')
+          .toLowerCase()
+          .includes(query);
+      })
       .sort((left, right) => {
         if (left.isOpen !== right.isOpen) return left.isOpen ? -1 : 1;
         if (left.slaState !== right.slaState) {
@@ -118,55 +294,173 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
         if (priorityDelta !== 0) return priorityDelta;
         return (right.lastActivityAt ?? right.updatedAt).localeCompare(left.lastActivityAt ?? left.updatedAt);
       });
-  }, [priorityFilter, queueFilter, search, statusFilter, workspace.inbox]);
+  }, [assignmentFilter, categoryFilter, openStateFilter, priorityFilter, search, slaFilter, workspace.inbox]);
 
   useEffect(() => {
     if (!filteredInbox.length) {
       setSelectedTicketId(null);
       return;
     }
+
     if (!selectedTicketId || !filteredInbox.some((ticket) => ticket.ticketId === selectedTicketId)) {
       setSelectedTicketId(filteredInbox[0].ticketId);
     }
   }, [filteredInbox, selectedTicketId]);
 
-  const selectedTicket = useMemo(() => filteredInbox.find((ticket) => ticket.ticketId === selectedTicketId) ?? null, [filteredInbox, selectedTicketId]);
+  const selectedTicket = useMemo(
+    () => filteredInbox.find((ticket) => ticket.ticketId === selectedTicketId) ?? null,
+    [filteredInbox, selectedTicketId],
+  );
+
   useEffect(() => {
     if (!selectedTicket) {
       return;
     }
+
+    if (lastDraftTicketIdRef.current === selectedTicket.ticketId) {
+      return;
+    }
+
+    lastDraftTicketIdRef.current = selectedTicket.ticketId;
 
     setStatusDraft(selectedTicket.workflowStatus);
     setPriorityDraft(selectedTicket.priority);
     setReplyDraft('');
     setNoteDraft('');
     setTagDraft('');
+    setSelectedMacroId('');
+    setMacroConfirmed(false);
+    setActionFeedback(null);
   }, [selectedTicket]);
-  const timeline = useMemo(() => getTicketEventsForTicket(workspace.events, selectedTicket?.ticketId ?? null), [selectedTicket?.ticketId, workspace.events]);
-  const customerProfile = useMemo(() => getCustomerProfileForTicket(workspace.inbox, selectedTicket), [selectedTicket, workspace.inbox]);
+
+  useEffect(() => {
+    setMacroConfirmed(false);
+  }, [selectedMacroId]);
+
+  const timeline = useMemo(
+    () => getTicketEventsForTicket(workspace.events, selectedTicket?.ticketId ?? null),
+    [selectedTicket?.ticketId, workspace.events],
+  );
+
+  const customerProfile = useMemo(
+    () => getCustomerProfileForTicket(workspace.inbox, selectedTicket),
+    [selectedTicket, workspace.inbox],
+  );
+
+  const selectedMacro = useMemo(
+    () => workspace.macros.find((macro) => macro.macroId === selectedMacroId) ?? null,
+    [selectedMacroId, workspace.macros],
+  );
+
+  const activeFiltersCount = [
+    openStateFilter !== 'open',
+    priorityFilter !== 'all',
+    slaFilter !== 'all',
+    categoryFilter !== 'all',
+    assignmentFilter !== 'all',
+    search.trim().length > 0,
+  ].filter(Boolean).length;
+
+  function clearFilters() {
+    setSearch('');
+    setOpenStateFilter('open');
+    setPriorityFilter('all');
+    setSlaFilter('all');
+    setCategoryFilter('all');
+    setAssignmentFilter('all');
+  }
+
+  function moveSelection(direction: 1 | -1) {
+    if (!filteredInbox.length) {
+      return;
+    }
+
+    const currentIndex = filteredInbox.findIndex((ticket) => ticket.ticketId === selectedTicketId);
+    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
+    const nextIndex = Math.min(filteredInbox.length - 1, Math.max(0, safeIndex + direction));
+    setSelectedTicketId(filteredInbox[nextIndex].ticketId);
+  }
+
+  function handleListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement;
+    const tagName = target.tagName;
+
+    if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveSelection(1);
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveSelection(-1);
+    }
+  }
 
   async function runAction(action: TicketDashboardActionId, payload: Record<string, unknown> = {}) {
     if (!selectedTicket) return;
-    await onAction(action, { ticketId: selectedTicket.ticketId, channelId: selectedTicket.channelId, ...payload });
-    if (action === 'reply_customer' || action === 'post_macro') setReplyDraft('');
-    if (action === 'add_note') setNoteDraft('');
-    if (action === 'add_tag') setTagDraft('');
+
+    setActionFeedback({
+      tone: 'pending',
+      message: `Registrando la solicitud para ${getActionLabel(action)}...`,
+      action,
+      ticketId: selectedTicket.ticketId,
+    });
+
+    try {
+      await onAction(action, {
+        ticketId: selectedTicket.ticketId,
+        channelId: selectedTicket.channelId,
+        ...payload,
+      });
+
+      if (action === 'reply_customer' || action === 'post_macro') {
+        setReplyDraft('');
+        setSelectedMacroId('');
+        setMacroConfirmed(false);
+      }
+
+      if (action === 'add_note') setNoteDraft('');
+      if (action === 'add_tag') setTagDraft('');
+
+      setActionFeedback({
+        tone: 'success',
+        message: `Solicitud enviada para ${getActionLabel(action)}. El inbox se actualizara en el siguiente refresh.`,
+        action,
+        ticketId: selectedTicket.ticketId,
+      });
+    } catch (error) {
+      setActionFeedback({
+        tone: 'error',
+        message: error instanceof Error ? error.message : `No se pudo ${getActionLabel(action)}.`,
+        action,
+        ticketId: selectedTicket.ticketId,
+      });
+    }
   }
 
-  if (!guild.botInstalled) return <StateCard eyebrow="Instalacion" title="Instala el bot para activar la bandeja operativa" description="La bandeja viva depende del bridge del bot para publicar tickets, bitacora, macros y acciones auditadas." icon={LifeBuoy} tone="warning" />;
-  if (!workspace.inbox.length) return <StateCard eyebrow="Sin tickets" title="Todavia no hay tickets para operar desde la dashboard" description="Cuando entren tickets reales en Discord, aqui veras la cola, su SLA, el historial del cliente y las acciones del staff." icon={LifeBuoy} />;
+  if (!guild.botInstalled) {
+    return <StateCard eyebrow="Instalacion" title="Instala el bot para activar la bandeja operativa" description="La bandeja viva depende del bridge del bot para publicar tickets, bitacora, macros y acciones auditadas." icon={LifeBuoy} tone="warning" />;
+  }
+
+  if (!workspace.inbox.length) {
+    return <StateCard eyebrow="Sin tickets" title="Todavia no hay tickets para operar desde la dashboard" description="Cuando entren tickets reales en Discord, aqui veras la cola, SLA, historial del cliente y acciones del staff." icon={LifeBuoy} />;
+  }
 
   return (
     <div className="space-y-6">
-      <PanelCard eyebrow="Bandeja viva" title="Workspace operativa del helpdesk" description="Filtra la cola, reclama tickets, cambia estados, agrega notas internas y responde con macros o mensajes directos desde la web." variant="highlight">
+      <PanelCard eyebrow="Workspace operativo" title="Inbox profesional para staff y administradores" description="Opera tickets por prioridad, SLA y contexto del cliente. La interfaz mantiene polling y mutaciones auditadas sin bloquear la pantalla completa." variant="highlight">
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
         <motion.div variants={staggerContainerVariants} initial="hidden" animate="show" className="dashboard-grid-fit-standard mt-8">
           {[
-            ['Abiertos', `${summary.open}`, 'Tickets listos para operar ahora.'],
-            ['Sin reclamar', `${summary.unclaimed}`, 'Casos que aun no tienen responsable.'],
-            ['SLA incumplido', `${summary.breached}`, 'Casos que necesitan atencion urgente.'],
-            ['Soporte premium', `${summary.queues.support}`, 'Cola principal de soporte y pagos.'],
-            ['Comunidad', `${summary.queues.community}`, 'Reportes, asociaciones y staff apps.'],
+            ['Abiertos', `${summary.open}`, 'Casos activos listos para trabajar.'],
+            ['Sin reclamar', `${summary.unclaimed}`, 'Tickets que todavia no tienen owner.'],
+            ['SLA incumplido', `${summary.breached}`, 'Casos que exigen atencion inmediata.'],
+            ['SLA por vencer', `${summary.warning}`, 'Tickets cerca del umbral operativo.'],
+            ['Resueltos', `${summary.resolved}`, 'Tickets movidos a salida del flujo activo.'],
           ].map(([label, value, note]) => (
             <motion.article key={label} variants={fadeInVariants} className="dashboard-kpi-card min-w-0">
               <p className="dashboard-data-label">{label}</p>
@@ -177,71 +471,145 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
         </motion.div>
       </PanelCard>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(320px,390px)_minmax(0,1fr)]">
-        <PanelCard eyebrow="Cola" title="Bandeja priorizada" description="Ordenada por SLA, prioridad y actividad reciente." variant="soft">
-          <div className="dashboard-grid-fit-standard">
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por ticket, cliente o categoria" className="dashboard-form-field" />
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as (typeof workflowOptions)[number]['value'])} className="dashboard-form-field">
-              {workflowOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-            <select value={queueFilter} onChange={(event) => setQueueFilter(event.target.value as (typeof queueOptions)[number]['value'])} className="dashboard-form-field">
-              {queueOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-            <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value as (typeof priorityOptions)[number]['value'])} className="dashboard-form-field">
-              {priorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(340px,420px)_minmax(0,1fr)]">
+        <PanelCard eyebrow="Cola" title="Lista de tickets" description="Busca y navega con teclado. Flechas arriba/abajo cambian la seleccion cuando el foco esta en la lista." variant="soft">
+          <div className="space-y-4" onKeyDown={handleListKeyDown}>
+            <FilterField label="Buscar tickets" htmlFor="ticket-search">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input id="ticket-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por ticket, usuario, asunto, agente o tag" className="dashboard-form-field pl-11" />
+              </div>
+            </FilterField>
 
-          <motion.div variants={staggerContainerVariants} initial="hidden" animate="show" className="dashboard-scroll-panel mt-6 space-y-3">
-            {filteredInbox.map((ticket) => {
-              const active = selectedTicket?.ticketId === ticket.ticketId;
-              return (
-                <motion.button key={ticket.ticketId} type="button" variants={fadeInVariants} whileHover={{ y: -2 }} onClick={() => setSelectedTicketId(ticket.ticketId)} className={`dashboard-interactive-card w-full rounded-[1.55rem] border p-4 text-left ${active ? 'border-brand-300/55 bg-[linear-gradient(135deg,rgba(88,101,242,0.12),rgba(20,184,166,0.06))] shadow-[0_18px_40px_rgba(88,101,242,0.12)] dark:border-brand-700/60 dark:bg-brand-950/18' : 'dashboard-data-card hover:border-brand-200/80 hover:bg-white/95 dark:hover:border-brand-800'}`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-500">Ticket #{ticket.ticketId}</p>
-                      <p className="mt-2 break-words text-lg font-semibold text-slate-950 dark:text-white">{ticket.subject || ticket.categoryLabel}</p>
-                      <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{ticket.userLabel ?? ticket.userId}</p>
-                    </div>
-                    <div className="flex min-w-[7rem] flex-col items-end gap-2">
-                      <span className={`dashboard-status-pill ${getStatusTone(ticket.workflowStatus)}`}>{getTicketStatusLabel(ticket.workflowStatus)}</span>
-                      <span className={`dashboard-status-pill ${getSlaTone(ticket.slaState)}`}>{getTicketSlaLabel(ticket.slaState)}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getTicketQueueLabel(ticket.queueType)}</span>
-                    <span className={`dashboard-status-pill-compact ${getPriorityTone(ticket.priority)}`}>Prioridad {getPriorityLabel(ticket.priority)}</span>
-                    <span className="dashboard-status-pill-compact dashboard-neutral-pill">{ticket.claimedBy ? 'Reclamado' : 'Libre'}</span>
-                  </div>
-                  <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">Ultima actividad {formatRelativeTime(ticket.lastActivityAt ?? ticket.updatedAt)}</p>
-                </motion.button>
-              );
-            })}
-          </motion.div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+              <FilterField label="Apertura" htmlFor="open-state-filter">
+                <select id="open-state-filter" value={openStateFilter} onChange={(event) => setOpenStateFilter(event.target.value as OpenStateFilter)} className="dashboard-form-field">
+                  {openStateOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </FilterField>
+              <FilterField label="Prioridad" htmlFor="priority-filter">
+                <select id="priority-filter" value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value as PriorityFilter)} className="dashboard-form-field">
+                  {priorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </FilterField>
+              <FilterField label="SLA" htmlFor="sla-filter">
+                <select id="sla-filter" value={slaFilter} onChange={(event) => setSlaFilter(event.target.value as SlaFilter)} className="dashboard-form-field">
+                  {slaOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </FilterField>
+              <FilterField label="Asignacion" htmlFor="assignment-filter">
+                <select id="assignment-filter" value={assignmentFilter} onChange={(event) => setAssignmentFilter(event.target.value as AssignmentFilter)} className="dashboard-form-field">
+                  {assignmentOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </FilterField>
+              <FilterField label="Categoria" htmlFor="category-filter">
+                <select id="category-filter" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="dashboard-form-field md:col-span-2 xl:col-span-1 2xl:col-span-2">
+                  <option value="all">Todas las categorias</option>
+                  {categoryOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </FilterField>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="dashboard-status-pill-compact dashboard-neutral-pill">{filteredInbox.length} resultados</span>
+              <span className="dashboard-status-pill-compact dashboard-neutral-pill">{summary.queues.support} soporte</span>
+              <span className="dashboard-status-pill-compact dashboard-neutral-pill">{summary.queues.community} comunidad</span>
+              {activeFiltersCount ? (
+                <button type="button" onClick={clearFilters} className="dashboard-secondary-button">
+                  <FilterX className="h-4 w-4" />
+                  Limpiar filtros
+                </button>
+              ) : null}
+            </div>
+
+            {!filteredInbox.length ? (
+              <div className="dashboard-empty-state">
+                No hay tickets que coincidan con los filtros actuales. Ajusta la busqueda o limpia los filtros para recuperar la cola completa.
+              </div>
+            ) : (
+              <motion.div variants={staggerContainerVariants} initial="hidden" animate="show" className="dashboard-scroll-panel space-y-3" tabIndex={0} aria-label="Resultados de tickets">
+                {filteredInbox.map((ticket) => {
+                  const active = selectedTicket?.ticketId === ticket.ticketId;
+                  return (
+                    <motion.button key={ticket.ticketId} type="button" variants={fadeInVariants} whileHover={{ y: -2 }} onClick={() => setSelectedTicketId(ticket.ticketId)} aria-pressed={active} className={`dashboard-interactive-card w-full rounded-[1.55rem] border p-4 text-left ${active ? 'border-brand-300/55 bg-[linear-gradient(135deg,rgba(88,101,242,0.12),rgba(20,184,166,0.06))] shadow-[0_18px_40px_rgba(88,101,242,0.12)] dark:border-brand-700/60 dark:bg-brand-950/18' : 'dashboard-data-card hover:border-brand-200/80 hover:bg-white/95 dark:hover:border-brand-800'}`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-500">Ticket #{ticket.ticketId}</p>
+                          <p className="mt-2 break-words text-lg font-semibold text-slate-950 dark:text-white">{ticket.subject || ticket.categoryLabel}</p>
+                          <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{ticket.userLabel ?? ticket.userId}</p>
+                        </div>
+                        <div className="flex min-w-[7rem] flex-col items-end gap-2">
+                          <span className={`dashboard-status-pill ${getStatusTone(ticket.workflowStatus)}`}>{getTicketStatusLabel(ticket.workflowStatus)}</span>
+                          <span className={`dashboard-status-pill ${getSlaTone(ticket.slaState)}`}>{getTicketSlaLabel(ticket.slaState)}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getTicketQueueLabel(ticket.queueType)}</span>
+                        <span className={`dashboard-status-pill-compact ${getPriorityTone(ticket.priority)}`}>Prioridad {getPriorityLabel(ticket.priority)}</span>
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{ticket.claimedByLabel ?? 'Sin reclamar'}</span>
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{ticket.assigneeLabel ?? 'Sin asignar'}</span>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600 dark:text-slate-400">
+                        <span>{ticket.messageCount} mensajes</span>
+                        <span>Actividad {formatRelativeTime(ticket.lastActivityAt ?? ticket.updatedAt)}</span>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </motion.div>
+            )}
+          </div>
         </PanelCard>
 
         {!selectedTicket ? (
-          <StateCard eyebrow="Seleccion" title="Elige un ticket para trabajar" description="La columna derecha mostrara la ficha operativa, la bitacora, el historial del cliente y las macros de respuesta." icon={LifeBuoy} />
+          <StateCard eyebrow="Seleccion" title="Elige un ticket para trabajar" description="La vista detalle muestra contexto del cliente, timeline y acciones de operacion para ese ticket." icon={LifeBuoy} />
         ) : (
           <AnimatePresence mode="wait">
             <motion.div key={selectedTicket.ticketId} variants={panelSwapVariants} initial="hidden" animate="show" exit="exit" className="space-y-6">
-              <PanelCard eyebrow="Ficha del ticket" title={`#${selectedTicket.ticketId} - ${selectedTicket.categoryLabel}`} description={selectedTicket.subject || 'Ticket sin asunto explicito'} variant="highlight" stickyActions actions={
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" onClick={() => runAction('claim')} disabled={isMutating || Boolean(selectedTicket.claimedBy)} className="dashboard-primary-button"><UserRoundCheck className="h-4 w-4" />Reclamar</button>
-                  <button type="button" onClick={() => runAction('assign_self')} disabled={isMutating || Boolean(selectedTicket.assigneeId)} className="dashboard-secondary-button">Asignarme</button>
-                  <button type="button" onClick={() => runAction('unassign')} disabled={isMutating || !selectedTicket.assigneeId} className="dashboard-secondary-button">Desasignar</button>
-                  <button type="button" onClick={() => runAction('unclaim')} disabled={isMutating || !selectedTicket.claimedBy} className="dashboard-secondary-button">Liberar</button>
-                </div>
-              }>
+              <PanelCard
+                eyebrow="Detalle"
+                title={`${selectedTicket.subject || selectedTicket.categoryLabel}`}
+                description={`Ticket #${selectedTicket.ticketId} - ${selectedTicket.userLabel ?? selectedTicket.userId}`}
+                variant="highlight"
+                stickyActions
+                actions={
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => runAction('claim')} disabled={isMutating || Boolean(selectedTicket.claimedBy)} className="dashboard-primary-button">
+                      <UserRoundCheck className="h-4 w-4" />
+                      Reclamar
+                    </button>
+                    <button type="button" onClick={() => runAction('unclaim')} disabled={isMutating || !selectedTicket.claimedBy} className="dashboard-secondary-button">Liberar</button>
+                    <button type="button" onClick={() => runAction('assign_self')} disabled={isMutating || Boolean(selectedTicket.assigneeId)} className="dashboard-secondary-button">Asignarme</button>
+                    <button type="button" onClick={() => runAction('unassign')} disabled={isMutating || !selectedTicket.assigneeId} className="dashboard-secondary-button">Desasignar</button>
+                  </div>
+                }
+              >
                 <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
-                <div className="mt-8 grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-                  <div className="space-y-5">
+
+                {actionFeedback && actionFeedback.ticketId === selectedTicket.ticketId ? (
+                  <div className={`mt-5 ${getFeedbackClasses(actionFeedback.tone)}`} role={actionFeedback.tone === 'error' ? 'alert' : 'status'} aria-live="polite">
+                    {getFeedbackIcon(actionFeedback.tone)}
+                    <p className="text-sm leading-6">{actionFeedback.message}</p>
+                  </div>
+                ) : null}
+
+                {(syncStatus?.bridgeStatus === 'degraded' || syncStatus?.bridgeStatus === 'error') ? (
+                  <div className="dashboard-action-note mt-5">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <p className="text-sm leading-6">El bridge reporta estado <strong>{syncStatus.bridgeStatus}</strong>. Las acciones pueden tardar mas en reflejarse hasta el siguiente ciclo de polling.</p>
+                  </div>
+                ) : null}
+
+                <div className="mt-8 grid gap-6 2xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+                  <div className="space-y-6">
                     <div className="dashboard-grid-fit-standard">
                       {[
-                        ['Estado', getTicketStatusLabel(selectedTicket.workflowStatus), getStatusTone(selectedTicket.workflowStatus), selectedTicket.isOpen ? 'Caso abierto y operativo.' : 'Caso fuera de la cola activa.'],
+                        ['Estado', getTicketStatusLabel(selectedTicket.workflowStatus), getStatusTone(selectedTicket.workflowStatus), selectedTicket.isOpen ? 'Ticket activo dentro de la cola operativa.' : 'Ticket fuera de la cola activa.'],
+                        ['Prioridad', getPriorityLabel(selectedTicket.priority), getPriorityTone(selectedTicket.priority), 'Nivel de urgencia esperado para el caso.'],
                         ['SLA', getTicketSlaLabel(selectedTicket.slaState), getSlaTone(selectedTicket.slaState), `Objetivo ${formatMinutesLabel(selectedTicket.slaTargetMinutes)}`],
-                        ['Cola', getTicketQueueLabel(selectedTicket.queueType), 'dashboard-neutral-pill', 'Carril operativo asignado a este ticket.'],
-                        ['Prioridad', getPriorityLabel(selectedTicket.priority), getPriorityTone(selectedTicket.priority), 'Nivel de atencion esperado para el caso.'],
+                        ['Categoria', selectedTicket.categoryLabel, 'dashboard-neutral-pill', getTicketQueueLabel(selectedTicket.queueType)],
                       ].map(([label, value, tone, note]) => (
                         <article key={label} className="dashboard-data-card min-w-0">
                           <p className="dashboard-data-label">{label}</p>
@@ -253,91 +621,237 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                       ))}
                     </div>
 
-                    <div className="dashboard-grid-fit-standard">
-                      {[
-                        ['Cliente', selectedTicket.userLabel ?? selectedTicket.userId],
-                        ['Reclamado por', selectedTicket.claimedByLabel ?? 'Disponible'],
-                        ['Asignado a', selectedTicket.assigneeLabel ?? 'Sin asignar'],
-                        ['Tiempo SLA', formatMinutesLabel(selectedTicket.slaTargetMinutes)],
-                        ['Primer respuesta', formatDateTime(selectedTicket.firstResponseAt)],
-                        ['Ultimo cliente', formatDateTime(selectedTicket.lastCustomerMessageAt)],
-                        ['Ultimo staff', formatDateTime(selectedTicket.lastStaffMessageAt)],
-                        ['Ultima sync', formatDateTime(selectedTicket.updatedAt)],
-                      ].map(([label, value]) => (
-                        <div key={label} className="dashboard-data-card">
-                          <p className="dashboard-data-label">{label}</p>
-                          <p className="dashboard-data-value">{value}</p>
-                        </div>
-                      ))}
-                    </div>
-
                     <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
-                      <p className="dashboard-panel-label">Flujo operativo</p>
-                      <h3 className="mt-2 text-xl font-semibold text-slate-950 dark:text-white">Cambiar estado del ticket</h3>
-                      <div className="dashboard-grid-fit-standard mt-5 items-start">
-                        <select value={statusDraft} onChange={(event) => setStatusDraft(event.target.value as TicketWorkflowStatus)} className="dashboard-form-field">
-                          {workflowOptions.filter((option) => option.value !== 'all').map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                        </select>
-                        <button type="button" onClick={() => runAction('set_status', { workflowStatus: statusDraft })} disabled={isMutating} className="dashboard-primary-button"><Clock3 className="h-4 w-4" />Aplicar estado</button>
-                        <button type="button" onClick={() => runAction('reopen')} disabled={isMutating || selectedTicket.isOpen} className="dashboard-secondary-button">Reabrir</button>
-                        <button type="button" onClick={() => runAction('close', { reason: 'Cerrado desde la dashboard' })} disabled={isMutating || !selectedTicket.isOpen} className="dashboard-secondary-button">Cerrar</button>
-                      </div>
-                      <div className="dashboard-grid-fit-standard mt-4 items-start">
-                        <select value={priorityDraft} onChange={(event) => setPriorityDraft(event.target.value as TicketInboxItem['priority'])} className="dashboard-form-field">
-                          {priorityOptions.filter((option) => option.value !== 'all').map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                        </select>
-                        <button type="button" onClick={() => runAction('set_priority', { priority: priorityDraft })} disabled={isMutating || priorityDraft === selectedTicket.priority} className="dashboard-secondary-button">Actualizar prioridad</button>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 xl:grid-cols-2">
-                      <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
-                        <div className="flex items-center gap-3">
-                          <Tags className="h-4 w-4 text-brand-500" />
-                          <p className="text-lg font-semibold text-slate-950 dark:text-white">Tags</p>
-                        </div>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {selectedTicket.tags.length ? selectedTicket.tags.map((tag) => (
-                            <button key={tag} type="button" onClick={() => runAction('remove_tag', { tag })} disabled={isMutating} className="dashboard-status-pill-compact dashboard-neutral-pill hover:border-rose-300 hover:text-rose-600">{tag}</button>
-                          )) : <span className="text-sm text-slate-600 dark:text-slate-400">Sin tags todavia.</span>}
-                        </div>
-                        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                          <input value={tagDraft} onChange={(event) => setTagDraft(event.target.value)} placeholder="Ej. vip, pago, bug" className="dashboard-form-field" />
-                          <button type="button" onClick={() => runAction('add_tag', { tag: tagDraft.trim() })} disabled={isMutating || !tagDraft.trim()} className="dashboard-primary-button">Agregar</button>
+                      <div className="flex items-center gap-3">
+                        <CircleUserRound className="h-4 w-4 text-brand-500" />
+                        <div>
+                          <p className="dashboard-panel-label">Cliente</p>
+                          <h3 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">Contexto del usuario</h3>
                         </div>
                       </div>
 
-                      <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
-                        <div className="flex items-center gap-3">
-                          <ShieldAlert className="h-4 w-4 text-brand-500" />
-                          <p className="text-lg font-semibold text-slate-950 dark:text-white">Nota interna</p>
-                        </div>
-                        <textarea value={noteDraft} onChange={(event) => setNoteDraft(event.target.value)} rows={4} placeholder="Contexto interno, handoff o detalle que no debe ir al cliente." className="dashboard-form-field mt-4" />
-                        <button type="button" onClick={() => runAction('add_note', { note: noteDraft.trim() })} disabled={isMutating || !noteDraft.trim()} className="dashboard-primary-button mt-4">Guardar nota</button>
+                      <div className="dashboard-grid-fit-standard mt-5">
+                        {[
+                          ['Usuario', selectedTicket.userLabel ?? selectedTicket.userId],
+                          ['Claim owner', selectedTicket.claimedByLabel ?? 'Sin reclamar'],
+                          ['Assignee', selectedTicket.assigneeLabel ?? 'Sin asignar'],
+                          ['Primer respuesta', formatDateTime(selectedTicket.firstResponseAt)],
+                          ['Ultimo cliente', formatDateTime(selectedTicket.lastCustomerMessageAt)],
+                          ['Ultimo staff', formatDateTime(selectedTicket.lastStaffMessageAt)],
+                          ['Creado', formatDateTime(selectedTicket.createdAt)],
+                          ['Ultima sync', formatDateTime(selectedTicket.updatedAt)],
+                        ].map(([label, value]) => (
+                          <div key={label} className="dashboard-data-card">
+                            <p className="dashboard-data-label">{label}</p>
+                            <p className="dashboard-data-value break-words">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{selectedTicket.messageCount} mensajes totales</span>
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{selectedTicket.staffMessageCount} del staff</span>
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{selectedTicket.reopenCount} reaperturas</span>
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">SLA vence {formatDateTime(selectedTicket.slaDueAt)}</span>
                       </div>
                     </div>
 
                     <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
                       <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <MessageSquareText className="h-4 w-4 text-brand-500" />
-                          <p className="text-lg font-semibold text-slate-950 dark:text-white">Responder al cliente</p>
+                        <div>
+                          <p className="dashboard-panel-label">Conversacion</p>
+                          <h3 className="mt-2 text-xl font-semibold text-slate-950 dark:text-white">Timeline del ticket</h3>
                         </div>
-                        <Logo size="sm" subtitle="Bot Avatar" />
+                        <span className="dashboard-status-pill-compact dashboard-neutral-pill">{timeline.length} eventos</span>
                       </div>
-                      <textarea value={replyDraft} onChange={(event) => setReplyDraft(event.target.value)} rows={5} placeholder="Escribe una respuesta operativa; el bot la publicara en el canal del ticket." className="dashboard-form-field mt-4" />
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {workspace.macros.length ? workspace.macros.map((macro) => (
-                          <button key={macro.macroId} type="button" onClick={() => runAction('post_macro', { macroId: macro.macroId })} disabled={isMutating} className="dashboard-secondary-button">{macro.label}</button>
-                        )) : <span className="text-sm text-slate-600 dark:text-slate-400">No hay macros configuradas para este guild.</span>}
+
+                      <div className="dashboard-scroll-panel mt-5 space-y-3">
+                        {timeline.length ? timeline.map((event) => (
+                          <article key={event.id} className="dashboard-data-card">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="break-words font-semibold text-slate-950 dark:text-white">{event.title}</p>
+                                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{event.description}</p>
+                              </div>
+                              <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getVisibilityLabel(event.visibility)}</span>
+                            </div>
+                            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-slate-500">
+                              <span>{event.actorLabel ?? 'Sistema'}</span>
+                              <span>|</span>
+                              <span>{formatDateTime(event.createdAt)}</span>
+                            </div>
+                          </article>
+                        )) : <div className="dashboard-empty-state">Este ticket aun no tiene eventos sincronizados en la bitacora.</div>}
                       </div>
-                      <button type="button" onClick={() => runAction('reply_customer', { message: replyDraft.trim() })} disabled={isMutating || !replyDraft.trim()} className="dashboard-primary-button mt-4"><Send className="h-4 w-4" />Enviar respuesta</button>
                     </div>
                   </div>
 
-                  <div className="space-y-5">
+                  <div className="space-y-6">
                     <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
-                      <p className="dashboard-panel-label">Historial del cliente</p>
+                      <p className="dashboard-panel-label">Acciones operativas</p>
+                      <h3 className="mt-2 text-xl font-semibold text-slate-950 dark:text-white">Estado y prioridad</h3>
+
+                      <div className="mt-5 space-y-4">
+                        <div className="grid gap-3">
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Estado</label>
+                          <select value={statusDraft} onChange={(event) => setStatusDraft(event.target.value as TicketWorkflowStatus)} className="dashboard-form-field">
+                            {workflowOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                          </select>
+                          <button type="button" onClick={() => runAction('set_status', { workflowStatus: statusDraft })} disabled={isMutating || statusDraft === selectedTicket.workflowStatus} className="dashboard-primary-button">
+                            <Clock3 className="h-4 w-4" />
+                            Aplicar estado
+                          </button>
+                        </div>
+
+                        <div className="grid gap-3">
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prioridad</label>
+                          <select value={priorityDraft} onChange={(event) => setPriorityDraft(event.target.value as TicketInboxItem['priority'])} className="dashboard-form-field">
+                            {priorityOptions.filter((option) => option.value !== 'all').map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                          </select>
+                          <button type="button" onClick={() => runAction('set_priority', { priority: priorityDraft })} disabled={isMutating || priorityDraft === selectedTicket.priority} className="dashboard-secondary-button">Actualizar prioridad</button>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <button type="button" onClick={() => runAction('reopen')} disabled={isMutating || selectedTicket.isOpen} className="dashboard-secondary-button">Reabrir</button>
+                          <button type="button" onClick={() => runAction('close', { reason: 'Cerrado desde la dashboard' })} disabled={isMutating || !selectedTicket.isOpen} className="dashboard-secondary-button">Cerrar</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
+                      <div className="flex items-center gap-3">
+                        <Tags className="h-4 w-4 text-brand-500" />
+                        <div>
+                          <p className="dashboard-panel-label">Tags</p>
+                          <h3 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">Clasificacion rapida</h3>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {selectedTicket.tags.length ? selectedTicket.tags.map((tag) => (
+                          <button key={tag} type="button" onClick={() => runAction('remove_tag', { tag })} disabled={isMutating} className="dashboard-status-pill-compact dashboard-neutral-pill hover:border-rose-300 hover:text-rose-600" title={`Quitar tag ${tag}`}>
+                            {tag}
+                          </button>
+                        )) : <span className="text-sm text-slate-600 dark:text-slate-400">Sin tags todavia.</span>}
+                      </div>
+
+                      <div className="mt-4 flex flex-col gap-3">
+                        <input
+                          value={tagDraft}
+                          onChange={(event) => setTagDraft(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' && !event.shiftKey && tagDraft.trim() && !isMutating) {
+                              event.preventDefault();
+                              void runAction('add_tag', { tag: tagDraft.trim() });
+                            }
+                          }}
+                          placeholder="Ej. vip, pago, bug"
+                          className="dashboard-form-field"
+                        />
+                        <button type="button" onClick={() => runAction('add_tag', { tag: tagDraft.trim() })} disabled={isMutating || !tagDraft.trim()} className="dashboard-primary-button">Agregar tag</button>
+                      </div>
+                    </div>
+
+                    <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
+                      <div className="flex items-center gap-3">
+                        <ShieldAlert className="h-4 w-4 text-brand-500" />
+                        <div>
+                          <p className="dashboard-panel-label">Nota interna</p>
+                          <h3 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">Handoff y contexto</h3>
+                        </div>
+                      </div>
+                      <textarea
+                        value={noteDraft}
+                        onChange={(event) => setNoteDraft(event.target.value)}
+                        onKeyDown={(event) => {
+                          if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && noteDraft.trim() && !isMutating) {
+                            event.preventDefault();
+                            void runAction('add_note', { note: noteDraft.trim() });
+                          }
+                        }}
+                        rows={5}
+                        placeholder="Contexto interno, handoff o detalles que no deben publicarse al cliente."
+                        className="dashboard-form-field mt-4"
+                      />
+                      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Usa Ctrl/Cmd + Enter para guardar rapido.</p>
+                      <button type="button" onClick={() => runAction('add_note', { note: noteDraft.trim() })} disabled={isMutating || !noteDraft.trim()} className="dashboard-primary-button mt-4">Guardar nota</button>
+                    </div>
+
+                    <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="h-4 w-4 text-brand-500" />
+                        <div>
+                          <p className="dashboard-panel-label">Macros</p>
+                          <h3 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">Seleccion, preview y confirmacion</h3>
+                        </div>
+                      </div>
+
+                      {workspace.macros.length ? (
+                        <div className="mt-4 space-y-4">
+                          <select value={selectedMacroId} onChange={(event) => setSelectedMacroId(event.target.value)} className="dashboard-form-field">
+                            <option value="">Selecciona una macro</option>
+                            {workspace.macros.map((macro) => (
+                              <option key={macro.macroId} value={macro.macroId}>
+                                {macro.label}
+                              </option>
+                            ))}
+                          </select>
+
+                          {selectedMacro ? (
+                            <>
+                              <div className="dashboard-data-card">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="dashboard-status-pill-compact dashboard-neutral-pill">{selectedMacro.label}</span>
+                                  <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getMacroVisibilityLabel(selectedMacro)}</span>
+                                  {selectedMacro.isSystem ? <span className="dashboard-status-pill-compact dashboard-neutral-pill">System</span> : null}
+                                </div>
+                                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-300">{selectedMacro.content}</p>
+                              </div>
+
+                              <label className="flex items-start gap-3 rounded-[1.2rem] border border-slate-200/70 bg-white/60 p-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                                <input type="checkbox" checked={macroConfirmed} onChange={(event) => setMacroConfirmed(event.target.checked)} className="mt-1" />
+                                <span>Confirmo publicar esta macro en el ticket seleccionado.</span>
+                              </label>
+
+                              <button type="button" onClick={() => runAction('post_macro', { macroId: selectedMacro.macroId })} disabled={isMutating || !macroConfirmed} className="dashboard-primary-button">
+                                Publicar macro
+                              </button>
+                            </>
+                          ) : <div className="dashboard-empty-state">Selecciona una macro para ver el contenido antes de enviarlo.</div>}
+                        </div>
+                      ) : <div className="dashboard-empty-state mt-4">No hay macros configuradas para este guild.</div>}
+                    </div>
+
+                    <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
+                      <div className="flex items-center gap-3">
+                        <MessageSquareText className="h-4 w-4 text-brand-500" />
+                        <div>
+                          <p className="dashboard-panel-label">Respuesta al cliente</p>
+                          <h3 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">Mensaje manual</h3>
+                        </div>
+                      </div>
+                      <textarea
+                        value={replyDraft}
+                        onChange={(event) => setReplyDraft(event.target.value)}
+                        onKeyDown={(event) => {
+                          if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && replyDraft.trim() && !isMutating) {
+                            event.preventDefault();
+                            void runAction('reply_customer', { message: replyDraft.trim() });
+                          }
+                        }}
+                        rows={5}
+                        placeholder="Escribe una respuesta clara; el bot la publicara en el canal del ticket."
+                        className="dashboard-form-field mt-4"
+                      />
+                      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Usa Ctrl/Cmd + Enter para enviar.</p>
+                      <button type="button" onClick={() => runAction('reply_customer', { message: replyDraft.trim() })} disabled={isMutating || !replyDraft.trim()} className="dashboard-primary-button mt-4">
+                        <Send className="h-4 w-4" />
+                        Enviar respuesta
+                      </button>
+                    </div>
+
+                    <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
+                      <p className="dashboard-panel-label">Historial</p>
                       <h3 className="mt-2 text-xl font-semibold text-slate-950 dark:text-white">Contexto del cliente</h3>
                       {customerProfile ? (
                         <>
@@ -351,45 +865,34 @@ export default function InboxModule({ guild, workspace, mutation, syncStatus, is
                               <p className="dashboard-data-value">{formatDateTime(customerProfile.lastTicketAt)}</p>
                             </div>
                           </div>
+
                           <div className="mt-4 flex flex-wrap gap-2">
                             <span className="dashboard-status-pill-compact dashboard-neutral-pill">{customerProfile.openTickets} abiertos</span>
                             <span className="dashboard-status-pill-compact dashboard-neutral-pill">{customerProfile.closedTickets} cerrados</span>
                           </div>
+
                           <div className="mt-5 space-y-3">
-                            {customerProfile.recentTickets.map((ticket) => (
-                              <article key={ticket.ticketId} className="dashboard-data-card">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <p className="font-semibold text-slate-950 dark:text-white">#{ticket.ticketId}</p>
-                                    <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{ticket.categoryLabel}</p>
+                            {customerProfile.recentTickets.map((ticket) => {
+                              const isCurrent = ticket.ticketId === selectedTicket.ticketId;
+                              return (
+                                <button key={ticket.ticketId} type="button" onClick={() => setSelectedTicketId(ticket.ticketId)} disabled={isCurrent} className="dashboard-data-card w-full text-left disabled:cursor-default disabled:opacity-100">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="font-semibold text-slate-950 dark:text-white">#{ticket.ticketId}</p>
+                                      <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{ticket.subject || ticket.categoryLabel}</p>
+                                    </div>
+                                    <span className={`dashboard-status-pill-compact ${getStatusTone(ticket.workflowStatus)}`}>{getTicketStatusLabel(ticket.workflowStatus)}</span>
                                   </div>
-                                  <span className={`dashboard-status-pill-compact ${getStatusTone(ticket.workflowStatus)}`}>{getTicketStatusLabel(ticket.workflowStatus)}</span>
-                                </div>
-                                <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">{formatDateTime(ticket.createdAt)}</p>
-                              </article>
-                            ))}
+                                  <div className="mt-3 flex flex-wrap gap-2 text-xs uppercase tracking-[0.16em] text-slate-500">
+                                    <span>{formatDateTime(ticket.createdAt)}</span>
+                                    {isCurrent ? <span>Ticket actual</span> : <span>Abrir detalle</span>}
+                                  </div>
+                                </button>
+                              );
+                            })}
                           </div>
                         </>
                       ) : <div className="dashboard-empty-state mt-4">Aun no tenemos historial suficiente para este cliente.</div>}
-                    </div>
-
-                    <div className="dashboard-surface-soft rounded-[1.6rem] p-5">
-                      <p className="dashboard-panel-label">Bitacora</p>
-                      <h3 className="mt-2 text-xl font-semibold text-slate-950 dark:text-white">Bitacora del ticket</h3>
-                      <div className="dashboard-scroll-panel mt-5 space-y-3">
-                        {timeline.length ? timeline.map((event) => (
-                          <article key={event.id} className="dashboard-data-card">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="break-words font-semibold text-slate-950 dark:text-white">{event.title}</p>
-                                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{event.description}</p>
-                              </div>
-                              <span className="dashboard-status-pill-compact dashboard-neutral-pill">{getVisibilityLabel(event.visibility)}</span>
-                            </div>
-                            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-500">{event.actorLabel ? `${event.actorLabel} - ` : ''}{formatDateTime(event.createdAt)}</p>
-                          </article>
-                        )) : <div className="dashboard-empty-state">Este ticket aun no tiene eventos sincronizados en la bitacora.</div>}
-                      </div>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
-export const defaultMetaTitle = 'TON618 | Premium Discord Control';
+export const defaultMetaTitle = 'TON618 | Premium Discord Bot for Moderation, Automations and Ops';
 export const defaultMetaDescription =
-  'TON618 centraliza moderacion, automatizacion y control visual de tu bot con una identidad consistente y oscura.';
+  'TON618 centralizes Discord moderation, automations, support flows and live operational visibility from one premium dashboard.';
 
 export const socialImagePath = '/social-preview.png';
 export const faviconPath = '/favicon.png';

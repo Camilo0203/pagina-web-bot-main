@@ -1,375 +1,481 @@
-﻿import i18n from 'i18next';
+import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 const resources = {
   en: {
     translation: {
       meta: {
-        title: 'TON618 | Premium Discord Control',
-        description: 'Cinematic Discord automation engineered for scale, precision, and total command.'
+        title: 'TON618 | Premium Discord Bot for Moderation, Automations and Ops',
+        description:
+          'TON618 helps serious Discord communities automate moderation, run workflows, monitor live activity and manage everything from one premium dashboard.',
       },
       nav: {
-        features: 'Features',
-        architecture: 'Architecture',
-        whyTon: 'Why TON',
-        network: 'Network',
-        cta: 'Initialize HUD',
-        mobileCta: 'Initialize Dashboard'
+        features: 'Capabilities',
+        architecture: 'Dashboard',
+        whyTon: 'Reliability',
+        network: 'Live stats',
+        primaryCta: 'Invite bot',
+        secondaryCta: 'Open dashboard',
+        mobilePrimaryCta: 'Invite to Discord',
+        mobileSecondaryCta: 'Open dashboard',
+        openMenu: 'Open navigation menu',
+        closeMenu: 'Close navigation menu',
+        homeAria: 'Go to home',
       },
       hero: {
-        badge: 'Quantum Protocol v2.5.0 Active',
-        titleMain: 'Beyond',
-        titleAccent: 'Gravity',
-        description: 'Forge your Discord ecosystem within the singularity.',
-        descriptionSub: 'Massive automation, extreme precision, cosmic scale.',
-        ctaPrimary: 'Launch Protocol',
-        ctaSecondary: 'Access Terminal',
-        scroll: 'Singular Exploration'
+        badge: 'Discord operations platform for serious servers',
+        titleMain: 'Run Your Server',
+        titleAccent: 'With Precision',
+        description:
+          'Moderation, automations, tickets, verification and analytics in one Discord bot built to stay fast as your community grows.',
+        descriptionSub:
+          'Invite TON618 in minutes, configure flows from the dashboard and keep staff aligned with live operational visibility.',
+        ctaPrimary: 'Invite TON618',
+        ctaSecondary: 'Open dashboard',
+        ctaTertiary: 'Read docs',
+        inviteUnavailable: 'Set VITE_DISCORD_CLIENT_ID to enable the invite flow.',
+        proof: {
+          one: 'Automations for moderation, roles and support',
+          two: 'Live metrics with graceful fallback',
+          three: 'Premium dashboard for operators and staff',
+        },
+        panelLabel: 'Why teams move fast with TON618',
+        scroll: 'Scroll to explore',
       },
       features: {
-        tag: 'Tactical Advantage',
-        title: 'Operational',
-        titleAccent: 'Superiority',
-        description: 'A highly-calibrated utility core designed to command the next generation of complex digital infrastructures.',
+        tag: 'What You Can Run',
+        title: 'Built For',
+        titleAccent: 'Real Operations',
+        description:
+          'TON618 is not a novelty bot. It is a Discord control layer for communities that need repeatable workflows, fast moderation and cleaner operations as volume increases.',
+        useCases: {
+          moderation: 'Moderate faster with rules, logs and safer defaults.',
+          onboarding: 'Automate onboarding, verification and role assignment.',
+          support: 'Keep tickets, support and staff actions organized.',
+        },
         items: {
           moderation: {
-            title: 'Kinetic Moderation',
-            desc: 'Neural-linked enforcement protocols that sanitize threats before they penetrate your community ecosystem.',
-            status: 'ENFORCER ACTIVE'
+            title: 'Moderation That Scales',
+            desc: 'Handle enforcement, role logic and moderation events without turning staff work into manual busywork.',
+            status: 'STAFF READY',
           },
           autonomy: {
-            title: 'Core Autonomy',
-            desc: 'Sophisticated event-loops and automated role architectures that evolve with your server\'s complexity.',
-            status: 'LOGIC STABLE'
+            title: 'Automation Flows',
+            desc: 'Run welcome journeys, verification steps and recurring workflows from configurable modules instead of ad hoc commands.',
+            status: 'WORKFLOWS ACTIVE',
           },
           latency: {
-            title: 'Sub-Zero Latency',
-            desc: 'High-frequency command processing across decentralized shard clusters for near-instant execution.',
-            status: 'FLOW OPTIMIZED'
+            title: 'Fast Response',
+            desc: 'Keep commands and operational actions feeling instant with an architecture designed for high-traffic Discord environments.',
+            status: 'LOW LATENCY',
           },
           security: {
-            title: 'Cryptographic Integrity',
-            desc: 'Military-grade data protection and sophisticated intrusion detection to maintain total sovereign security.',
-            status: 'SHIELD VERIFIED'
+            title: 'Safer By Default',
+            desc: 'Protect core interactions with stable permissions, controlled surfaces and a product experience built for administrators.',
+            status: 'HARDENED',
           },
           analytics: {
-            title: 'Neural Analytics',
-            desc: 'Deep-space telemetry and interaction mapping. Visualize every data point within your digital horizon.',
-            status: 'COGNITION LIVE'
+            title: 'Operational Visibility',
+            desc: 'Read live activity, usage and uptime signals so staff can trust what is happening across the bot at a glance.',
+            status: 'INSIGHT LIVE',
           },
           network: {
-            title: 'Omni-Scale Network',
-            desc: 'Architected for massive expansion. Seamlessly sustain multi-million member ecosystems with absolute stability.',
-            status: 'HORIZON EXPANDED'
+            title: 'Growth-Ready',
+            desc: 'Designed for communities that move beyond hobby scale and need consistency across multiple staff workflows.',
+            status: 'READY TO EXPAND',
           },
           modular: {
-            title: 'Modular DNA',
-            desc: 'Granular configuration patterns. Tailor the singularity core to your server\'s specific operational requirements.',
-            status: 'CORE CUSTOMIZED'
+            title: 'Modular Setup',
+            desc: 'Enable only the systems your server actually needs and configure them from the dashboard without losing clarity.',
+            status: 'CONFIGURABLE',
           },
           comms: {
-            title: 'Unified Comms',
-            desc: 'Seamless integration across the Discord API. A bridge between your community and the next generation of tools.',
-            status: 'SIGNAL CLEAR'
-          }
-        }
+            title: 'Discord-Native UX',
+            desc: 'Every interaction feels grounded in how serious Discord teams already work, from support to moderation to member onboarding.',
+            status: 'PLATFORM FIT',
+          },
+        },
       },
       experience: {
-        title: 'Architect the',
-        titleAccent: 'Void',
-        subtitle: 'Scaling civilizations beyond the event horizon.',
-        card1Title: 'Vanguard Shield',
-        card1Desc: 'Advanced kinetic barriers protecting your server against the pressures of extreme growth.',
-        card2Title: 'Neural Sharding',
-        card2Desc: 'Dynamic shard distribution allowing for uninterrupted processing at hyper-massive scales.'
+        title: 'See The',
+        titleAccent: 'Control Layer',
+        subtitle:
+          'A cleaner operator experience for teams that need to move quickly without losing context.',
+        card1Eyebrow: 'Setup clarity',
+        card1Title: 'From command chaos to guided setup',
+        card1Desc:
+          'Replace scattered staff knowledge with a dashboard that exposes key modules, actions and states in a way new moderators can understand quickly.',
+        card2Eyebrow: 'Operator workflow',
+        card2Title: 'Built for Discord product workflows',
+        card2Desc:
+          'Move from invite to configuration to daily operations with a single system, rather than stitching together multiple niche bots and panels.',
       },
       why: {
-        tag: 'Elite Engineering',
-        title: 'Engineered',
-        titleAccent: 'Superiority',
-        description: 'In a universe of generic templates, TON618 is the only utility forged with the scale and power of a supermassive singularity.',
+        tag: 'Why Teams Choose TON618',
+        title: 'Reliable Where',
+        titleAccent: 'It Matters',
+        description:
+          'Serious communities need more than flashy commands. TON618 focuses on operational trust: stable behavior, visible metrics, configurable modules and a cleaner experience for owners, moderators and support staff.',
         stats: {
-          uptime: 'Uptime Protocol',
-          uptimeValue: 'Always watched',
-          uptimeSub: 'Live telemetry backed',
-          speed: 'Processing Speed',
-          speedValue: 'Built to respond',
-          speedSub: 'Performance shown live'
+          uptime: 'Reliability',
+          uptimeValue: 'Live-backed',
+          uptimeSub: 'Status shown on the landing',
+          speed: 'Operational fit',
+          speedValue: 'Built for staff teams',
+          speedSub: 'From invite to daily usage',
         },
         reasons: {
           precision: {
-            title: 'Unmatched Precision',
-            desc: 'Every command is executed with absolute accuracy. No edge cases, no failures. Just pure technical dominance.'
+            title: 'Clear product value',
+            desc: 'The landing and dashboard now explain what TON618 actually does: moderation, automations, verification, support and live visibility.',
           },
           performance: {
-            title: 'Quantum Performance',
-            desc: 'Built on a custom high-concurrency engine processing thousands of operations per second with minimal latency.'
+            title: 'Faster team execution',
+            desc: 'Reusable flows reduce moderator busywork and help staff respond with more consistency during growth or high activity windows.',
           },
           security: {
-            title: 'Fortress Security',
-            desc: 'Advanced threat mitigation going beyond filtering. We protect your community with corporate-grade protocols.'
+            title: 'Trust-oriented experience',
+            desc: 'Live telemetry, graceful fallback states and product framing focused on stability improve confidence for administrators evaluating the bot.',
           },
           integration: {
-            title: 'Neural Integration',
-            desc: 'A modular, intelligent core designed to adapt and evolve with your server\'s unique ecosystem.'
-          }
-        }
+            title: 'One system, fewer gaps',
+            desc: 'Dashboard access, docs, support and status all sit in a clear path so users can move from interest to setup without friction.',
+          },
+        },
       },
       stats: {
-        badgeOnline: 'Telemetry Online',
-        badgeLoading: 'Sync In Progress',
-        badgeOffline: 'Protocol Restricted',
-        title: 'Proven',
-        titleAccent: 'Scale',
-        description: 'Live telemetry data verified by our global synchronization layer. Power without compromise.',
-        lastUpdated: 'Last updated {{value}}',
+        badgeOnline: 'Live data online',
+        badgeLoading: 'Refreshing live data',
+        badgeOffline: 'Showing fallback snapshot',
+        title: 'Live',
+        titleAccent: 'Confidence',
+        description:
+          'These numbers are pulled from live bot telemetry when available, with a verified baseline shown if the live feed is unavailable.',
+        lastUpdated: 'Updated {{value}}',
+        source: {
+          live: 'Source: live Supabase telemetry',
+          loading: 'Source: connecting to live telemetry',
+          fallback: 'Source: verified fallback snapshot',
+        },
         status: {
-          syncing: 'Refreshing live telemetry',
-          standby: 'Awaiting live telemetry',
-          fallback: 'Fallback metrics remain visible while the live feed stabilizes.'
+          syncing: 'Checking the latest bot telemetry now.',
+          standby: 'Live telemetry is unavailable right now.',
+          fallback: 'The landing keeps a stable baseline visible so trust is not lost during temporary outages.',
+          fallbackWithTime: 'Most recent live sync: {{value}}',
         },
         cards: {
-          clusters: { label: 'Active Clusters', sub: 'Across Global Nodes' },
-          souls: { label: 'Synchronized Souls', sub: 'Verified Identities' },
-          ops: { label: 'Operations Executed', sub: 'Real-time Throughput' },
-          stability: { label: 'Stability Index', sub: 'L1 Uptime Standard' }
-        }
+          clusters: { label: 'Servers', sub: 'Communities connected' },
+          souls: { label: 'Members reached', sub: 'Estimated community footprint' },
+          ops: { label: 'Commands executed', sub: 'Operational throughput' },
+          stability: { label: 'Uptime', sub: 'Availability target' },
+        },
       },
       final: {
-        tag: 'Protocol Finalization',
-        title: 'Expand Your',
-        titleAccent: 'Empire',
-        description: 'The singularity is ready. Initiate the synchronization protocol and bring cosmic-scale power to your Discord server today.',
-        cta: 'Initialize Sync',
+        tag: 'Ready To Launch',
+        title: 'Invite TON618',
+        titleAccent: 'And Configure Fast',
+        description:
+          'Bring the bot into your server, open the dashboard and give your staff a cleaner way to moderate, automate and support your community.',
+        cta: 'Invite the bot',
+        secondaryCta: 'Open dashboard',
+        docsCta: 'View docs',
+        supportCta: 'Join support',
+        unavailable: 'The invite URL is disabled until VITE_DISCORD_CLIENT_ID is configured.',
         nodes: {
-          active: 'NODE-01 ACTIVE',
-          encryption: 'ENCRYPTION VERIFIED',
-          stabilized: 'VOID STABILIZED'
-        }
+          active: 'DISCORD-FIRST PRODUCT',
+          encryption: 'LIVE METRICS READY',
+          stabilized: 'GRACEFUL FALLBACKS',
+        },
       },
       footer: {
-        tagline: 'The most massive Discord automation utility in the known universe. Engineered for absolute dominance and community stability.',
-        navTitle: 'Navigation',
-        govTitle: 'Governance',
+        tagline:
+          'Premium Discord automation for teams that care about moderation quality, operational clarity and a cleaner setup experience.',
+        productTitle: 'Product',
+        resourcesTitle: 'Resources',
+        supportTitle: 'Support',
+        govTitle: 'Legal',
         nav: {
-          features: 'Features',
-          stats: 'Stats',
-          commands: 'Commands',
-          docs: 'Documentation'
+          features: 'Capabilities',
+          experience: 'Dashboard',
+          why: 'Reliability',
+          stats: 'Live stats',
+          invite: 'Invite bot',
+          dashboard: 'Open dashboard',
+          docs: 'Documentation',
+          status: 'Status page',
+          support: 'Support server',
+          github: 'GitHub',
         },
         gov: {
-          terms: 'terms protocol',
-          privacy: 'privacy protocol',
-          cookies: 'cookies protocol'
+          terms: 'terms of service',
+          privacy: 'privacy policy',
+          cookies: 'cookies policy',
         },
-        copyright: '{{year}} TON618 PROJECT',
-        stabilized: 'VOID STABILIZED NODE',
-        commanded: 'COMMANDED BY MILO0DEV'
+        copyright: '© {{year}} TON618',
+        stabilized: 'Discord operations product',
+        commanded: 'Built by milo0dev',
+        inviteCta: 'Invite TON618',
       },
       legal: {
-        close: 'Close HUD',
-        core: 'Core Protocol',
-        update: 'Protocol Update',
-        status: 'Active',
+        close: 'Close',
+        core: 'Core Policy',
+        update: 'Last policy review',
+        status: 'Published',
         terms: {
           title: 'Terms of Service',
-          content: 'By using this bot you agree to use it responsibly, follow Discord policies, and avoid abuse. Service availability may change over time, and features can be updated without prior notice.'
+          content:
+            'By using TON618 you agree to use the bot responsibly, comply with Discord policies and avoid abuse, spam or attempts to disrupt the service. Features, limits and availability may change as the product evolves.',
         },
         privacy: {
           title: 'Privacy Policy',
-          content: 'We only process data required for bot functionality, moderation, and analytics. We do not sell personal data. You can request removal of server-related data by contacting support.'
+          content:
+            'TON618 only processes the data required to operate bot features, moderation flows, analytics and dashboard access. We do not sell personal data. Server owners can contact support to request data review or removal where applicable.',
         },
         cookies: {
           title: 'Cookies Policy',
-          content: 'This site may use essential and analytics cookies to improve performance and user experience. You can control cookies through your browser settings at any time.'
-        }
-      }
-    }
+          content:
+            'This site may use essential and analytics cookies to maintain performance, understand product usage and improve the landing and dashboard experience. Cookie behavior can be controlled from your browser settings.',
+        },
+      },
+    },
   },
   es: {
     translation: {
       meta: {
-        title: 'TON618 | Control premium para Discord',
-        description: 'Automatización cinematográfica para Discord, diseñada para escala, precisión y control total.'
+        title: 'TON618 | Bot premium de Discord para moderación, automatización y operaciones',
+        description:
+          'TON618 ayuda a comunidades serias de Discord a automatizar moderación, ejecutar flujos, monitorear actividad en vivo y gestionar todo desde un dashboard premium.',
       },
       nav: {
-        features: 'Características',
-        architecture: 'Arquitectura',
-        whyTon: 'Por qué TON',
-        network: 'Red',
-        cta: 'Inicializar HUD',
-        mobileCta: 'Iniciar Panel'
+        features: 'Capacidades',
+        architecture: 'Dashboard',
+        whyTon: 'Confiabilidad',
+        network: 'Métricas en vivo',
+        primaryCta: 'Invitar bot',
+        secondaryCta: 'Abrir dashboard',
+        mobilePrimaryCta: 'Invitar a Discord',
+        mobileSecondaryCta: 'Abrir dashboard',
+        openMenu: 'Abrir menú de navegación',
+        closeMenu: 'Cerrar menú de navegación',
+        homeAria: 'Ir al inicio',
       },
       hero: {
-        badge: 'Protocolo Quantum v2.5.0 Activo',
-        titleMain: 'Más allá de la',
-        titleAccent: 'Gravedad',
-        description: 'Forja tu ecosistema de Discord dentro de la singularidad.',
-        descriptionSub: 'Automatización masiva, precisión extrema, escala cósmica.',
-        ctaPrimary: 'Lanzar Protocolo',
-        ctaSecondary: 'Acceder a Terminal',
-        scroll: 'Exploración Singular'
+        badge: 'Plataforma de operaciones para Discord enfocada en servidores serios',
+        titleMain: 'Opera Tu Servidor',
+        titleAccent: 'Con Precisión',
+        description:
+          'Moderación, automatizaciones, tickets, verificación y analítica en un solo bot de Discord pensado para mantenerse rápido mientras tu comunidad crece.',
+        descriptionSub:
+          'Invita TON618 en minutos, configura flujos desde el dashboard y mantén a tu staff alineado con visibilidad operativa en tiempo real.',
+        ctaPrimary: 'Invitar TON618',
+        ctaSecondary: 'Abrir dashboard',
+        ctaTertiary: 'Ver docs',
+        inviteUnavailable: 'Configura VITE_DISCORD_CLIENT_ID para habilitar la invitación del bot.',
+        proof: {
+          one: 'Automatizaciones para moderación, roles y soporte',
+          two: 'Métricas en vivo con fallback elegante',
+          three: 'Dashboard premium para operadores y staff',
+        },
+        panelLabel: 'Por qué los equipos avanzan más rápido con TON618',
+        scroll: 'Desplázate para explorar',
       },
       features: {
-        tag: 'Ventaja Táctica',
-        title: 'Superioridad',
-        titleAccent: 'Operativa',
-        description: 'Un núcleo de utilidad altamente calibrado diseñado para comandar la próxima generación de infraestructuras digitales complejas.',
+        tag: 'Qué Puedes Operar',
+        title: 'Hecho Para',
+        titleAccent: 'Operaciones Reales',
+        description:
+          'TON618 no es un bot de adorno. Es una capa de control para Discord pensada para comunidades que necesitan flujos repetibles, moderación veloz y una operación más limpia cuando el volumen sube.',
+        useCases: {
+          moderation: 'Modera más rápido con reglas, logs y mejores defaults.',
+          onboarding: 'Automatiza onboarding, verificación y asignación de roles.',
+          support: 'Mantén tickets, soporte y acciones de staff en orden.',
+        },
         items: {
           moderation: {
-            title: 'Moderación Kinética',
-            desc: 'Protocolos de cumplimiento vinculados neuronalmente que desinfectan amenazas antes de que penetren tu ecosistema comunitario.',
-            status: 'EJECUTOR ACTIVO'
+            title: 'Moderación Que Escala',
+            desc: 'Gestiona enforcement, lógica de roles y eventos de moderación sin convertir el trabajo del staff en tareas manuales repetitivas.',
+            status: 'LISTO PARA STAFF',
           },
           autonomy: {
-            title: 'Autonomía Central',
-            desc: 'Circuitos de eventos sofisticados y arquitecturas de roles automatizadas que evolucionan con la complejidad de tu servidor.',
-            status: 'LÓGICA ESTABLE'
+            title: 'Flujos Automatizados',
+            desc: 'Ejecuta bienvenidas, verificación y procesos recurrentes desde módulos configurables en lugar de depender de comandos dispersos.',
+            status: 'FLUJOS ACTIVOS',
           },
           latency: {
-            title: 'Latencia Sub-Cero',
-            desc: 'Procesamiento de comandos de alta frecuencia a través de clústeres de fragmentos descentralizados para una ejecución casi instantánea.',
-            status: 'FLUJO OPTIMIZADO'
+            title: 'Respuesta Rápida',
+            desc: 'Mantén comandos y acciones operativas con sensación instantánea gracias a una arquitectura orientada a entornos de Discord con alta actividad.',
+            status: 'BAJA LATENCIA',
           },
           security: {
-            title: 'Integridad Criptográfica',
-            desc: 'Protección de datos de grado militar y detección de intrusiones sofisticada para mantener una seguridad soberana total.',
-            status: 'ESCUDO VERIFICADO'
+            title: 'Más Seguro Por Defecto',
+            desc: 'Protege interacciones críticas con permisos estables, superficies controladas y una experiencia pensada para administradores.',
+            status: 'ENDURECIDO',
           },
           analytics: {
-            title: 'Analítica Neural',
-            desc: 'Telemetría de espacio profundo y mapeo de interacciones. Visualiza cada punto de datos dentro de tu horizonte digital.',
-            status: 'COGNICIÓN EN VIVO'
+            title: 'Visibilidad Operativa',
+            desc: 'Lee actividad, uso y señales de uptime en vivo para que el staff entienda el estado del bot de un vistazo.',
+            status: 'INSIGHT EN VIVO',
           },
           network: {
-            title: 'Red Omni-Escala',
-            desc: 'Arquitectado para una expansión masiva. Mantén ecosistemas de millones de miembros sin problemas con estabilidad absoluta.',
-            status: 'HORIZONTE EXPANDIDO'
+            title: 'Listo Para Crecer',
+            desc: 'Diseñado para comunidades que van más allá de escala hobby y necesitan consistencia entre varios flujos de staff.',
+            status: 'LISTO PARA EXPANDIR',
           },
           modular: {
-            title: 'ADN Modular',
-            desc: 'Patrones de configuración granulares. Adapta el núcleo de la singularidad a los requerimientos operativos específicos de tu servidor.',
-            status: 'NÚCLEO PERSONALIZADO'
+            title: 'Setup Modular',
+            desc: 'Activa solo los sistemas que tu servidor necesita y configúralos desde el dashboard sin perder claridad.',
+            status: 'CONFIGURABLE',
           },
           comms: {
-            title: 'Comunicaciones Unidas',
-            desc: 'Integración fluida a través de la API de Discord. Un puente entre tu comunidad y la próxima generación de herramientas.',
-            status: 'SEÑAL LIMPIA'
-          }
-        }
+            title: 'UX Nativa De Discord',
+            desc: 'Cada interacción se siente alineada con cómo trabajan los equipos serios de Discord: soporte, moderación y onboarding.',
+            status: 'AJUSTE NATIVO',
+          },
+        },
       },
       experience: {
-        title: 'Arquitecta el',
-        titleAccent: 'Vacío',
-        subtitle: 'Escalando civilizaciones más allá del horizonte de sucesos.',
-        card1Title: 'Escudo Vanguardia',
-        card1Desc: 'Barreras kinéticas avanzadas que protegen tu servidor contra las presiones del crecimiento extremo.',
-        card2Title: 'Fragmentación Neural',
-        card2Desc: 'Distribución dinámica de fragmentos que permite un procesamiento ininterrumpido a escalas híper-masivas.'
+        title: 'Mira La',
+        titleAccent: 'Capa De Control',
+        subtitle:
+          'Una experiencia de operación más limpia para equipos que necesitan moverse rápido sin perder contexto.',
+        card1Eyebrow: 'Claridad de setup',
+        card1Title: 'Del caos de comandos a un setup guiado',
+        card1Desc:
+          'Sustituye conocimiento disperso del staff por un dashboard que expone módulos, acciones y estados clave de una forma que un nuevo moderador puede entender rápido.',
+        card2Eyebrow: 'Flujo del operador',
+        card2Title: 'Pensado para flujos producto en Discord',
+        card2Desc:
+          'Pasa de la invitación a la configuración y a la operación diaria con un solo sistema, en vez de coser varios bots y paneles de nicho.',
       },
       why: {
-        tag: 'Ingeniería de Élite',
-        title: 'Superioridad',
-        titleAccent: 'Técnica',
-        description: 'En un universo de plantillas genéricas, TON618 es la única utilidad forjada con la escala y el poder de una singularidad supermasiva.',
+        tag: 'Por Qué Eligen TON618',
+        title: 'Confiable Donde',
+        titleAccent: 'Más Importa',
+        description:
+          'Las comunidades serias necesitan más que comandos vistosos. TON618 prioriza confianza operativa: comportamiento estable, métricas visibles, módulos configurables y una experiencia más limpia para owners, moderadores y soporte.',
         stats: {
-          uptime: 'Protocolo de Actividad',
-          uptimeValue: 'Siempre monitoreado',
-          uptimeSub: 'Respaldado por telemetria en vivo',
-          speed: 'Velocidad de Proceso',
-          speedValue: 'Hecho para responder',
-          speedSub: 'Rendimiento visible en vivo'
+          uptime: 'Confiabilidad',
+          uptimeValue: 'Respaldada en vivo',
+          uptimeSub: 'Estado visible en la landing',
+          speed: 'Ajuste operativo',
+          speedValue: 'Hecho para equipos',
+          speedSub: 'De la invitación al uso diario',
         },
         reasons: {
           precision: {
-            title: 'Precisión Inigualable',
-            desc: 'Cada comando se ejecuta con exactitud absoluta. Sin casos límite, sin fallos. Solo pura dominancia técnica.'
+            title: 'Valor de producto claro',
+            desc: 'La landing y el dashboard explican con claridad qué resuelve TON618: moderación, automatizaciones, verificación, soporte y visibilidad en vivo.',
           },
           performance: {
-            title: 'Rendimiento Quantum',
-            desc: 'Construido sobre un motor de alta concurrencia personalizado que procesa miles de operaciones por segundo con latencia mínima.'
+            title: 'Mejor ejecución del staff',
+            desc: 'Los flujos reutilizables reducen trabajo manual y ayudan a responder con más consistencia en crecimiento o picos de actividad.',
           },
           security: {
-            title: 'Seguridad Fortaleza',
-            desc: 'Mitigación de amenazas avanzada que va más allá del filtrado. Protegemos tu comunidad con protocolos de grado corporativo.'
+            title: 'Experiencia orientada a confianza',
+            desc: 'La telemetría en vivo, los fallbacks elegantes y el framing del producto centrado en estabilidad mejoran la confianza de quienes evalúan el bot.',
           },
           integration: {
-            title: 'Integración Neural',
-            desc: 'Un núcleo inteligente y modular diseñado para adaptarse y evolucionar con el ecosistema único de tu servidor.'
-          }
-        }
+            title: 'Un sistema, menos huecos',
+            desc: 'Dashboard, docs, soporte y status quedan en un mismo recorrido para pasar de interés a setup sin fricción.',
+          },
+        },
       },
       stats: {
-        badgeOnline: 'Telemetría Online',
-        badgeLoading: 'Sincronizando Datos',
-        badgeOffline: 'Protocolo Restringido',
-        title: 'Escala',
-        titleAccent: 'Probada',
-        description: 'Datos de telemetría en vivo verificados por nuestra capa de sincronización global. Poder sin concesiones.',
+        badgeOnline: 'Datos en vivo online',
+        badgeLoading: 'Actualizando datos en vivo',
+        badgeOffline: 'Mostrando snapshot base',
+        title: 'Confianza',
+        titleAccent: 'En Vivo',
+        description:
+          'Estos números se obtienen de la telemetría en vivo del bot cuando está disponible, con una base verificada si la señal temporalmente falla.',
         lastUpdated: 'Actualizado {{value}}',
+        source: {
+          live: 'Fuente: telemetría en vivo desde Supabase',
+          loading: 'Fuente: conectando con telemetría en vivo',
+          fallback: 'Fuente: snapshot base verificado',
+        },
         status: {
-          syncing: 'Actualizando telemetría en vivo',
-          standby: 'Esperando telemetría en vivo',
-          fallback: 'Las métricas base siguen visibles mientras se estabiliza la señal en vivo.'
+          syncing: 'Comprobando la telemetría más reciente del bot.',
+          standby: 'La telemetría en vivo no está disponible ahora mismo.',
+          fallback: 'La landing mantiene una base estable visible para no perder confianza durante incidencias temporales.',
+          fallbackWithTime: 'Última sincronización en vivo: {{value}}',
         },
         cards: {
-          clusters: { label: 'Clústeres Activos', sub: 'En Nodos Globales' },
-          souls: { label: 'Almas Sincronizadas', sub: 'Identidades Verificadas' },
-          ops: { label: 'Operaciones Ejecutadas', sub: 'Rendimiento Real' },
-          stability: { label: 'Índice de Estabilidad', sub: 'Estándar de Actividad L1' }
-        }
+          clusters: { label: 'Servidores', sub: 'Comunidades conectadas' },
+          souls: { label: 'Miembros alcanzados', sub: 'Huella estimada de comunidad' },
+          ops: { label: 'Comandos ejecutados', sub: 'Rendimiento operativo' },
+          stability: { label: 'Uptime', sub: 'Objetivo de disponibilidad' },
+        },
       },
       final: {
-        tag: 'Finalización de Protocolo',
-        title: 'Expande tu',
-        titleAccent: 'Imperio',
-        description: 'La singularidad está lista. Inicia el protocolo de sincronización y lleva el poder a escala cósmica a tu servidor de Discord hoy mismo.',
-        cta: 'Inicializar Sincronización',
+        tag: 'Listo Para Lanzar',
+        title: 'Invita TON618',
+        titleAccent: 'Y Configura Rápido',
+        description:
+          'Lleva el bot a tu servidor, abre el dashboard y da a tu staff una forma más limpia de moderar, automatizar y dar soporte a tu comunidad.',
+        cta: 'Invitar el bot',
+        secondaryCta: 'Abrir dashboard',
+        docsCta: 'Ver docs',
+        supportCta: 'Ir a soporte',
+        unavailable: 'La URL de invitación queda deshabilitada hasta configurar VITE_DISCORD_CLIENT_ID.',
         nodes: {
-          active: 'NODO-01 ACTIVO',
-          encryption: 'ENCRIPTACIÓN VERIFICADA',
-          stabilized: 'VACÍO ESTABILIZADO'
-        }
+          active: 'PRODUCTO HECHO PARA DISCORD',
+          encryption: 'MÉTRICAS EN VIVO LISTAS',
+          stabilized: 'FALLBACKS ELEGANTES',
+        },
       },
       footer: {
-        tagline: 'La utilidad de automatización de Discord más masiva del universo conocido. Diseñada para la dominancia absoluta y la estabilidad de la comunidad.',
-        navTitle: 'Navegación',
-        govTitle: 'Gobernanza',
+        tagline:
+          'Automatización premium para Discord enfocada en calidad de moderación, claridad operativa y una experiencia de setup más limpia.',
+        productTitle: 'Producto',
+        resourcesTitle: 'Recursos',
+        supportTitle: 'Soporte',
+        govTitle: 'Legal',
         nav: {
-          features: 'Características',
-          stats: 'Estadísticas',
-          commands: 'Comandos',
-          docs: 'Documentación'
+          features: 'Capacidades',
+          experience: 'Dashboard',
+          why: 'Confiabilidad',
+          stats: 'Métricas en vivo',
+          invite: 'Invitar bot',
+          dashboard: 'Abrir dashboard',
+          docs: 'Documentación',
+          status: 'Página de estado',
+          support: 'Servidor de soporte',
+          github: 'GitHub',
         },
         gov: {
-          terms: 'protocolo de términos',
-          privacy: 'protocolo de privacidad',
-          cookies: 'protocolo de cookies'
+          terms: 'términos del servicio',
+          privacy: 'política de privacidad',
+          cookies: 'política de cookies',
         },
-        copyright: '{{year}} PROYECTO TON618',
-        stabilized: 'NODO ESTABILIZADO DEL VACÍO',
-        commanded: 'COMANDADO POR MILO0DEV'
+        copyright: '© {{year}} TON618',
+        stabilized: 'Producto de operaciones para Discord',
+        commanded: 'Creado por milo0dev',
+        inviteCta: 'Invitar TON618',
       },
       legal: {
-        close: 'Cerrar HUD',
-        core: 'Protocolo Central',
-        update: 'Actualización de Protocolo',
-        status: 'Activo',
+        close: 'Cerrar',
+        core: 'Política Central',
+        update: 'Última revisión',
+        status: 'Publicado',
         terms: {
           title: 'Términos de Servicio',
-          content: 'Al usar este bot aceptas usarlo de manera responsable, seguir las políticas de Discord y evitar el abuso. La disponibilidad del servicio puede cambiar con el tiempo y las funciones pueden actualizarse sin previo aviso.'
+          content:
+            'Al usar TON618 aceptas utilizar el bot de forma responsable, cumplir las políticas de Discord y evitar abuso, spam o intentos de afectar el servicio. Las funciones, límites y disponibilidad pueden cambiar a medida que el producto evoluciona.',
         },
         privacy: {
           title: 'Política de Privacidad',
-          content: 'Solo procesamos los datos requeridos para la funcionalidad del bot, moderación y analíticas. No vendemos datos personales. Puedes solicitar la eliminación de datos relacionados con el servidor contactando a soporte.'
+          content:
+            'TON618 solo procesa los datos necesarios para operar funciones del bot, flujos de moderación, analítica y acceso al dashboard. No vendemos datos personales. Los owners de servidores pueden contactar soporte para revisar o solicitar eliminación de datos cuando aplique.',
         },
         cookies: {
           title: 'Política de Cookies',
-          content: 'Este sitio puede usar cookies esenciales y de analítica para mejorar el rendimiento y la experiencia del usuario. Puedes controlar las cookies a través de la configuración de tu navegador en cualquier momento.'
-        }
-      }
-    }
-  }
+          content:
+            'Este sitio puede usar cookies esenciales y de analítica para mantener el rendimiento, entender el uso del producto y mejorar la experiencia de la landing y del dashboard. El comportamiento de cookies puede controlarse desde la configuración del navegador.',
+        },
+      },
+    },
+  },
 };
 
 function normalizeLanguageCode(language?: string): string {
@@ -386,20 +492,19 @@ function applyDocumentLanguage(language?: string) {
   document.documentElement.setAttribute('xml:lang', normalizedLanguage);
 }
 
-const savedLanguage = typeof window !== 'undefined'
-  ? normalizeLanguageCode(localStorage.getItem('i18nextLng') || 'en')
-  : 'en';
+const savedLanguage =
+  typeof window !== 'undefined'
+    ? normalizeLanguageCode(localStorage.getItem('i18nextLng') || 'en')
+    : 'en';
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: savedLanguage,
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false,
-    },
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: savedLanguage,
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 i18n.on('languageChanged', (lng) => {
   const normalizedLanguage = normalizeLanguageCode(lng);
@@ -414,4 +519,3 @@ i18n.on('languageChanged', (lng) => {
 applyDocumentLanguage(i18n.resolvedLanguage || i18n.language || savedLanguage);
 
 export default i18n;
-

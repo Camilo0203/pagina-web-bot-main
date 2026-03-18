@@ -24,16 +24,36 @@ export default function LandingPage() {
   const canonicalUrl = getCanonicalUrl(location.pathname);
   const socialImageUrl = getAbsoluteAssetUrl(config.socialImagePath);
   const locale = i18n.language.startsWith('es') ? 'es_ES' : 'en_US';
+  const languageAlternates = [
+    { hrefLang: 'en', href: canonicalUrl },
+    { hrefLang: 'es', href: canonicalUrl },
+    { hrefLang: 'x-default', href: canonicalUrl },
+  ];
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-black text-white selection:bg-indigo-500/30">
       <Helmet>
         <html lang={i18n.language.startsWith('es') ? 'es' : 'en'} />
         <title>{title}</title>
         <meta name="description" content={description} />
+        <meta
+          name="keywords"
+          content="Discord bot, Discord dashboard, Discord moderation bot, Discord automation, Discord verification bot, Discord tickets"
+        />
+        <meta name="robots" content="index,follow" />
         <meta name="theme-color" content="#05060f" />
+        <meta name="color-scheme" content="dark" />
         <link rel="canonical" href={canonicalUrl} />
+        {languageAlternates.map((alternate) => (
+          <link
+            key={alternate.hrefLang}
+            rel="alternate"
+            hrefLang={alternate.hrefLang}
+            href={alternate.href}
+          />
+        ))}
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={config.botName} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
@@ -48,39 +68,35 @@ export default function LandingPage() {
         <link rel="manifest" href={config.manifestPath} />
       </Helmet>
 
-      {/* Global Background Effects */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-slate-950"
+      >
+        Skip to content
+      </a>
+
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="bg-cinematic-atmosphere absolute inset-0"></div>
         <div className="bg-cinematic-texture absolute inset-0 opacity-40"></div>
         <div className="bg-film-grain absolute inset-0 opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-950/5 to-black"></div>
-        <div className="scanline-sweep absolute top-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
+        <div className="scanline-sweep absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
       </div>
 
       <div className="relative z-10">
-        <Navbar />
-        
-        <main>
-          {/* Section 1: Hero */}
+        <header>
+          <Navbar />
+        </header>
+
+        <main id="main-content">
           <Hero />
-
-          {/* Section 2: Features */}
           <Features />
-
-          {/* Section 3: Experience */}
           <VisualExperience />
-
-          {/* Section 4: Why TON618 */}
           <WhyTon />
-
-          {/* Section 5: Stats */}
           <LiveStats />
-
-          {/* Section 6: Final CTA */}
           <FinalCTA />
         </main>
 
-        {/* Section 7: Footer */}
         <Footer onOpenLegal={setLegalModalType} />
 
         <LegalModal

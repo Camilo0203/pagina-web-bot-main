@@ -16,6 +16,29 @@ import {
 import { dashboardQueryKeys } from '../constants';
 import type { ConfigMutationSectionId, TicketDashboardActionId } from '../types';
 
+function shouldRetryDashboardRequest(failureCount: number, error: unknown) {
+  if (failureCount >= 2) {
+    return false;
+  }
+
+  if (!(error instanceof Error)) {
+    return failureCount < 1;
+  }
+
+  const normalizedMessage = error.message.toLowerCase();
+  return [
+    'timeout',
+    'tempor',
+    'network',
+    'fetch',
+    '429',
+    '500',
+    '502',
+    '503',
+    '504',
+  ].some((token) => normalizedMessage.includes(token));
+}
+
 export function useDashboardAuth() {
   const queryClient = useQueryClient();
 
@@ -38,6 +61,8 @@ export function useDashboardAuth() {
   return useQuery({
     queryKey: dashboardQueryKeys.auth,
     queryFn: getDashboardSession,
+    staleTime: 30_000,
+    retry: shouldRetryDashboardRequest,
   });
 }
 
@@ -46,6 +71,8 @@ export function useDashboardGuilds(enabled: boolean) {
     queryKey: dashboardQueryKeys.guilds,
     queryFn: fetchDashboardGuilds,
     enabled,
+    staleTime: 30_000,
+    retry: shouldRetryDashboardRequest,
   });
 }
 
@@ -55,6 +82,9 @@ export function useGuildDashboardSnapshot(guildId: string | null, enabled: boole
     queryFn: () => fetchGuildDashboardSnapshot(guildId ?? ''),
     enabled: enabled && Boolean(guildId),
     refetchOnWindowFocus: true,
+    staleTime: 10_000,
+    retry: shouldRetryDashboardRequest,
+    placeholderData: (previousData) => previousData,
     refetchInterval: (query) => {
       const snapshot = query.state.data;
       const hasPendingMutation = snapshot?.mutations.some((mutation) => mutation.status === 'pending');
@@ -113,7 +143,10 @@ export function useSyncDashboardGuilds() {
   return useMutation({
     mutationFn: syncDiscordGuilds,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth }),
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds }),
+      ]);
       queryClient.removeQueries({ queryKey: ['dashboard', 'snapshot'] });
     },
   });

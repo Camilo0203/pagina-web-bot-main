@@ -1,12 +1,86 @@
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
 import PanelCard from '../components/PanelCard';
 import StateCard from '../components/StateCard';
 import type { DashboardGuild, GuildMetricsDaily } from '../types';
+import {
+  formatCompactNumber,
+  formatMinutes,
+  formatPercentage,
+  getAnalyticsCards,
+  getLast14Metrics,
+  getMetricDelta,
+  type AnalyticsSeriesCard,
+} from '../insights';
 import { formatMetricDate, getMetricsSummary } from '../utils';
 
 interface AnalyticsModuleProps {
   guild: DashboardGuild;
   metrics: GuildMetricsDaily[];
+}
+
+function getToneRing(tone: AnalyticsSeriesCard['tone']) {
+  switch (tone) {
+    case 'success':
+      return 'border-emerald-200/70 dark:border-emerald-900/30';
+    case 'warning':
+      return 'border-amber-200/70 dark:border-amber-900/30';
+    case 'danger':
+      return 'border-rose-200/70 dark:border-rose-900/30';
+    case 'info':
+      return 'border-sky-200/70 dark:border-sky-900/30';
+    default:
+      return 'border-slate-200/70 dark:border-surface-600';
+  }
+}
+
+function getBarHeight(value: number | null, max: number) {
+  if (value === null || !Number.isFinite(value) || max <= 0) {
+    return 12;
+  }
+
+  return Math.max(12, Math.round((value / max) * 100));
+}
+
+function buildSparkline(points: Array<{ value: number | null }>) {
+  const numericValues = points
+    .map((point) => point.value)
+    .filter((value): value is number => value !== null && Number.isFinite(value));
+
+  if (!numericValues.length) {
+    return null;
+  }
+
+  const min = Math.min(...numericValues);
+  const max = Math.max(...numericValues);
+  const span = max - min || 1;
+
+  const path = points
+    .map((point, index) => {
+      const x = (index / Math.max(points.length - 1, 1)) * 100;
+      const y = point.value === null ? 100 : 100 - (((point.value - min) / span) * 80 + 10);
+      return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+    })
+    .join(' ');
+
+  return path;
+}
+
+function renderDelta(delta: ReturnType<typeof getMetricDelta>) {
+  if (!delta) {
+    return <span className="text-slate-500 dark:text-slate-400">Sin comparacion</span>;
+  }
+
+  if (delta.direction === 'flat') {
+    return <span className="text-slate-500 dark:text-slate-400">{delta.label}</span>;
+  }
+
+  const positive = delta.direction === 'up';
+  return (
+    <span className={positive ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}>
+      {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+      {delta.label}
+    </span>
+  );
 }
 
 export default function AnalyticsModule({
@@ -18,7 +92,7 @@ export default function AnalyticsModule({
       <StateCard
         eyebrow="Instalacion"
         title="La analitica se activara cuando el bot este dentro del servidor"
-        description="El bot debe publicar snapshots diarios en guild_metrics_daily para mostrar comandos, tickets, SLA y uptime reales."
+        description="El bot necesita instalarse y publicar snapshots diarios en guild_metrics_daily para mostrar uso real, tickets y estabilidad."
         icon={BarChart3}
         tone="warning"
       />
@@ -30,96 +104,185 @@ export default function AnalyticsModule({
       <StateCard
         eyebrow="Sin metricas"
         title="Todavia no hay telemetria diaria"
-        description="La dashboard ya esta lista. Solo falta que el bridge publique snapshots de actividad para este guild."
+        description="La dashboard ya esta preparada para leer tendencias. Solo falta que el bridge publique snapshots diarios para este guild."
         icon={BarChart3}
       />
     );
   }
 
-  const summary = getMetricsSummary(metrics);
-  const maxCommands = Math.max(...metrics.map((metric) => metric.commandsExecuted), 1);
+  const last14 = getLast14Metrics(metrics);
+  const summary = getMetricsSummary(last14);
+  const cards = getAnalyticsCards(last14);
+  const maxCommands = Math.max(...last14.map((metric) => metric.commandsExecuted), 1);
+  const maxTickets = Math.max(...last14.map((metric) => Math.max(metric.ticketsOpened, metric.ticketsClosed, metric.openTickets)), 1);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+    <div className="space-y-6">
       <PanelCard
         eyebrow="Analitica"
-        title={`Tendencia de los ultimos ${metrics.length} dias`}
-        description="Comandos, tickets, SLA y actividad del guild publicados por el bot."
+        title="Tendencias de los ultimos 14 dias"
+        description="Una lectura corta para detectar crecimiento, carga de soporte y estabilidad sin salir del dashboard."
         variant="highlight"
       >
         <div className="dashboard-grid-fit-standard">
-          {[
-            ['Comandos', summary.totals.commandsExecuted.toLocaleString()],
-            ['Tickets abiertos', summary.totals.ticketsOpened.toLocaleString()],
-            ['Tickets cerrados', summary.totals.ticketsClosed.toLocaleString()],
-            ['Brechas SLA', summary.totals.slaBreaches.toLocaleString()],
-            ['Activos maximos', summary.totals.activeMembers.toLocaleString()],
-            ['Uptime promedio', `${summary.averageUptime.toFixed(2)}%`],
-            [
-              'FRT promedio',
-              summary.averageFirstResponseMinutes !== null
-                ? `${summary.averageFirstResponseMinutes.toFixed(1)} min`
-                : 'Sin dato',
-            ],
-            ['Tickets abiertos hoy', String(summary.latest?.openTickets ?? 0)],
-          ].map(([label, value]) => (
-            <article key={label} className="dashboard-kpi-card">
-              <p className="dashboard-data-label">{label}</p>
-              <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{value}</p>
-            </article>
-          ))}
-        </div>
+          {cards.map((card) => {
+            const path = buildSparkline(card.points);
 
-        <div className="dashboard-surface-soft mt-8 rounded-[1.75rem] p-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h3 className="text-xl font-bold text-slate-950 dark:text-white">Comandos ejecutados</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Serie diaria</p>
-          </div>
-          <div className="mt-8 grid h-64 grid-cols-7 items-end gap-3">
-            {summary.series.slice(-7).map((metric) => (
-              <div key={metric.metricDate} className="flex h-full min-w-0 flex-col justify-end">
-                <div
-                  className="rounded-t-3xl bg-gradient-to-t from-brand-600 via-brand-500 to-sky-400 shadow-[0_18px_40px_rgba(88,101,242,0.28)]"
-                  style={{ height: `${Math.max((metric.commandsExecuted / maxCommands) * 100, 8)}%` }}
-                />
-                <p className="mt-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                  {formatMetricDate(metric.metricDate)}
-                </p>
-              </div>
-            ))}
-          </div>
+            return (
+              <article key={card.id} className={`dashboard-trend-card ${getToneRing(card.tone)}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="dashboard-data-label">{card.label}</p>
+                    <p className="mt-2 text-[1.7rem] font-bold tracking-[-0.05em] text-slate-950 dark:text-white">{card.value}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-semibold">
+                    {renderDelta(card.delta)}
+                  </div>
+                </div>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{card.helper}</p>
+
+                <div className="mt-4 rounded-[1.2rem] border border-slate-200/70 bg-white/70 px-3 py-3 dark:border-surface-600 dark:bg-surface-700/60">
+                  {path && !card.empty ? (
+                    <svg viewBox="0 0 100 100" className="h-16 w-full" aria-hidden="true" preserveAspectRatio="none">
+                      <path d={path} fill="none" stroke="currentColor" strokeWidth="3" className="text-brand-500" strokeLinecap="round" />
+                    </svg>
+                  ) : (
+                    <div className="flex h-16 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+                      Sin serie suficiente
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </PanelCard>
 
-      <PanelCard title="Detalle diario" description="Lectura rapida de cada snapshot publicado." variant="soft">
-        <div className="space-y-4">
-          {summary.series.map((metric) => (
-            <article key={metric.metricDate} className="dashboard-data-card">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-lg font-semibold text-slate-950 dark:text-white">{formatMetricDate(metric.metricDate)}</p>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Snapshot diario del guild</p>
-                </div>
-                <div className="dashboard-status-pill-compact dashboard-neutral-pill">
-                  {metric.uptimePercentage.toFixed(2)}% uptime
-                </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+        <PanelCard
+          eyebrow="Actividad"
+          title="Comandos y tickets por dia"
+          description="Compara intensidad de uso y carga operativa a lo largo de la ventana visible."
+          variant="soft"
+        >
+          <div className="dashboard-chart-shell">
+            <div className="overflow-x-auto pb-2">
+              <div className="grid h-72 min-w-[42rem] grid-cols-14 items-end gap-2" role="img" aria-label="Comparativa diaria de comandos y tickets de los ultimos 14 dias">
+                {last14.map((metric) => (
+                  <div key={metric.metricDate} className="flex h-full min-w-0 flex-col justify-end gap-2">
+                    <div
+                      className="dashboard-mini-bar bg-[linear-gradient(180deg,rgba(88,101,242,0.95),rgba(56,189,248,0.85))]"
+                      style={{ height: `${getBarHeight(metric.commandsExecuted, maxCommands)}%` }}
+                      title={`${metric.commandsExecuted.toLocaleString('es-CO')} comandos`}
+                    />
+                    <div
+                      className="dashboard-mini-bar bg-[linear-gradient(180deg,rgba(16,185,129,0.92),rgba(59,130,246,0.78))]"
+                      style={{ height: `${getBarHeight(Math.max(metric.ticketsOpened, metric.ticketsClosed, metric.openTickets), maxTickets)}%` }}
+                      title={`${metric.ticketsOpened} abiertos / ${metric.ticketsClosed} cerrados / ${metric.openTickets} abiertos activos`}
+                    />
+                    <p className="text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                      {formatMetricDate(metric.metricDate)}
+                    </p>
+                  </div>
+                ))}
               </div>
-              <div className="dashboard-grid-fit-compact mt-4">
-                <div>
-                  <p className="dashboard-data-label">Comandos</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.commandsExecuted.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="dashboard-data-label">Tickets</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.ticketsOpened.toLocaleString()} abiertos / {metric.ticketsClosed.toLocaleString()} cerrados</p>
-                </div>
-                <div>
-                  <p className="dashboard-data-label">SLA</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.slaBreaches.toLocaleString()} brechas</p>
-                </div>
-              </div>
-            </article>
-          ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-300">
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-brand-500" aria-hidden="true" />
+                Comandos ejecutados
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                Tickets y carga de soporte
+              </span>
+            </div>
+            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+              En movil puedes desplazarte horizontalmente para revisar los 14 dias completos.
+            </p>
+          </div>
+        </PanelCard>
+
+        <PanelCard
+          eyebrow="Lectura rapida"
+          title="Resumen de la ventana visible"
+          description="Totales y promedios para entender la foto general sin revisar cada dia."
+          variant="soft"
+        >
+          <div className="dashboard-grid-fit-compact">
+            {[
+              ['Comandos acumulados', summary.totals.commandsExecuted.toLocaleString('es-CO')],
+              ['Tickets abiertos', summary.totals.ticketsOpened.toLocaleString('es-CO')],
+              ['Tickets cerrados', summary.totals.ticketsClosed.toLocaleString('es-CO')],
+              ['Miembros activos max', formatCompactNumber(summary.totals.activeMembers)],
+              ['Uptime promedio', formatPercentage(summary.averageUptime, 2)],
+              ['FRT promedio', formatMinutes(summary.averageFirstResponseMinutes)],
+              ['Brechas SLA', summary.totals.slaBreaches.toLocaleString('es-CO')],
+              ['Modulos detectados', String(summary.modulesActive.length)],
+            ].map(([label, value]) => (
+              <article key={label} className="dashboard-kpi-card">
+                <p className="dashboard-data-label">{label}</p>
+                <p className="mt-2 text-[1.45rem] font-bold tracking-[-0.05em] text-slate-950 dark:text-white">{value}</p>
+              </article>
+            ))}
+          </div>
+        </PanelCard>
+      </div>
+
+      <PanelCard
+        eyebrow="Snapshots"
+        title="Detalle diario"
+        description="Fallback legible para inspeccionar cada dia cuando la comparativa general no basta."
+        variant="soft"
+      >
+        <div className="grid gap-4 lg:grid-cols-2">
+          {last14.length ? (
+            last14
+              .slice()
+              .reverse()
+              .map((metric) => (
+                <article key={metric.metricDate} className="dashboard-data-card">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-lg font-semibold text-slate-950 dark:text-white">{formatMetricDate(metric.metricDate)}</p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                        {metric.modulesActive.length
+                          ? `${metric.modulesActive.length} modulo${metric.modulesActive.length > 1 ? 's' : ''} activo${metric.modulesActive.length > 1 ? 's' : ''}`
+                          : 'Sin modulos reportados ese dia'}
+                      </p>
+                    </div>
+                    <div className="dashboard-status-pill-compact dashboard-neutral-pill">
+                      {formatPercentage(metric.uptimePercentage, 2)} uptime
+                    </div>
+                  </div>
+                  <div className="dashboard-grid-fit-compact mt-4">
+                    <div>
+                      <p className="dashboard-data-label">Comandos</p>
+                      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.commandsExecuted.toLocaleString('es-CO')}</p>
+                    </div>
+                    <div>
+                      <p className="dashboard-data-label">Tickets</p>
+                      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">
+                        {metric.ticketsOpened} / {metric.ticketsClosed} / {metric.openTickets}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="dashboard-data-label">FRT</p>
+                      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{formatMinutes(metric.avgFirstResponseMinutes)}</p>
+                    </div>
+                    <div>
+                      <p className="dashboard-data-label">SLA</p>
+                      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.slaBreaches} brechas</p>
+                    </div>
+                  </div>
+                </article>
+              ))
+          ) : (
+            <div className="dashboard-empty-state">
+              Todavia no hay snapshots diarios suficientes para mostrar detalle historico.
+            </div>
+          )}
         </div>
       </PanelCard>
     </div>

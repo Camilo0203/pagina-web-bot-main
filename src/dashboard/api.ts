@@ -34,6 +34,8 @@ import type {
 
 const OAUTH_EXCHANGE_TIMEOUT_MS = 15_000;
 const GUILD_SYNC_TIMEOUT_MS = 20_000;
+const DASHBOARD_QUERY_TIMEOUT_MS = 12_000;
+const DASHBOARD_RPC_TIMEOUT_MS = 15_000;
 const DASHBOARD_AUTH_INTENT_STORAGE_KEY = 'dashboard:auth-intent';
 
 interface GuildAccessRow {
@@ -242,12 +244,44 @@ function getErrorMessage(error: unknown, fallbackMessage: string): string {
   return fallbackMessage;
 }
 
+function isTemporaryDashboardError(message: string): boolean {
+  const normalizedMessage = message.toLowerCase();
+  return [
+    'timeout',
+    'network',
+    'fetch',
+    'failed to fetch',
+    'timed out',
+    'tempor',
+    'temporar',
+    '429',
+    '500',
+    '502',
+    '503',
+    '504',
+    'edge function',
+  ].some((token) => normalizedMessage.includes(token));
+}
+
+function createDashboardError(context: string, error: unknown, fallbackMessage: string): Error {
+  const baseMessage = getErrorMessage(error, fallbackMessage).trim() || fallbackMessage;
+  const hint = isTemporaryDashboardError(baseMessage)
+    ? ' Parece un problema temporal; puedes reintentar en unos segundos.'
+    : '';
+
+  return new Error(`${baseMessage}${hint} [${context}]`);
+}
+
 function readStorage(): Storage | null {
   if (typeof window === 'undefined') {
     return null;
   }
 
-  return window.sessionStorage;
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
 }
 
 function persistDashboardAuthIntent(requestedGuildId?: string | null) {
@@ -264,7 +298,7 @@ function persistDashboardAuthIntent(requestedGuildId?: string | null) {
   storage.setItem(DASHBOARD_AUTH_INTENT_STORAGE_KEY, JSON.stringify(intent));
 }
 
-export function consumeDashboardAuthIntent(): { requestedGuildId: string | null } {
+export function peekDashboardAuthIntent(): { requestedGuildId: string | null } {
   const storage = readStorage();
   if (!storage) {
     return { requestedGuildId: null };
@@ -288,6 +322,17 @@ export function consumeDashboardAuthIntent(): { requestedGuildId: string | null 
   } catch {
     return { requestedGuildId: null };
   }
+}
+
+export function clearDashboardAuthIntent() {
+  const storage = readStorage();
+  storage?.removeItem(DASHBOARD_AUTH_INTENT_STORAGE_KEY);
+}
+
+export function consumeDashboardAuthIntent(): { requestedGuildId: string | null } {
+  const intent = peekDashboardAuthIntent();
+  clearDashboardAuthIntent();
+  return intent;
 }
 
 export function resolveDashboardRedirectPath(preferredGuildId?: string | null): string {
@@ -316,6 +361,35 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMes
   }
 }
 
+async function runQueryWithTimeout<T>(
+  context: string,
+  promise: PromiseLike<T>,
+  timeoutMs = DASHBOARD_QUERY_TIMEOUT_MS,
+): Promise<T> {
+  try {
+    return await withTimeout(
+      Promise.resolve(promise),
+      timeoutMs,
+      `La consulta del dashboard tardo demasiado (${timeoutMs / 1000}s).`,
+    );
+  } catch (error: unknown) {
+    throw createDashboardError(
+      context,
+      error,
+      'No se pudo completar una consulta requerida por el dashboard.',
+    );
+  }
+}
+
+function ensureGuildId(guildId: string, context: string): string {
+  const normalizedGuildId = guildId.trim();
+  if (!normalizedGuildId) {
+    throw new Error(`No hay un servidor valido seleccionado para ${context}.`);
+  }
+
+  return normalizedGuildId;
+}
+
 function mapGuildRow(row: GuildAccessRow): DashboardGuild {
   return dashboardGuildSchema.parse({
     guildId: row.guild_id,
@@ -342,14 +416,25 @@ export async function getDashboardSession(): Promise<DashboardSessionState> {
 
   const client = getSupabaseClient();
   const [{ data: sessionData, error: sessionError }, { data: userData, error: userError }] =
-    await Promise.all([client.auth.getSession(), client.auth.getUser()]);
+    await runQueryWithTimeout(
+      'auth.session',
+      Promise.all([client.auth.getSession(), client.auth.getUser()]),
+    );
 
   if (sessionError) {
-    throw sessionError;
+    throw createDashboardError(
+      'auth.session',
+      sessionError,
+      'No se pudo validar la sesion actual del dashboard.',
+    );
   }
 
   if (userError) {
-    throw userError;
+    throw createDashboardError(
+      'auth.user',
+      userError,
+      'No se pudo cargar el usuario autenticado del dashboard.',
+    );
   }
 
   return {
@@ -376,20 +461,35 @@ export async function signInWithDiscord(requestedGuildId?: string | null): Promi
   });
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      'auth.oauth.sign-in',
+      error,
+      'No se pudo iniciar el login con Discord.',
+    );
   }
 
-  if (data.url) {
-    window.location.assign(data.url);
+  if (!data.url) {
+    throw new Error('Discord no devolvio una URL valida para iniciar sesion. [auth.oauth.redirect]');
   }
+
+  window.location.assign(data.url);
 }
 
 export async function signOutDashboard(): Promise<void> {
   const client = getSupabaseClient();
-  const { error } = await client.auth.signOut();
+  clearDashboardAuthIntent();
+  const { error } = await runQueryWithTimeout(
+    'auth.sign-out',
+    client.auth.signOut(),
+    DASHBOARD_RPC_TIMEOUT_MS,
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      'auth.sign-out',
+      error,
+      'No se pudo cerrar la sesion del dashboard.',
+    );
   }
 }
 
@@ -422,13 +522,17 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
 
     return data.session;
   } catch (error: unknown) {
-    const message = getErrorMessage(error, 'No se pudo intercambiar el codigo OAuth con Supabase.');
+    const dashboardError = createDashboardError(
+      'auth.oauth.exchange',
+      error,
+      'No se pudo intercambiar el codigo OAuth con Supabase.',
+    );
     console.error('[dashboard-auth] exchangeDashboardCodeForSession:error', {
       durationMs: Date.now() - startedAt,
-      message,
+      message: dashboardError.message,
       error,
     });
-    throw new Error(message);
+    throw dashboardError;
   }
 }
 
@@ -460,6 +564,10 @@ export async function syncDiscordGuilds(providerToken: string): Promise<Dashboar
       throw error;
     }
 
+    if (!data) {
+      throw new Error('La funcion sync-discord-guilds respondio vacio.');
+    }
+
     const parsedResult = dashboardSyncResultSchema.parse(data);
     console.log('[dashboard-auth] syncDiscordGuilds:success', {
       durationMs: Date.now() - startedAt,
@@ -469,98 +577,130 @@ export async function syncDiscordGuilds(providerToken: string): Promise<Dashboar
 
     return parsedResult;
   } catch (error: unknown) {
-    const message = getErrorMessage(
+    const dashboardError = createDashboardError(
+      'auth.guild-sync',
       error,
       'No se pudieron sincronizar los servidores administrables con Supabase.',
     );
     console.error('[dashboard-auth] syncDiscordGuilds:error', {
       durationMs: Date.now() - startedAt,
-      message,
+      message: dashboardError.message,
       error,
     });
-    throw new Error(message);
+    throw dashboardError;
   }
 }
 
 export async function fetchDashboardGuilds(): Promise<DashboardGuild[]> {
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('user_guild_access')
-    .select(
-      'guild_id, guild_name, guild_icon, permissions_raw, can_manage, is_owner, bot_installed, member_count, premium_tier, bot_last_seen_at, last_synced_at',
-    )
-    .eq('can_manage', true)
-    .order('bot_installed', { ascending: false })
-    .order('guild_name', { ascending: true })
-    .returns<GuildAccessRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    'guilds.list',
+    client
+      .from('user_guild_access')
+      .select(
+        'guild_id, guild_name, guild_icon, permissions_raw, can_manage, is_owner, bot_installed, member_count, premium_tier, bot_last_seen_at, last_synced_at',
+      )
+      .eq('can_manage', true)
+      .order('bot_installed', { ascending: false })
+      .order('guild_name', { ascending: true })
+      .returns<GuildAccessRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      'guilds.list',
+      error,
+      'No se pudieron cargar los servidores administrables.',
+    );
   }
 
   return (data ?? []).map(mapGuildRow);
 }
 
 async function fetchGuildConfig(guildId: string) {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar la configuracion');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_configs')
-    .select(
-      [
-        'guild_id',
-        'general_settings',
-        'server_roles_channels_settings',
-        'tickets_settings',
-        'verification_settings',
-        'welcome_settings',
-        'suggestion_settings',
-        'modlog_settings',
-        'command_settings',
-        'system_settings',
-        'moderation_settings',
-        'dashboard_preferences',
-        'updated_by',
-        'updated_at',
-        'config_source',
-      ].join(', '),
-    )
-    .eq('guild_id', guildId)
-    .maybeSingle<GuildConfigRow>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.config.${resolvedGuildId}`,
+    client
+      .from('guild_configs')
+      .select(
+        [
+          'guild_id',
+          'general_settings',
+          'server_roles_channels_settings',
+          'tickets_settings',
+          'verification_settings',
+          'welcome_settings',
+          'suggestion_settings',
+          'modlog_settings',
+          'command_settings',
+          'system_settings',
+          'moderation_settings',
+          'dashboard_preferences',
+          'updated_by',
+          'updated_at',
+          'config_source',
+        ].join(', '),
+      )
+      .eq('guild_id', resolvedGuildId)
+      .maybeSingle<GuildConfigRow>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.config.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar la configuracion del servidor.',
+    );
   }
 
-  return normalizeGuildConfig(guildId, data);
+  return normalizeGuildConfig(resolvedGuildId, data);
 }
 
 async function fetchGuildInventory(guildId: string) {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar el inventario');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_inventory_snapshots')
-    .select('guild_id, roles, channels, categories, commands, updated_at')
-    .eq('guild_id', guildId)
-    .maybeSingle<GuildInventoryRow>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.inventory.${resolvedGuildId}`,
+    client
+      .from('guild_inventory_snapshots')
+      .select('guild_id, roles, channels, categories, commands, updated_at')
+      .eq('guild_id', resolvedGuildId)
+      .maybeSingle<GuildInventoryRow>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.inventory.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar el inventario sincronizado del servidor.',
+    );
   }
 
-  return normalizeGuildInventory(guildId, data);
+  return normalizeGuildInventory(resolvedGuildId, data);
 }
 
 async function fetchGuildActivity(guildId: string): Promise<GuildEvent[]> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar la actividad');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_dashboard_events')
-    .select('id, guild_id, event_type, title, description, metadata, created_at')
-    .eq('guild_id', guildId)
-    .order('created_at', { ascending: false })
-    .limit(20)
-    .returns<GuildEventRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.activity.${resolvedGuildId}`,
+    client
+      .from('guild_dashboard_events')
+      .select('id, guild_id, event_type, title, description, metadata, created_at')
+      .eq('guild_id', resolvedGuildId)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .returns<GuildEventRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.activity.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar la actividad reciente del servidor.',
+    );
   }
 
   return (data ?? []).map((row) =>
@@ -577,32 +717,40 @@ async function fetchGuildActivity(guildId: string): Promise<GuildEvent[]> {
 }
 
 async function fetchGuildMetrics(guildId: string): Promise<GuildMetricsDaily[]> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar las metricas');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_metrics_daily')
-    .select(
-      [
-        'guild_id',
-        'metric_date',
-        'commands_executed',
-        'moderated_messages',
-        'active_members',
-        'uptime_percentage',
-        'tickets_opened',
-        'tickets_closed',
-        'open_tickets',
-        'sla_breaches',
-        'avg_first_response_minutes',
-        'modules_active',
-      ].join(', '),
-    )
-    .eq('guild_id', guildId)
-    .order('metric_date', { ascending: false })
-    .limit(14)
-    .returns<GuildMetricsRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.metrics.${resolvedGuildId}`,
+    client
+      .from('guild_metrics_daily')
+      .select(
+        [
+          'guild_id',
+          'metric_date',
+          'commands_executed',
+          'moderated_messages',
+          'active_members',
+          'uptime_percentage',
+          'tickets_opened',
+          'tickets_closed',
+          'open_tickets',
+          'sla_breaches',
+          'avg_first_response_minutes',
+          'modules_active',
+        ].join(', '),
+      )
+      .eq('guild_id', resolvedGuildId)
+      .order('metric_date', { ascending: false })
+      .limit(14)
+      .returns<GuildMetricsRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.metrics.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar la analitica del servidor.',
+    );
   }
 
   return (data ?? []).map((row) =>
@@ -627,200 +775,249 @@ async function fetchGuildMetrics(guildId: string): Promise<GuildMetricsDaily[]> 
 }
 
 async function fetchGuildMutations(guildId: string): Promise<GuildConfigMutation[]> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar los cambios pendientes');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_config_mutations')
-    .select(
-      [
-        'id',
-        'guild_id',
-        'actor_user_id',
-        'mutation_type',
-        'section',
-        'status',
-        'requested_payload',
-        'applied_payload',
-        'metadata',
-        'error_message',
-        'requested_at',
-        'applied_at',
-        'failed_at',
-        'superseded_at',
-        'updated_at',
-      ].join(', '),
-    )
-    .eq('guild_id', guildId)
-    .order('requested_at', { ascending: false })
-    .limit(25)
-    .returns<GuildMutationRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.mutations.${resolvedGuildId}`,
+    client
+      .from('guild_config_mutations')
+      .select(
+        [
+          'id',
+          'guild_id',
+          'actor_user_id',
+          'mutation_type',
+          'section',
+          'status',
+          'requested_payload',
+          'applied_payload',
+          'metadata',
+          'error_message',
+          'requested_at',
+          'applied_at',
+          'failed_at',
+          'superseded_at',
+          'updated_at',
+        ].join(', '),
+      )
+      .eq('guild_id', resolvedGuildId)
+      .order('requested_at', { ascending: false })
+      .limit(25)
+      .returns<GuildMutationRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.mutations.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar el historial de cambios del servidor.',
+    );
   }
 
   return normalizeGuildMutations(data);
 }
 
 async function fetchGuildBackups(guildId: string) {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar los backups');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_backup_manifests')
-    .select('backup_id, guild_id, actor_user_id, source, schema_version, exported_at, created_at, metadata')
-    .eq('guild_id', guildId)
-    .order('created_at', { ascending: false })
-    .limit(20)
-    .returns<GuildBackupRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.backups.${resolvedGuildId}`,
+    client
+      .from('guild_backup_manifests')
+      .select('backup_id, guild_id, actor_user_id, source, schema_version, exported_at, created_at, metadata')
+      .eq('guild_id', resolvedGuildId)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .returns<GuildBackupRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.backups.${resolvedGuildId}`,
+      error,
+      'No se pudieron cargar los backups del servidor.',
+    );
   }
 
   return normalizeGuildBackups(data);
 }
 
 async function fetchGuildSyncStatus(guildId: string) {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar el estado de sincronizacion');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_sync_status')
-    .select(
-      [
-        'guild_id',
-        'bridge_status',
-        'bridge_message',
-        'last_heartbeat_at',
-        'last_inventory_at',
-        'last_config_sync_at',
-        'last_mutation_processed_at',
-        'last_backup_at',
-        'pending_mutations',
-        'failed_mutations',
-        'updated_at',
-      ].join(', '),
-    )
-    .eq('guild_id', guildId)
-    .maybeSingle<GuildSyncStatusRow>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.sync-status.${resolvedGuildId}`,
+    client
+      .from('guild_sync_status')
+      .select(
+        [
+          'guild_id',
+          'bridge_status',
+          'bridge_message',
+          'last_heartbeat_at',
+          'last_inventory_at',
+          'last_config_sync_at',
+          'last_mutation_processed_at',
+          'last_backup_at',
+          'pending_mutations',
+          'failed_mutations',
+          'updated_at',
+        ].join(', '),
+      )
+      .eq('guild_id', resolvedGuildId)
+      .maybeSingle<GuildSyncStatusRow>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.sync-status.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar el estado tecnico del servidor.',
+    );
   }
 
-  return normalizeGuildSyncStatus(guildId, data);
+  return normalizeGuildSyncStatus(resolvedGuildId, data);
 }
 
 async function fetchGuildTicketInbox(guildId: string): Promise<TicketInboxItem[]> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar la bandeja de tickets');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_ticket_inbox')
-    .select(
-      [
-        'guild_id',
-        'ticket_id',
-        'channel_id',
-        'user_id',
-        'user_label',
-        'workflow_status',
-        'queue_type',
-        'category_id',
-        'category_label',
-        'priority',
-        'subject',
-        'claimed_by',
-        'claimed_by_label',
-        'assignee_id',
-        'assignee_label',
-        'claimed_at',
-        'first_response_at',
-        'resolved_at',
-        'closed_at',
-        'created_at',
-        'updated_at',
-        'last_customer_message_at',
-        'last_staff_message_at',
-        'last_activity_at',
-        'message_count',
-        'staff_message_count',
-        'reopen_count',
-        'tags',
-        'sla_target_minutes',
-        'sla_due_at',
-        'sla_state',
-        'is_open',
-      ].join(', '),
-    )
-    .eq('guild_id', guildId)
-    .order('is_open', { ascending: false })
-    .order('updated_at', { ascending: false })
-    .limit(150)
-    .returns<GuildTicketInboxRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.ticket-inbox.${resolvedGuildId}`,
+    client
+      .from('guild_ticket_inbox')
+      .select(
+        [
+          'guild_id',
+          'ticket_id',
+          'channel_id',
+          'user_id',
+          'user_label',
+          'workflow_status',
+          'queue_type',
+          'category_id',
+          'category_label',
+          'priority',
+          'subject',
+          'claimed_by',
+          'claimed_by_label',
+          'assignee_id',
+          'assignee_label',
+          'claimed_at',
+          'first_response_at',
+          'resolved_at',
+          'closed_at',
+          'created_at',
+          'updated_at',
+          'last_customer_message_at',
+          'last_staff_message_at',
+          'last_activity_at',
+          'message_count',
+          'staff_message_count',
+          'reopen_count',
+          'tags',
+          'sla_target_minutes',
+          'sla_due_at',
+          'sla_state',
+          'is_open',
+        ].join(', '),
+      )
+      .eq('guild_id', resolvedGuildId)
+      .order('is_open', { ascending: false })
+      .order('updated_at', { ascending: false })
+      .limit(150)
+      .returns<GuildTicketInboxRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.ticket-inbox.${resolvedGuildId}`,
+      error,
+      'No se pudo cargar la bandeja de tickets del servidor.',
+    );
   }
 
-  return normalizeGuildTicketInbox(guildId, data);
+  return normalizeGuildTicketInbox(resolvedGuildId, data);
 }
 
 async function fetchGuildTicketEvents(guildId: string): Promise<TicketConversationEvent[]> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar los eventos de tickets');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_ticket_events')
-    .select(
-      [
-        'id',
-        'guild_id',
-        'ticket_id',
-        'channel_id',
-        'actor_id',
-        'actor_kind',
-        'actor_label',
-        'event_type',
-        'visibility',
-        'title',
-        'description',
-        'metadata',
-        'created_at',
-      ].join(', '),
-    )
-    .eq('guild_id', guildId)
-    .order('created_at', { ascending: false })
-    .limit(300)
-    .returns<GuildTicketEventRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.ticket-events.${resolvedGuildId}`,
+    client
+      .from('guild_ticket_events')
+      .select(
+        [
+          'id',
+          'guild_id',
+          'ticket_id',
+          'channel_id',
+          'actor_id',
+          'actor_kind',
+          'actor_label',
+          'event_type',
+          'visibility',
+          'title',
+          'description',
+          'metadata',
+          'created_at',
+        ].join(', '),
+      )
+      .eq('guild_id', resolvedGuildId)
+      .order('created_at', { ascending: false })
+      .limit(300)
+      .returns<GuildTicketEventRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.ticket-events.${resolvedGuildId}`,
+      error,
+      'No se pudieron cargar los eventos de tickets del servidor.',
+    );
   }
 
-  return normalizeGuildTicketEvents(guildId, data);
+  return normalizeGuildTicketEvents(resolvedGuildId, data);
 }
 
 async function fetchGuildTicketMacros(guildId: string): Promise<TicketMacro[]> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar las macros de tickets');
   const client = getSupabaseClient();
-  const { data, error } = await client
-    .from('guild_ticket_macros')
-    .select('macro_id, guild_id, label, content, visibility, sort_order, is_system')
-    .eq('guild_id', guildId)
-    .order('sort_order', { ascending: true })
-    .returns<GuildTicketMacroRow[]>();
+  const { data, error } = await runQueryWithTimeout(
+    `snapshot.ticket-macros.${resolvedGuildId}`,
+    client
+      .from('guild_ticket_macros')
+      .select('macro_id, guild_id, label, content, visibility, sort_order, is_system')
+      .eq('guild_id', resolvedGuildId)
+      .order('sort_order', { ascending: true })
+      .returns<GuildTicketMacroRow[]>(),
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `snapshot.ticket-macros.${resolvedGuildId}`,
+      error,
+      'No se pudieron cargar las macros de tickets del servidor.',
+    );
   }
 
-  return normalizeGuildTicketMacros(guildId, data);
+  return normalizeGuildTicketMacros(resolvedGuildId, data);
 }
 
 export async function fetchGuildDashboardSnapshot(guildId: string): Promise<GuildDashboardSnapshot> {
+  const resolvedGuildId = ensureGuildId(guildId, 'cargar el snapshot del dashboard');
   const [config, inventory, events, metrics, mutations, backups, syncStatus, ticketInbox, ticketEvents, ticketMacros] = await Promise.all([
-    fetchGuildConfig(guildId),
-    fetchGuildInventory(guildId),
-    fetchGuildActivity(guildId),
-    fetchGuildMetrics(guildId),
-    fetchGuildMutations(guildId),
-    fetchGuildBackups(guildId),
-    fetchGuildSyncStatus(guildId),
-    fetchGuildTicketInbox(guildId),
-    fetchGuildTicketEvents(guildId),
-    fetchGuildTicketMacros(guildId),
+    fetchGuildConfig(resolvedGuildId),
+    fetchGuildInventory(resolvedGuildId),
+    fetchGuildActivity(resolvedGuildId),
+    fetchGuildMetrics(resolvedGuildId),
+    fetchGuildMutations(resolvedGuildId),
+    fetchGuildBackups(resolvedGuildId),
+    fetchGuildSyncStatus(resolvedGuildId),
+    fetchGuildTicketInbox(resolvedGuildId),
+    fetchGuildTicketEvents(resolvedGuildId),
+    fetchGuildTicketMacros(resolvedGuildId),
   ]);
 
   return {
@@ -844,15 +1041,24 @@ export async function requestGuildConfigChange(
   section: ConfigMutationSectionId,
   payload: unknown,
 ): Promise<GuildConfigMutation> {
+  const resolvedGuildId = ensureGuildId(guildId, 'guardar cambios');
   const client = getSupabaseClient();
-  const { data, error } = await client.rpc('request_guild_config_change', {
-    p_guild_id: guildId,
-    p_section: section,
-    p_payload: payload,
-  });
+  const { data, error } = await runQueryWithTimeout(
+    `rpc.request_guild_config_change.${resolvedGuildId}.${section}`,
+    client.rpc('request_guild_config_change', {
+      p_guild_id: resolvedGuildId,
+      p_section: section,
+      p_payload: payload,
+    }),
+    DASHBOARD_RPC_TIMEOUT_MS,
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `rpc.request_guild_config_change.${resolvedGuildId}.${section}`,
+      error,
+      'No se pudo registrar la solicitud de cambio.',
+    );
   }
 
   const row = Array.isArray(data) ? data[0] : data;
@@ -870,15 +1076,24 @@ export async function requestGuildBackupAction(
   action: 'create_backup' | 'restore_backup',
   payload: Record<string, unknown>,
 ): Promise<GuildConfigMutation> {
+  const resolvedGuildId = ensureGuildId(guildId, action === 'create_backup' ? 'crear el backup' : 'restaurar el backup');
   const client = getSupabaseClient();
-  const { data, error } = await client.rpc('request_guild_backup_action', {
-    p_guild_id: guildId,
-    p_action: action,
-    p_payload: payload,
-  });
+  const { data, error } = await runQueryWithTimeout(
+    `rpc.request_guild_backup_action.${resolvedGuildId}.${action}`,
+    client.rpc('request_guild_backup_action', {
+      p_guild_id: resolvedGuildId,
+      p_action: action,
+      p_payload: payload,
+    }),
+    DASHBOARD_RPC_TIMEOUT_MS,
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `rpc.request_guild_backup_action.${resolvedGuildId}.${action}`,
+      error,
+      'No se pudo registrar la accion de backup.',
+    );
   }
 
   const row = Array.isArray(data) ? data[0] : data;
@@ -919,27 +1134,44 @@ export async function requestTicketDashboardAction(
   action: TicketDashboardActionId,
   payload: Record<string, unknown>,
 ): Promise<GuildConfigMutation> {
+  const resolvedGuildId = ensureGuildId(guildId, 'ejecutar la accion del ticket');
   const client = getSupabaseClient();
-  const { data: userData, error: userError } = await client.auth.getUser();
+  const { data: userData, error: userError } = await runQueryWithTimeout(
+    `rpc.request_ticket_dashboard_action.user.${resolvedGuildId}.${action}`,
+    client.auth.getUser(),
+    DASHBOARD_RPC_TIMEOUT_MS,
+  );
 
   if (userError) {
-    throw userError;
+    throw createDashboardError(
+      `rpc.request_ticket_dashboard_action.user.${resolvedGuildId}.${action}`,
+      userError,
+      'No se pudo validar la sesion antes de ejecutar la accion del ticket.',
+    );
   }
 
   const actor = resolveDiscordActorMetadata(userData.user ?? null);
 
-  const { data, error } = await client.rpc('request_ticket_dashboard_action', {
-    p_guild_id: guildId,
-    p_action: action,
-    p_payload: {
-      ...payload,
-      actorDiscordId: actor.actorDiscordId,
-      actorLabel: actor.actorLabel,
-    },
-  });
+  const { data, error } = await runQueryWithTimeout(
+    `rpc.request_ticket_dashboard_action.${resolvedGuildId}.${action}`,
+    client.rpc('request_ticket_dashboard_action', {
+      p_guild_id: resolvedGuildId,
+      p_action: action,
+      p_payload: {
+        ...payload,
+        actorDiscordId: actor.actorDiscordId,
+        actorLabel: actor.actorLabel,
+      },
+    }),
+    DASHBOARD_RPC_TIMEOUT_MS,
+  );
 
   if (error) {
-    throw error;
+    throw createDashboardError(
+      `rpc.request_ticket_dashboard_action.${resolvedGuildId}.${action}`,
+      error,
+      'No se pudo registrar la accion del ticket.',
+    );
   }
 
   const row = Array.isArray(data) ? data[0] : data;

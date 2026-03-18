@@ -27,30 +27,25 @@ interface FeatureCardProps {
 const FeatureCard = memo(({ feature, variants }: FeatureCardProps) => {
   const Icon = feature.icon;
   return (
-    <motion.div
-      variants={variants}
-      className="tech-card group flex h-full flex-col overflow-hidden"
-    >
+    <motion.article variants={variants} className="tech-card group flex h-full flex-col overflow-hidden">
       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent opacity-60"></div>
 
       <div className="premium-icon-tile relative mb-7 h-14 w-14">
-        <Icon className="w-6 h-6 text-slate-300/85 group-hover:text-white transition-colors duration-500" />
+        <Icon className="h-6 w-6 text-slate-300/85 transition-colors duration-500 group-hover:text-white" />
       </div>
 
-      <h3 className="mb-4 text-xl font-bold tracking-tight text-white transition-colors duration-500 group-hover:text-white/95">
-        {feature.title}
-      </h3>
+      <h3 className="mb-4 text-xl font-bold tracking-tight text-white">{feature.title}</h3>
       <p className="mb-8 text-sm font-medium leading-relaxed text-slate-400 transition-colors duration-500 group-hover:text-slate-300">
         {feature.description}
       </p>
-      
+
       <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-6">
         <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500 transition-colors duration-500 group-hover:text-slate-300">
           {feature.status}
         </span>
-        <div className="h-1.5 w-1.5 rounded-full bg-white/20 transition-colors duration-500 group-hover:bg-white/50"></div>
+        <div className="h-1.5 w-1.5 rounded-full bg-white/20 transition-colors duration-500 group-hover:bg-cyan-300"></div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 });
 
@@ -71,82 +66,91 @@ export default function Features() {
     { icon: Radio, title: t('features.items.comms.title'), description: t('features.items.comms.desc'), status: t('features.items.comms.status') },
   ];
 
+  const useCases = [
+    t('features.useCases.moderation'),
+    t('features.useCases.onboarding'),
+    t('features.useCases.support'),
+  ];
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { 
-        staggerChildren: shouldReduceMotion ? 0 : 0.05, 
-        delayChildren: 0.1 
-      } 
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0 : 0.05,
+        delayChildren: 0.1,
+      },
     },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.98, y: 20 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0, 
-      transition: { duration: 0.5, ease: "easeOut" } 
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: 'easeOut' },
     } as const,
   };
 
   return (
-    <section id="features" className="pt-16 pb-32 relative overflow-hidden bg-black/50">
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] nebula-blur bg-indigo-500/5 -translate-y-1/2 translate-x-1/2" style={{ transform: 'translate3d(0,0,0)' }}></div>
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] nebula-blur bg-white/[0.03] translate-y-1/2 -translate-x-1/2" style={{ transform: 'translate3d(0,0,0)' }}></div>
+    <section id="features" aria-labelledby="features-heading" className="relative overflow-hidden bg-black/50 pb-28 pt-12 md:pt-16">
+      <div className="nebula-blur absolute right-0 top-0 h-[600px] w-[600px] -translate-y-1/2 translate-x-1/2 bg-indigo-500/5"></div>
+      <div className="nebula-blur absolute bottom-0 left-0 h-[400px] w-[400px] -translate-x-1/2 translate-y-1/2 bg-white/[0.03]"></div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-32 gap-10">
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
+        <div className="mb-16 grid gap-10 lg:mb-20 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
           <div className="max-w-3xl">
-            <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="flex items-center gap-4 mb-8"
-            >
+            <motion.div initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="mb-8 flex items-center gap-4">
               <div className="h-px w-8 bg-indigo-500/30"></div>
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400">{t('features.tag')}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">{t('features.tag')}</span>
             </motion.div>
-            
+
             <motion.h2
+              id="features-heading"
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-5xl md:text-8xl font-black text-white leading-[0.9] tracking-tightest uppercase"
+              className="text-4xl font-black uppercase leading-[0.92] tracking-tightest text-white sm:text-6xl lg:text-7xl"
             >
-              {t('features.title')} <br/>
+              {t('features.title')} <br />
               <span className="headline-accent headline-accent-solid">{t('features.titleAccent')}</span>
             </motion.h2>
           </div>
-          
-          <motion.div
+
+          <motion.p
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="max-w-md"
+            className="max-w-md border-l border-white/10 pl-6 text-base font-medium leading-relaxed text-slate-400 md:pl-8 md:text-lg"
           >
-            <p className="text-lg text-slate-400 font-medium leading-relaxed border-l border-white/10 pl-8">
-              {t('features.description')}
-            </p>
-          </motion.div>
+            {t('features.description')}
+          </motion.p>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-10 grid gap-4 md:grid-cols-3"
+        >
+          {useCases.map((useCase) => (
+            <div key={useCase} className="cinematic-glass rounded-2xl border-white/8 px-5 py-5">
+              <p className="text-sm font-semibold leading-relaxed text-slate-200">{useCase}</p>
+            </div>
+          ))}
+        </motion.div>
 
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
         >
-          {features.map((feature, index) => (
-            <FeatureCard 
-              key={index} 
-              feature={feature} 
-              variants={itemVariants} 
-            />
+          {features.map((feature) => (
+            <FeatureCard key={feature.title} feature={feature} variants={itemVariants} />
           ))}
         </motion.div>
       </div>

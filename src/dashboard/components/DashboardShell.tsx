@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -56,6 +56,7 @@ interface SidebarProps {
   onGuildChange: (guildId: string) => void;
   onLogout: () => void;
   isSyncing: boolean;
+  syncStatus: GuildSyncStatus | null;
   sectionStates: DashboardSectionState[];
   closeOnNavigate?: () => void;
 }
@@ -94,6 +95,7 @@ function SidebarContent({
   onGuildChange,
   onLogout,
   isSyncing,
+  syncStatus,
   sectionStates,
   closeOnNavigate,
 }: SidebarProps) {
@@ -143,7 +145,9 @@ function SidebarContent({
                   {selectedGuild?.guildName ?? 'Selecciona un servidor'}
                 </p>
                 <p className="dashboard-sidebar-copy mt-1.5 text-[0.84rem] leading-5">
-                  {selectedGuild?.botInstalled
+                  {!selectedGuild
+                    ? 'Elige un servidor administrable para abrir configuracion, actividad y tickets.'
+                    : selectedGuild.botInstalled
                     ? 'Inventario sincronizado y listo para terminar la configuracion.'
                     : 'Puedes elegirlo ahora y completar la instalacion despues.'}
                 </p>
@@ -161,7 +165,7 @@ function SidebarContent({
               htmlFor="guild-select"
               className="dashboard-sidebar-label mt-4 block text-[11px] font-semibold uppercase tracking-[0.24em]"
             >
-              Cambiar servidor
+              Selector de guild
             </label>
             <select
               id="guild-select"
@@ -172,6 +176,11 @@ function SidebarContent({
               }}
               className="dashboard-sidebar-select mt-2 w-full rounded-2xl px-4 py-3 text-sm font-medium outline-none transition"
             >
+              {!selectedGuild ? (
+                <option value="" className="bg-surface-800 text-white">
+                  Selecciona un servidor
+                </option>
+              ) : null}
               {guilds.map((guild) => (
                 <option key={guild.guildId} value={guild.guildId} className="bg-surface-800 text-white">
                   {guild.guildName}
@@ -179,6 +188,20 @@ function SidebarContent({
                 </option>
               ))}
             </select>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="dashboard-status-pill-compact dashboard-neutral-pill">
+                {guilds.length} guilds
+              </span>
+              <span className={`dashboard-status-pill-compact ${
+                syncStatus?.bridgeStatus === 'error'
+                  ? 'border-rose-400/25 bg-rose-400/10 text-rose-100'
+                  : syncStatus?.bridgeStatus === 'degraded'
+                    ? 'border-amber-400/25 bg-amber-400/10 text-amber-100'
+                    : 'border-sky-400/25 bg-sky-400/10 text-sky-100'
+              }`}>
+                {getHealthLabel(syncStatus)}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -311,10 +334,10 @@ function SidebarContent({
                   Sesion
                 </p>
                 <p className="dashboard-sidebar-copy mt-1.5 text-[0.85rem]">
-                  {isSyncing ? 'Actualizando inventario...' : 'Panel listo para operar'}
+                  {isSyncing ? 'Actualizando inventario...' : syncStatus?.bridgeMessage ?? 'Panel listo para operar'}
                 </p>
                 <p className="dashboard-sidebar-label mt-1.5 text-[0.73rem] tracking-[0.12em]">
-                  Estado de sesion y acceso actual.
+                  Ultimo heartbeat {formatRelativeTime(syncStatus?.lastHeartbeatAt ?? null)}.
                 </p>
               </div>
               <ChevronRight className="dashboard-sidebar-muted h-4 w-4 flex-shrink-0" />
@@ -357,6 +380,21 @@ export default function DashboardShell({
   const guildIconUrl = selectedGuild ? resolveGuildIconUrl(selectedGuild) : null;
   const dashboardBrandLabel = `${config.botName} Dashboard`;
 
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileOpen]);
+
   const statusPills = [
     {
       label: selectedGuild?.botInstalled ? 'Bot activo en el servidor' : 'Bot sin instalar',
@@ -388,8 +426,15 @@ export default function DashboardShell({
 
   return (
     <div className="dashboard-shell text-slate-950 dark:text-white">
+      <a
+        href="#dashboard-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[120] focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-slate-950"
+      >
+        Saltar al contenido del dashboard
+      </a>
+
       <div className="relative z-[1] mx-auto grid max-w-[1760px] gap-5 px-4 py-4 lg:grid-cols-[300px_minmax(0,1fr)] lg:px-6 2xl:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="hidden min-h-0 lg:block">
+        <aside className="hidden min-h-0 lg:block" aria-label="Navegacion lateral del dashboard">
           <div className="sticky top-4 h-[calc(100dvh-2rem)] min-h-0 max-h-[calc(100dvh-2rem)]">
             <SidebarContent
               guilds={guilds}
@@ -399,6 +444,7 @@ export default function DashboardShell({
               onGuildChange={onGuildChange}
               onLogout={onLogout}
               isSyncing={isSyncing}
+              syncStatus={syncStatus}
               sectionStates={sectionStates}
             />
           </div>
@@ -418,6 +464,9 @@ export default function DashboardShell({
                   type="button"
                   onClick={() => setMobileOpen(true)}
                   className="dashboard-secondary-button h-11 w-11 p-0 lg:hidden"
+                  aria-label="Abrir navegacion del dashboard"
+                  aria-expanded={mobileOpen}
+                  aria-controls="dashboard-mobile-navigation"
                 >
                   <Menu className="h-5 w-5" />
                 </button>
@@ -428,6 +477,8 @@ export default function DashboardShell({
                       <img
                         src={guildIconUrl}
                         alt={selectedGuild?.guildName ?? 'Servidor'}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full rounded-[0.95rem] object-cover"
                       />
                     ) : (
@@ -459,6 +510,35 @@ export default function DashboardShell({
                       Ultimo heartbeat {formatRelativeTime(syncStatus?.lastHeartbeatAt ?? selectedGuild?.botLastSeenAt ?? null)}
                     </span>
                   </div>
+                  <div className="mt-4 max-w-md rounded-[1.25rem] border border-slate-200/70 bg-white/75 p-3.5 shadow-sm dark:border-white/10 dark:bg-surface-700/55">
+                    <label
+                      htmlFor="header-guild-select"
+                      className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400"
+                    >
+                      Servidor en foco
+                    </label>
+                    <select
+                      id="header-guild-select"
+                      value={selectedGuild?.guildId ?? ''}
+                      onChange={(event) => onGuildChange(event.target.value)}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition dark:border-white/10 dark:bg-surface-800 dark:text-white"
+                    >
+                      {!selectedGuild ? (
+                        <option value="">Selecciona un servidor</option>
+                      ) : null}
+                      {guilds.map((guild) => (
+                        <option key={guild.guildId} value={guild.guildId}>
+                          {guild.guildName}
+                          {guild.botInstalled ? ' - listo' : ' - invitar'}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">
+                      {selectedGuild?.botInstalled
+                        ? 'Este servidor ya tiene el bot y puede cargar snapshot completo.'
+                        : 'Este servidor aun necesita instalacion o una sincronizacion completa.'}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -478,6 +558,8 @@ export default function DashboardShell({
                         <img
                           src={userAvatarUrl}
                           alt={user.email ?? 'Usuario'}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -519,9 +601,35 @@ export default function DashboardShell({
                   </button>
                 </div>
 
+                <div className="grid gap-2 sm:grid-cols-2 xl:w-full xl:max-w-[44rem]">
+                  <div className="rounded-[1.1rem] border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-surface-700/55 dark:text-slate-200">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                      Salud del bridge
+                    </p>
+                    <p className="mt-1.5 font-semibold text-slate-950 dark:text-white">
+                      {getHealthLabel(syncStatus)}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">
+                      {syncStatus?.bridgeMessage ?? 'Sin detalles adicionales reportados por el bridge.'}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.1rem] border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-surface-700/55 dark:text-slate-200">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                      Actividad de sincronizacion
+                    </p>
+                    <p className="mt-1.5 font-semibold text-slate-950 dark:text-white">
+                      Config {formatRelativeTime(syncStatus?.lastConfigSyncAt ?? selectedGuild?.lastSyncedAt ?? null)}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">
+                      Inventario {formatRelativeTime(syncStatus?.lastInventoryAt ?? null)}. Cola {pendingMutations} pendientes y {failedMutations} fallidas.
+                    </p>
+                  </div>
+                </div>
+
                 {syncError ? (
                   <div className="rounded-[1.1rem] border border-rose-200/70 bg-rose-50/90 px-4 py-3 text-sm font-medium text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-200">
-                    {syncError}
+                    <p className="font-semibold">La re-sincronizacion no pudo completarse</p>
+                    <p className="mt-1.5 text-sm leading-6 text-current/85">{syncError}</p>
                   </div>
                 ) : null}
                 {!syncError && failedMutations > 0 ? (
@@ -534,7 +642,9 @@ export default function DashboardShell({
             </div>
           </motion.header>
 
-          <main className="mt-5 pb-10">{children}</main>
+          <main id="dashboard-main-content" tabIndex={-1} className="mt-5 pb-10">
+            {children}
+          </main>
         </div>
       </div>
 
@@ -552,11 +662,15 @@ export default function DashboardShell({
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
+              id="dashboard-mobile-navigation"
               className="absolute inset-y-0 left-0 w-[92vw] max-w-[360px] p-3 sm:p-4"
               variants={drawerVariants}
               initial="hidden"
               animate="show"
               exit="exit"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navegacion del dashboard"
             >
               <SidebarContent
                 guilds={guilds}
@@ -566,6 +680,7 @@ export default function DashboardShell({
                 onGuildChange={onGuildChange}
                 onLogout={onLogout}
                 isSyncing={isSyncing}
+                syncStatus={syncStatus}
                 sectionStates={sectionStates}
                 closeOnNavigate={() => setMobileOpen(false)}
               />
@@ -573,6 +688,7 @@ export default function DashboardShell({
                 type="button"
                 onClick={() => setMobileOpen(false)}
                 className="dashboard-secondary-button dashboard-secondary-button-inverse absolute right-8 top-8 flex h-10 w-10 items-center justify-center rounded-2xl p-0"
+                aria-label="Cerrar navegacion del dashboard"
               >
                 <X className="h-5 w-5" />
               </button>

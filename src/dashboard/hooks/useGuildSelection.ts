@@ -24,11 +24,24 @@ export function useGuildSelection(guilds: DashboardGuild[]) {
   const [searchParams, setSearchParams] = useSearchParams();
   const deferredGuilds = useDeferredValue(guilds);
   const requestedGuildId = searchParams.get('guild');
+  const invalidRequestedGuildId =
+    requestedGuildId && !deferredGuilds.some((guild) => guild.guildId === requestedGuildId)
+      ? requestedGuildId
+      : null;
   const selectedGuild =
     deferredGuilds.find((guild) => guild.guildId === requestedGuildId) ?? null;
+  const fallbackGuildId = getPreferredGuildId(
+    deferredGuilds,
+    null,
+    readStoredGuildId(),
+  );
 
   useEffect(() => {
     if (!deferredGuilds.length) {
+      return;
+    }
+
+    if (invalidRequestedGuildId) {
       return;
     }
 
@@ -53,9 +66,13 @@ export function useGuildSelection(guilds: DashboardGuild[]) {
     startTransition(() => {
       setSearchParams(nextSearchParams, { replace: true });
     });
-  }, [deferredGuilds, requestedGuildId, searchParams, selectedGuild, setSearchParams]);
+  }, [deferredGuilds, invalidRequestedGuildId, requestedGuildId, searchParams, selectedGuild, setSearchParams]);
 
   function setSelectedGuildId(guildId: string) {
+    if (!guildId) {
+      return;
+    }
+
     const nextSearchParams = new URLSearchParams(searchParams);
     nextSearchParams.set('guild', guildId);
     persistGuildId(guildId);
@@ -68,6 +85,8 @@ export function useGuildSelection(guilds: DashboardGuild[]) {
   return {
     selectedGuild,
     selectedGuildId: selectedGuild?.guildId ?? null,
+    invalidRequestedGuildId,
+    fallbackGuildId,
     setSelectedGuildId,
   };
 }

@@ -3,8 +3,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { MessageSquareQuote } from 'lucide-react';
+import {
+  ConfigFormActions,
+  FieldShell,
+  FormSection,
+  InventoryNotice,
+  ToggleCard,
+  ValidationSummary,
+} from '../components/ConfigForm';
 import PanelCard from '../components/PanelCard';
-import SaveRequestButton from '../components/SaveRequestButton';
 import SectionMutationBanner from '../components/SectionMutationBanner';
 import StateCard from '../components/StateCard';
 import { suggestionSettingsSchema } from '../schemas';
@@ -17,6 +24,7 @@ import type {
   SuggestionSettings,
 } from '../types';
 import { getChannelOptions } from '../utils';
+import { findMissingSelections, flattenFormErrors, getInventoryState } from '../validation';
 
 type SuggestionsModuleValues = z.infer<typeof suggestionSettingsSchema>;
 
@@ -46,7 +54,7 @@ export default function SuggestionsModule({
     handleSubmit,
     reset,
     watch,
-    formState: { isDirty },
+    formState: { errors, isDirty },
   } = useForm<SuggestionsModuleValues>({
     resolver: zodResolver(suggestionSettingsSchema) as never,
     defaultValues: config.suggestionSettings,
@@ -57,6 +65,17 @@ export default function SuggestionsModule({
   }, [config.suggestionSettings, reset]);
 
   const enabled = watch('enabled');
+  const validationErrors = flattenFormErrors(errors);
+  const inventoryState = getInventoryState(inventory);
+  const missingSelections = findMissingSelections(
+    [
+      { label: 'Canal base', value: config.suggestionSettings.channelId },
+      { label: 'Canal logs', value: config.suggestionSettings.logChannelId },
+      { label: 'Canal aprobadas', value: config.suggestionSettings.approvedChannelId },
+      { label: 'Canal rechazadas', value: config.suggestionSettings.rejectedChannelId },
+    ],
+    channelOptions,
+  );
 
   if (!guild.botInstalled) {
     return (
@@ -81,56 +100,77 @@ export default function SuggestionsModule({
         eyebrow="Sugerencias"
         title="Canales y experiencia del usuario"
         description="Define donde nacen las ideas de la comunidad, donde las revisa el staff y donde se publica el resultado."
-        actions={<SaveRequestButton isDirty={isDirty} isSaving={isSaving} />}
+        actions={(
+          <ConfigFormActions
+            isDirty={isDirty}
+            isSaving={isSaving}
+            onReset={() => reset(config.suggestionSettings)}
+            saveLabel="Guardar flujo de sugerencias"
+          />
+        )}
       >
         <SectionMutationBanner mutation={mutation} syncStatus={syncStatus} />
+        <div className="mt-6 space-y-4">
+          <ValidationSummary errors={[...validationErrors, ...missingSelections]} />
+          {!inventoryState.hasInventory ? (
+            <InventoryNotice
+              title="Sin canales sincronizados"
+              message="Todavia no recibimos canales desde el inventario del servidor. Re-sincroniza para poder elegir destinos reales."
+            />
+          ) : null}
+        </div>
 
-        <div className="mt-8 space-y-5">
-          <label className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
+        <div className="mt-8 space-y-8">
+          <ToggleCard
+            title="Activar sugerencias"
+            description="Permite usar el flujo `/suggest` del bot."
+          >
             <input type="checkbox" {...register('enabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-            <span>
-              <span className="block font-semibold text-slate-950 dark:text-white">Activar sugerencias</span>
-              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">Permite usar el flujo `/suggest` del bot.</span>
-            </span>
-          </label>
+          </ToggleCard>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            {[
-              ['channelId', 'Canal base'],
-              ['logChannelId', 'Canal logs'],
-              ['approvedChannelId', 'Canal aprobadas'],
-              ['rejectedChannelId', 'Canal rechazadas'],
-            ].map(([field, label]) => (
-              <label key={field} className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">{label}</span>
+          <FormSection
+            title="Destinos del flujo"
+            description="Separa el canal donde escriben los miembros del circuito de revision y de los canales donde publicas decisiones."
+          >
+            <div className="grid gap-5 md:grid-cols-2">
+              {[
+                ['channelId', 'Canal base', 'Donde la comunidad deja sugerencias nuevas.'],
+                ['logChannelId', 'Canal logs', 'Revision interna del staff y trazabilidad.'],
+                ['approvedChannelId', 'Canal aprobadas', 'Publicacion de sugerencias aceptadas.'],
+                ['rejectedChannelId', 'Canal rechazadas', 'Publicacion de sugerencias rechazadas.'],
+              ].map(([field, label, hint]) => (
+                <FieldShell key={field} label={label} hint={hint} error={errors[field as keyof typeof errors]?.message as string | undefined}>
                 <select {...register(field as keyof SuggestionSettings)} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
                   <option value="">No configurado</option>
                   {channelOptions.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
-              </label>
-            ))}
-          </div>
+                </FieldShell>
+              ))}
+            </div>
+          </FormSection>
         </div>
       </PanelCard>
 
       <PanelCard title="Reglas de moderacion" description="Condiciones que cambian la experiencia del usuario y la forma en que el staff cierra cada sugerencia.">
-        <div className="space-y-5">
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Cooldown (min)</span>
-            <input type="number" min={0} max={1440} {...register('cooldownMinutes', { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
-          </label>
+        <div className="space-y-6">
+          <FieldShell
+            label="Cooldown (min)"
+            hint="Tiempo minimo entre sugerencias consecutivas por usuario."
+            error={errors.cooldownMinutes?.message}
+          >
+            <input type="number" min={0} max={1440} {...register('cooldownMinutes', { valueAsNumber: true })} className="dashboard-form-field" />
+          </FieldShell>
 
           {[
-            ['dmOnResult', 'Enviar DM al resolver'],
-            ['requireReason', 'Exigir razon para moderar'],
-            ['anonymous', 'Modo anonimo'],
-          ].map(([field, label]) => (
-            <label key={field} className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 dark:border-surface-600 dark:bg-surface-700/70">
+            ['dmOnResult', 'Enviar DM al resolver', 'El usuario recibe el resultado por mensaje directo.'],
+            ['requireReason', 'Exigir razon para moderar', 'Pide justificar aprobaciones o rechazos.'],
+            ['anonymous', 'Modo anonimo', 'Oculta al autor en la publicacion inicial si el backend lo soporta.'],
+          ].map(([field, label, description]) => (
+            <ToggleCard key={field} title={label} description={description}>
               <input type="checkbox" {...register(field as keyof SuggestionSettings)} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-              <span className="block font-semibold text-slate-950 dark:text-white">{label}</span>
-            </label>
+            </ToggleCard>
           ))}
         </div>
       </PanelCard>

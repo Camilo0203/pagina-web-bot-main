@@ -47,13 +47,18 @@ const AnalyticsModule = lazy(() => import('./modules/AnalyticsModule'));
 
 function ModuleFallback() {
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
-      {[0, 1, 2, 3].map((item) => (
-        <div
-          key={item}
-          className="dashboard-skeleton h-56 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75"
-        />
-      ))}
+    <div className="space-y-6">
+      <div className="dashboard-skeleton h-72 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+        <div className="space-y-6">
+          <div className="dashboard-skeleton h-64 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+          <div className="dashboard-skeleton h-80 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+        </div>
+        <div className="space-y-6">
+          <div className="dashboard-skeleton h-56 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+          <div className="dashboard-skeleton h-56 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -94,7 +99,13 @@ export default function DashboardPage() {
   const guildsQuery = useDashboardGuilds(isAuthenticated);
   const guilds = guildsQuery.data ?? [];
   const requestedGuildId = searchParams.get('guild');
-  const { selectedGuild, selectedGuildId, setSelectedGuildId } = useGuildSelection(guilds);
+  const {
+    selectedGuild,
+    selectedGuildId,
+    invalidRequestedGuildId,
+    fallbackGuildId,
+    setSelectedGuildId,
+  } = useGuildSelection(guilds);
   const snapshotQuery = useGuildDashboardSnapshot(selectedGuildId, Boolean(selectedGuildId));
   const requestConfigChange = useRequestGuildConfigChange(selectedGuildId);
   const requestBackupAction = useRequestGuildBackupAction(selectedGuildId);
@@ -188,6 +199,16 @@ export default function DashboardPage() {
   const quickActions = snapshot
     ? getDashboardQuickActions(sectionStates, checklist, snapshot.syncStatus)
     : [];
+  const authErrorMessage =
+    authQuery.error instanceof Error ? authQuery.error.message : 'No se pudo validar la sesion del dashboard.';
+  const guildsErrorMessage =
+    guildsQuery.error instanceof Error
+      ? guildsQuery.error.message
+      : 'Intenta sincronizar otra vez o revisa la configuracion de Supabase.';
+  const snapshotErrorMessage =
+    snapshotQuery.error instanceof Error
+      ? snapshotQuery.error.message
+      : 'Revisa tablas, politicas RLS y el bridge del bot.';
 
   return (
     <>
@@ -201,8 +222,51 @@ export default function DashboardPage() {
 
       {authQuery.isLoading ? (
         <div className="dashboard-shell flex min-h-screen items-center justify-center px-4 text-white">
-          <div className="dashboard-surface px-8 py-10">
-            <p className="text-lg font-semibold">Validando sesion del dashboard...</p>
+          <div className="mx-auto w-full max-w-[42rem]">
+            <StateCard
+              eyebrow="Acceso seguro"
+              title="Validando sesion del dashboard"
+              description="Estamos comprobando tu sesion con Supabase antes de cargar servidores, permisos y estado operativo."
+              icon={RefreshCcw}
+              actions={(
+                <span className="dashboard-status-pill-compact dashboard-neutral-pill">
+                  <RefreshCcw className="h-4 w-4 animate-spin" />
+                  Verificando acceso
+                </span>
+              )}
+            />
+          </div>
+        </div>
+      ) : authQuery.isError ? (
+        <div className="dashboard-shell px-4 py-10">
+          <div className="mx-auto max-w-5xl">
+            <StateCard
+              eyebrow="Acceso no disponible"
+              title="No pudimos validar tu sesion"
+              description={authErrorMessage}
+              icon={ServerCrash}
+              tone="danger"
+              actions={(
+                <>
+                  <button
+                    type="button"
+                    onClick={() => authQuery.refetch()}
+                    className="dashboard-primary-button"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    Reintentar validacion
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => signIn.mutate(requestedGuildId)}
+                    disabled={signIn.isPending || !canUseDashboard}
+                    className="dashboard-secondary-button"
+                  >
+                    Volver a iniciar con Discord
+                  </button>
+                </>
+              )}
+            />
           </div>
         </div>
       ) : !isAuthenticated ? (
@@ -218,8 +282,19 @@ export default function DashboardPage() {
         </div>
       ) : guildsQuery.isLoading ? (
         <div className="dashboard-shell px-4 py-10 text-white">
-          <div className="dashboard-surface mx-auto max-w-6xl p-8">
-            <p className="text-lg font-semibold">Cargando servidores administrables...</p>
+          <div className="mx-auto max-w-5xl">
+            <StateCard
+              eyebrow="Sincronizacion inicial"
+              title="Cargando tus servidores administrables"
+              description="Estamos consultando el acceso ya sincronizado para preparar el selector de guild, el estado de salud y el snapshot del panel."
+              icon={RefreshCcw}
+              actions={(
+                <span className="dashboard-status-pill-compact dashboard-neutral-pill">
+                  <RefreshCcw className="h-4 w-4 animate-spin" />
+                  Preparando shell
+                </span>
+              )}
+            />
           </div>
         </div>
       ) : guildsQuery.isError ? (
@@ -228,9 +303,30 @@ export default function DashboardPage() {
             <StateCard
               eyebrow="Error de datos"
               title="No pudimos cargar tus servidores"
-              description={guildsQuery.error instanceof Error ? guildsQuery.error.message : 'Intenta sincronizar otra vez o revisa la configuracion de Supabase.'}
+              description={guildsErrorMessage}
               icon={ServerCrash}
               tone="danger"
+              actions={(
+                <>
+                  <button
+                    type="button"
+                    onClick={() => guildsQuery.refetch()}
+                    className="dashboard-primary-button"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    Reintentar carga
+                  </button>
+                  <button
+                    type="button"
+                    onClick={syncGuildAccess}
+                    disabled={syncGuilds.isPending}
+                    className="dashboard-secondary-button"
+                  >
+                    <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
+                    Re-sincronizar acceso
+                  </button>
+                </>
+              )}
             />
           </div>
         </div>
@@ -244,15 +340,25 @@ export default function DashboardPage() {
               icon={AlertTriangle}
               tone="warning"
               actions={(
-                <button
-                  type="button"
-                  onClick={syncGuildAccess}
-                  disabled={syncGuilds.isPending}
-                  className="dashboard-primary-button"
-                >
-                  <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
-                  Re-sincronizar acceso
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={syncGuildAccess}
+                    disabled={syncGuilds.isPending}
+                    className="dashboard-primary-button"
+                  >
+                    <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
+                    Re-sincronizar acceso
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => signOut.mutate()}
+                    disabled={signOut.isPending}
+                    className="dashboard-secondary-button"
+                  >
+                    Cambiar de cuenta
+                  </button>
+                </>
               )}
             />
           </div>
@@ -274,7 +380,37 @@ export default function DashboardPage() {
           failedMutations={failedMutations}
           sectionStates={sectionStates}
         >
-          {!selectedGuild ? (
+          {invalidRequestedGuildId ? (
+            <StateCard
+              eyebrow="Servidor invalido"
+              title="Ese guild ya no esta disponible para esta sesion"
+              description={`El servidor solicitado (${invalidRequestedGuildId}) no aparece entre tus guilds administrables actuales. Puede haber cambiado el acceso, la sincronizacion o la URL compartida.`}
+              icon={AlertTriangle}
+              tone="warning"
+              actions={(
+                <>
+                  {fallbackGuildId ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGuildId(fallbackGuildId)}
+                      className="dashboard-primary-button"
+                    >
+                      Ir al servidor disponible
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={syncGuildAccess}
+                    disabled={syncGuilds.isPending}
+                    className="dashboard-secondary-button"
+                  >
+                    <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
+                    Re-sincronizar acceso
+                  </button>
+                </>
+              )}
+            />
+          ) : !selectedGuild ? (
             <StateCard
               eyebrow="Seleccion requerida"
               title="Escoge un servidor para continuar"
@@ -285,9 +421,30 @@ export default function DashboardPage() {
             <StateCard
               eyebrow="Modulo no disponible"
               title="No pudimos cargar este servidor"
-              description={snapshotQuery.error instanceof Error ? snapshotQuery.error.message : 'Revisa tablas, politicas RLS y el bridge del bot.'}
+              description={snapshotErrorMessage}
               icon={ServerCrash}
               tone="danger"
+              actions={(
+                <>
+                  <button
+                    type="button"
+                    onClick={() => snapshotQuery.refetch()}
+                    className="dashboard-primary-button"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    Reintentar snapshot
+                  </button>
+                  <button
+                    type="button"
+                    onClick={syncGuildAccess}
+                    disabled={syncGuilds.isPending}
+                    className="dashboard-secondary-button"
+                  >
+                    <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
+                    Re-sincronizar servidor
+                  </button>
+                </>
+              )}
             />
           ) : snapshotQuery.isLoading || !snapshot ? (
             <ModuleFallback />
@@ -302,6 +459,7 @@ export default function DashboardPage() {
                   mutations={snapshot.mutations}
                   backups={snapshot.backups}
                   syncStatus={snapshot.syncStatus}
+                  workspace={snapshot.ticketWorkspace}
                   onSectionChange={handleSectionChange}
                   sectionStates={sectionStates}
                   checklist={checklist}

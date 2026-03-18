@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, memo } from 'react';
-import { Server, Users, Zap, Clock } from 'lucide-react';
+import { Server, Users, Zap, Clock, Radio, AlertTriangle, RefreshCw } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { defaultBotStats, useBotStats } from '../hooks/useBotStats';
@@ -21,12 +21,35 @@ interface StatCardProps {
   loading: boolean;
 }
 
+function formatTimestamp(value: string, locale: string): string {
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return '';
+  }
+
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    }).format(parsedDate);
+  } catch {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(parsedDate);
+  }
+}
+
 const StatCard = memo(({ icon: Icon, label, value, sub, index, loading }: StatCardProps) => (
-  <motion.div
+  <motion.article
     initial={{ opacity: 0, y: 15 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.6, delay: index * 0.1 }}
+    transition={{ duration: 0.6, delay: index * 0.08 }}
     className="group ml-0"
   >
     <div className="tech-card relative h-full overflow-hidden text-center">
@@ -38,31 +61,33 @@ const StatCard = memo(({ icon: Icon, label, value, sub, index, loading }: StatCa
         </div>
 
         <div
-          className={`mb-4 text-4xl font-bold tracking-tighter tabular-nums text-white transition-opacity duration-300 md:text-5xl ${loading ? 'opacity-80' : 'opacity-100'}`}
+          className={`mb-4 text-4xl font-bold tracking-tighter tabular-nums text-white transition-opacity duration-300 md:text-5xl ${loading ? 'opacity-90' : 'opacity-100'}`}
           style={{ willChange: 'contents' }}
         >
           {value}
         </div>
 
         <div className="space-y-2">
-          <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-200">
-            {label}
-          </div>
-          <div className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500">
-            {sub}
-          </div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-200">{label}</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{sub}</div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0.45, scaleX: 0.4 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: index * 0.1 + 0.15 }}
-          className="mt-10 h-px w-full origin-left bg-gradient-to-r from-transparent via-white/18 to-transparent"
-        />
+        {loading ? (
+          <div className="mt-8 h-1.5 w-24 overflow-hidden rounded-full bg-white/8" aria-hidden="true">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-cyan-400/70"></div>
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0.45, scaleX: 0.4 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: index * 0.08 + 0.15 }}
+            className="mt-10 h-px w-full origin-left bg-gradient-to-r from-transparent via-white/18 to-transparent"
+          />
+        )}
       </div>
     </div>
-  </motion.div>
+  </motion.article>
 ));
 
 StatCard.displayName = 'StatCard';
@@ -73,6 +98,8 @@ export default function LiveStats() {
   const { stats, loading, error, lastUpdated } = useBotStats();
   const [animated, setAnimated] = useState<AnimatedStats>(defaultBotStats);
   const previousStatsRef = useRef<AnimatedStats>(defaultBotStats);
+  const liveUnavailable = Boolean(error);
+  const locale = i18n.resolvedLanguage || i18n.language || 'en';
 
   useEffect(() => {
     if (shouldReduceMotion) {
@@ -80,7 +107,7 @@ export default function LiveStats() {
         servers: stats.servers,
         users: stats.users,
         commands: stats.commands,
-        uptimePercentage: stats.uptimePercentage
+        uptimePercentage: stats.uptimePercentage,
       };
       previousStatsRef.current = nextAnimated;
       setAnimated(nextAnimated);
@@ -88,72 +115,67 @@ export default function LiveStats() {
     }
 
     const start = previousStatsRef.current;
-    const target = { servers: stats.servers, users: stats.users, commands: stats.commands, uptimePercentage: stats.uptimePercentage };
-    const durationMs = 1500;
+    const target = {
+      servers: stats.servers,
+      users: stats.users,
+      commands: stats.commands,
+      uptimePercentage: stats.uptimePercentage,
+    };
+    const durationMs = 1400;
     const startTime = performance.now();
-    
+
     let frameId: number;
     const tick = (now: number) => {
       const progress = Math.min((now - startTime) / durationMs, 1);
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      
+
       setAnimated({
         servers: Math.round(start.servers + (target.servers - start.servers) * easeOutQuart),
         users: Math.round(start.users + (target.users - start.users) * easeOutQuart),
         commands: Math.round(start.commands + (target.commands - start.commands) * easeOutQuart),
         uptimePercentage: Number((start.uptimePercentage + (target.uptimePercentage - start.uptimePercentage) * easeOutQuart).toFixed(2)),
       });
-      
+
       if (progress < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
         previousStatsRef.current = target;
       }
     };
-    
+
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
   }, [stats, shouldReduceMotion]);
 
-  const liveUnavailable = Boolean(error);
-  const badgeToneClass = liveUnavailable ? 'bg-red-500' : loading ? 'bg-amber-400 animate-pulse' : 'bg-cyan-400 animate-pulse';
-  const badgeLabel = loading ? t('stats.badgeLoading') : liveUnavailable ? t('stats.badgeOffline') : t('stats.badgeOnline');
-  const locale = i18n.resolvedLanguage || i18n.language || 'en';
   const formattedLastUpdated = useMemo(() => {
     if (!lastUpdated) {
       return '';
     }
 
-    const parsedDate = new Date(lastUpdated);
-    if (Number.isNaN(parsedDate.getTime())) {
-      return '';
-    }
-
-    return new Intl.DateTimeFormat(locale, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(parsedDate);
+    return formatTimestamp(lastUpdated, locale);
   }, [lastUpdated, locale]);
 
-  const statusMessage = loading
-    ? t('stats.status.syncing')
-    : formattedLastUpdated
-      ? t('stats.lastUpdated', { value: formattedLastUpdated })
-      : error
-        ? t('stats.status.standby')
-        : '';
+  const badgeToneClass = liveUnavailable ? 'bg-amber-400' : loading ? 'bg-cyan-300' : 'bg-emerald-400';
+  const badgeLabel = loading ? t('stats.badgeLoading') : liveUnavailable ? t('stats.badgeOffline') : t('stats.badgeOnline');
+  const sourceLabel = loading ? t('stats.source.loading') : liveUnavailable ? t('stats.source.fallback') : t('stats.source.live');
+  const statusMessage = loading ? t('stats.status.syncing') : liveUnavailable ? t('stats.status.standby') : formattedLastUpdated ? t('stats.lastUpdated', { value: formattedLastUpdated }) : '';
+  const fallbackDetail = liveUnavailable
+    ? formattedLastUpdated
+      ? t('stats.status.fallbackWithTime', { value: formattedLastUpdated })
+      : t('stats.status.fallback')
+    : '';
 
   const statCardsData = [
-    { icon: Server, label: t('stats.cards.clusters.label'), value: animated.servers.toLocaleString(), sub: t('stats.cards.clusters.sub') },
-    { icon: Users,  label: t('stats.cards.souls.label'),    value: animated.users.toLocaleString(),   sub: t('stats.cards.souls.sub') },
-    { icon: Zap,    label: t('stats.cards.ops.label'),      value: animated.commands.toLocaleString(), sub: t('stats.cards.ops.sub') },
-    { icon: Clock,  label: t('stats.cards.stability.label'), value: `${animated.uptimePercentage.toFixed(2)}%`, sub: t('stats.cards.stability.sub') },
+    { icon: Server, label: t('stats.cards.clusters.label'), value: animated.servers.toLocaleString(locale), sub: t('stats.cards.clusters.sub') },
+    { icon: Users, label: t('stats.cards.souls.label'), value: animated.users.toLocaleString(locale), sub: t('stats.cards.souls.sub') },
+    { icon: Zap, label: t('stats.cards.ops.label'), value: animated.commands.toLocaleString(locale), sub: t('stats.cards.ops.sub') },
+    { icon: Clock, label: t('stats.cards.stability.label'), value: `${animated.uptimePercentage.toFixed(2)}%`, sub: t('stats.cards.stability.sub') },
   ];
 
   return (
-    <section id="stats" className="pt-16 pb-32 relative bg-black overflow-hidden">
+    <section id="stats" aria-labelledby="stats-heading" className="relative overflow-hidden bg-black pb-28 pt-16">
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.02]"
+        className="pointer-events-none absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
           backgroundSize: '48px 48px',
@@ -161,54 +183,57 @@ export default function LiveStats() {
         }}
       ></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14 text-center">
+          <div className="premium-pill mb-8 px-6 py-2">
+            <div className={`h-2 w-2 rounded-full ${badgeToneClass} ${shouldReduceMotion ? '' : 'animate-pulse'}`}></div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.36em] text-white">{badgeLabel}</span>
+          </div>
+
+          <h2 id="stats-heading" className="mb-6 text-4xl font-black uppercase leading-none tracking-tightest text-white sm:text-6xl lg:text-7xl">
+            {t('stats.title')} <span className="headline-accent headline-accent-solid">{t('stats.titleAccent')}</span>
+          </h2>
+          <p className="mx-auto max-w-3xl text-base font-medium leading-relaxed text-slate-400 md:text-lg">
+            {t('stats.description')}
+          </p>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-24"
+          className={`cinematic-glass mb-10 rounded-[2rem] border px-5 py-5 md:px-6 ${
+            liveUnavailable ? 'border-amber-400/20 bg-amber-400/[0.03]' : 'border-white/10'
+          }`}
+          aria-live="polite"
         >
-          <div className="premium-pill mb-10 px-6 py-2">
-            <div className={`w-2 h-2 rounded-full ${badgeToneClass}`}></div>
-            <span className="text-white font-bold text-[10px] uppercase tracking-[0.4em]">
-              {badgeLabel}
-            </span>
-          </div>
-
-          <h2 className="text-6xl md:text-8xl font-bold text-white mb-8 tracking-tightest uppercase leading-none">
-            {t('stats.title')} <span className="headline-accent headline-accent-solid">{t('stats.titleAccent')}</span>
-          </h2>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-            {t('stats.description')}
-          </p>
-          {(statusMessage || error) && (
-            <div className="mt-6 flex flex-col items-center gap-2">
-              {statusMessage && (
-                <div className="premium-pill gap-2 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-300">
-                  <span className={`h-1.5 w-1.5 rounded-full ${liveUnavailable ? 'bg-red-400' : loading ? 'bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.75)]' : 'bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.65)]'}`}></span>
-                  <span>{statusMessage}</span>
-                </div>
-              )}
-              {error && (
-                <p className="max-w-2xl text-[10px] font-medium uppercase tracking-[0.22em] text-slate-500">
-                  {t('stats.status.fallback')}
-                </p>
+          <div className="grid gap-4 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
+            <div className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl border ${liveUnavailable ? 'border-amber-400/20 bg-amber-400/10' : 'border-white/10 bg-white/5'}`}>
+              {liveUnavailable ? (
+                <AlertTriangle className="h-5 w-5 text-amber-300" />
+              ) : loading ? (
+                <RefreshCw className={`h-5 w-5 text-cyan-300 ${shouldReduceMotion ? '' : 'animate-spin'}`} />
+              ) : (
+                <Radio className="h-5 w-5 text-emerald-300" />
               )}
             </div>
-          )}
+
+            <div className="grid gap-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">{sourceLabel}</p>
+              {statusMessage ? <p className="text-sm font-semibold text-white md:text-base">{statusMessage}</p> : null}
+              {fallbackDetail ? <p className="text-sm leading-relaxed text-slate-400">{fallbackDetail}</p> : null}
+              {formattedLastUpdated ? (
+                <time dateTime={lastUpdated} className="text-xs text-slate-500">
+                  {formattedLastUpdated}
+                </time>
+              ) : null}
+            </div>
+          </div>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {statCardsData.map((stat, i) => (
-            <StatCard
-              key={i}
-              icon={stat.icon}
-              label={stat.label}
-              value={stat.value}
-              sub={stat.sub}
-              index={i}
-              loading={loading}
-            />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {statCardsData.map((stat, index) => (
+            <StatCard key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} sub={stat.sub} index={index} loading={loading} />
           ))}
         </div>
       </div>

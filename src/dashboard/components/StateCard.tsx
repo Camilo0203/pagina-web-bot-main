@@ -32,6 +32,8 @@ export default function StateCard({
       initial="hidden"
       animate="show"
       className={`relative overflow-hidden rounded-[2.2rem] border p-7 shadow-[0_28px_90px_rgba(2,6,23,0.18)] backdrop-blur-2xl lg:p-8 ${toneClasses[tone]}`}
+      role={tone === 'danger' ? 'alert' : 'status'}
+      aria-live="polite"
     >
       <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent dark:via-white/25" />
       <div className="absolute -right-10 top-0 h-32 w-32 rounded-full bg-white/10 blur-3xl dark:bg-white/5" />
