@@ -16,14 +16,10 @@ interface PanelCardProps {
 
 const variantClasses: Record<NonNullable<PanelCardProps['variant']>, string> = {
   default: '',
-  highlight:
-    'border-brand-200/35 bg-[radial-gradient(circle_at_top_right,rgba(88,101,242,0.16),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.94),rgba(242,246,255,0.88))] dark:border-brand-900/40 dark:bg-[radial-gradient(circle_at_top_right,rgba(88,101,242,0.18),transparent_34%),linear-gradient(180deg,rgba(24,29,48,0.94),rgba(15,21,36,0.92))]',
-  soft:
-    'bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(247,249,255,0.84))] dark:bg-[linear-gradient(180deg,rgba(27,31,50,0.84),rgba(20,24,40,0.82))]',
-  danger:
-    'border-rose-200/60 bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.16),transparent_30%),linear-gradient(180deg,rgba(255,244,246,0.96),rgba(255,248,249,0.9))] dark:border-rose-900/45 dark:bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.16),transparent_34%),linear-gradient(180deg,rgba(55,24,36,0.9),rgba(33,18,25,0.88))]',
-  success:
-    'border-emerald-200/60 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.16),transparent_30%),linear-gradient(180deg,rgba(236,253,245,0.96),rgba(244,255,250,0.88))] dark:border-emerald-900/45 dark:bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.14),transparent_34%),linear-gradient(180deg,rgba(18,54,46,0.9),rgba(14,34,29,0.88))]',
+  highlight: 'dashboard-panel-highlight',
+  soft: 'dashboard-panel-soft',
+  danger: 'dashboard-panel-danger',
+  success: 'dashboard-panel-success',
 };
 
 export default function PanelCard({

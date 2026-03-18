@@ -89,10 +89,10 @@ function SidebarContent({
         </div>
       </Link>
 
-      <div className="relative z-[1] mt-6 rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4">
+      <div className="dashboard-sidebar-block relative z-[1] mt-6 rounded-[1.5rem] p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+            <p className="dashboard-sidebar-label text-[11px] font-semibold uppercase tracking-[0.24em]">
               Servidor activo
             </p>
             <p className="mt-2 break-words text-base font-semibold text-white">
@@ -110,7 +110,7 @@ function SidebarContent({
 
         <label
           htmlFor="guild-select"
-          className="mt-5 block text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45"
+          className="dashboard-sidebar-label mt-5 block text-[11px] font-semibold uppercase tracking-[0.24em]"
         >
           Cambiar servidor
         </label>
@@ -121,7 +121,7 @@ function SidebarContent({
             onGuildChange(event.target.value);
             closeOnNavigate?.();
           }}
-          className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium text-white outline-none transition focus:border-brand-300 focus:bg-white/[0.14]"
+          className="dashboard-sidebar-select mt-2 w-full rounded-2xl px-4 py-3 text-sm font-medium outline-none transition"
         >
           {guilds.map((guild) => (
             <option key={guild.guildId} value={guild.guildId} className="bg-surface-800 text-white">
@@ -133,7 +133,7 @@ function SidebarContent({
       </div>
 
       <div className="dashboard-sidebar-scroll relative z-[1] mt-6 min-h-0 flex-1 overflow-y-auto pr-2">
-        <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-white/40">
+        <p className="dashboard-sidebar-muted px-2 text-[11px] font-semibold uppercase tracking-[0.26em]">
           Modulos
         </p>
         <motion.nav variants={staggerContainerVariants} initial="hidden" animate="show" className="mt-3 space-y-1.5 pb-4">
@@ -155,20 +155,20 @@ function SidebarContent({
                 className={`group w-full rounded-[1.35rem] border px-4 py-3 text-left transition ${
                   active
                     ? 'border-brand-300/30 bg-[linear-gradient(135deg,rgba(88,101,242,0.22),rgba(20,184,166,0.11))] text-white shadow-[0_16px_30px_rgba(88,101,242,0.16)]'
-                    : 'border-transparent bg-white/[0.028] text-white/72 hover:border-white/10 hover:bg-white/[0.055] hover:text-white'
+                    : 'dashboard-sidebar-nav'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div className={`mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[1rem] border ${
                     active
                       ? 'border-white/10 bg-white/10 text-white'
-                      : 'border-white/[0.08] bg-white/5 text-white/70 group-hover:text-white'
+                      : 'dashboard-sidebar-icon text-white/70 group-hover:text-white'
                   }`}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="font-semibold tracking-[-0.02em]">{section.label}</p>
-                    <p className="mt-1 text-sm leading-5 text-white/52 group-hover:text-white/72">
+                    <p className="dashboard-sidebar-nav-copy mt-1 text-sm leading-5 group-hover:text-white/72">
                       {section.description}
                     </p>
                   </div>
@@ -179,22 +179,22 @@ function SidebarContent({
         </motion.nav>
       </div>
 
-      <div className="relative z-[1] mt-4 rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-4">
+      <div className="dashboard-sidebar-block relative z-[1] mt-4 rounded-[1.4rem] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/40">
+            <p className="dashboard-sidebar-muted text-[11px] font-semibold uppercase tracking-[0.24em]">
               Sesion
             </p>
-            <p className="mt-2 text-sm text-white/68">
+            <p className="dashboard-sidebar-copy mt-2 text-sm">
               {isSyncing ? 'Actualizando inventario...' : 'Panel listo para operar'}
             </p>
           </div>
-          <ChevronRight className="h-4 w-4 flex-shrink-0 text-white/35" />
+          <ChevronRight className="dashboard-sidebar-muted h-4 w-4 flex-shrink-0" />
         </div>
         <button
           type="button"
           onClick={onLogout}
-          className="dashboard-secondary-button mt-4 w-full border-white/10 bg-white/[0.06] text-white hover:border-rose-300/30 hover:text-rose-100 dark:border-white/10 dark:bg-white/[0.06]"
+          className="dashboard-secondary-button dashboard-secondary-button-inverse mt-4 w-full hover:border-rose-300/30 hover:text-rose-100"
         >
           <LogOut className="h-4 w-4" />
           Cerrar sesion
@@ -290,8 +290,8 @@ export default function DashboardShell({
                   <Menu className="h-5 w-5" />
                 </button>
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-[1.15rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)),radial-gradient(circle_at_top,rgba(99,102,241,0.22),transparent_62%),rgba(5,8,18,0.92)] p-[3px] text-white shadow-[0_16px_36px_rgba(88,101,242,0.22)]">
-                  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[0.95rem] bg-[rgba(7,12,24,0.82)]">
+                <div className="dashboard-header-orb flex h-12 w-12 items-center justify-center rounded-[1.15rem] p-[3px] text-white shadow-[0_16px_36px_rgba(88,101,242,0.22)]">
+                  <div className="dashboard-header-orb-inner flex h-full w-full items-center justify-center overflow-hidden rounded-[0.95rem]">
                     {guildIconUrl ? (
                       <img
                         src={guildIconUrl}
@@ -433,7 +433,7 @@ export default function DashboardShell({
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="absolute right-8 top-8 flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.08] text-white"
+                className="dashboard-secondary-button dashboard-secondary-button-inverse absolute right-8 top-8 flex h-10 w-10 items-center justify-center rounded-2xl p-0"
               >
                 <X className="h-5 w-5" />
               </button>

@@ -160,7 +160,7 @@ export default function OverviewModule({
               </div>
             </div>
 
-            <article className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,12,23,0.98),rgba(15,24,42,0.92))] p-5 text-white shadow-[0_24px_64px_rgba(15,23,42,0.24)] lg:p-6">
+            <article className="dashboard-live-panel relative overflow-hidden rounded-[1.5rem] p-5 text-white lg:p-6">
               <div className="absolute -right-8 top-0 h-28 w-28 rounded-full bg-brand-500/16 blur-3xl" />
               <div className="relative z-[1] flex items-start justify-between gap-4">
                 <div>
@@ -169,7 +169,7 @@ export default function OverviewModule({
                     Bridge {bridgeStatusLabel}
                   </h3>
                 </div>
-                <span className="dashboard-status-pill-compact border-white/10 bg-white/10 text-white/88">
+                <span className="dashboard-status-pill-compact dashboard-live-pill text-white/88">
                   {guild.botInstalled ? 'Bot online' : 'Instalacion pendiente'}
                 </span>
               </div>
@@ -180,7 +180,7 @@ export default function OverviewModule({
                   ['Inventario', formatRelativeTime(syncStatus?.lastInventoryAt ?? null)],
                   ['Config aplicada', formatRelativeTime(syncStatus?.lastConfigSyncAt ?? config.updatedAt ?? null)],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between gap-3 rounded-[1.1rem] border border-white/10 bg-white/[0.06] px-4 py-3">
+                  <div key={label} className="dashboard-live-row flex items-center justify-between gap-3 rounded-[1.1rem] px-4 py-3">
                     <span className="text-sm text-white/62">{label}</span>
                     <span className="text-sm font-semibold text-white">{value}</span>
                   </div>
@@ -202,7 +202,7 @@ export default function OverviewModule({
                       key={section}
                       type="button"
                       onClick={() => onSectionChange(section as DashboardSectionId)}
-                      className="inline-flex items-center justify-between rounded-[1.1rem] border border-white/10 bg-white/[0.08] px-4 py-3 text-left font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.12]"
+                      className="dashboard-live-action inline-flex items-center justify-between rounded-[1.1rem] px-4 py-3 text-left font-semibold text-white transition"
                     >
                       {label}
                       <ArrowRight className="h-4 w-4" />
