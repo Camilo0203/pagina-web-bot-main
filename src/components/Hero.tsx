@@ -93,7 +93,7 @@ export default function Hero() {
     <section
       id="top"
       aria-labelledby="hero-heading"
-      className="relative flex min-h-[92dvh] items-center justify-center overflow-hidden bg-[#000] pb-12 pt-36 md:pt-40"
+      className="relative flex min-h-[92dvh] items-start justify-center overflow-hidden bg-[#000] pb-12 pt-28 md:pt-32 lg:pt-36"
     >
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
         <div
@@ -145,8 +145,8 @@ export default function Hero() {
         <div className="absolute bottom-0 left-0 z-[25] h-32 w-full bg-gradient-to-t from-black via-black/80 to-transparent" />
       </div>
 
-      <div className="relative z-30 mx-auto max-w-7xl px-6">
-        <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-12">
+      <div className="relative z-30 mx-auto flex w-full max-w-7xl flex-1 items-start px-6">
+        <div className="grid w-full items-center gap-14 py-4 md:py-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-12">
           <div className="text-center lg:text-left">
             <motion.div
               {...fadeInUp}

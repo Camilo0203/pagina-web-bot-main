@@ -11,6 +11,23 @@ const languages = [
 const normalizeLanguageCode = (language?: string) =>
   language?.toLowerCase().startsWith('es') ? 'es' : 'en';
 
+function restoreScrollPosition(scrollX: number, scrollY: number) {
+  const root = document.documentElement;
+  const previousScrollBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+
+  const syncScroll = () => window.scrollTo({ left: scrollX, top: scrollY, behavior: 'auto' });
+
+  syncScroll();
+  requestAnimationFrame(() => {
+    syncScroll();
+    requestAnimationFrame(() => {
+      syncScroll();
+      root.style.scrollBehavior = previousScrollBehavior;
+    });
+  });
+}
+
 type LanguageSelectorMode = 'auto' | 'mobile' | 'desktop';
 
 interface LanguageSelectorProps {
@@ -74,7 +91,17 @@ export default function LanguageSelector({ mode = 'auto' }: LanguageSelectorProp
   }, [isOpen]);
 
   const toggleLanguage = async (code: string) => {
+    if (code === normalizedLanguage) {
+      setIsOpen(false);
+      triggerRef.current?.focus();
+      return;
+    }
+
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
     await i18n.changeLanguage(code);
+    restoreScrollPosition(scrollX, scrollY);
     setIsOpen(false);
     triggerRef.current?.focus();
   };
