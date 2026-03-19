@@ -5,8 +5,11 @@ export {
   resolveDashboardRedirectPath,
 } from './api/shared';
 export {
+  clearDashboardAuthState,
   exchangeDashboardCodeForSession,
+  getFreshDashboardSession,
   getDashboardSession,
+  isInvalidJwtError,
   signInWithDiscord,
   signOutDashboard,
   syncDiscordGuilds,

@@ -1,5 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { getAuthCallbackUrl } from '../../config';
+import i18n from '../../i18n';
+import { clearSupabaseAuthStorage } from '../../lib/supabaseClient';
 import { dashboardSyncResultSchema } from '../schemas';
 import type { DashboardSessionState, DashboardSyncResult } from '../types';
 import {
@@ -12,8 +14,33 @@ import {
   withTimeout,
 } from './shared';
 
+export function isInvalidJwtError(error: unknown): boolean {
+  return createDashboardError('auth.jwt', error, 'Invalid JWT').message.toLowerCase().includes('invalid jwt');
+}
+
+export async function clearDashboardAuthState(): Promise<void> {
+  if (!supabaseAuthConfigured()) {
+    clearSupabaseAuthStorage();
+    return;
+  }
+
+  const client = getSupabaseClient();
+
+  try {
+    await client.auth.signOut({ scope: 'local' });
+  } catch {
+    // Continuamos con limpieza local manual aunque Supabase no responda.
+  }
+
+  clearSupabaseAuthStorage();
+}
+
+function supabaseAuthConfigured(): boolean {
+  return Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+}
+
 export async function getDashboardSession(): Promise<DashboardSessionState> {
-  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  if (!supabaseAuthConfigured()) {
     return {
       session: null,
       user: null,
@@ -93,7 +120,7 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
   const client = getSupabaseClient();
 
   if (!code.trim()) {
-    throw new Error('No llego un codigo OAuth valido al callback.');
+    throw new Error(i18n.t('dashboardAuth.errors.missingOauthCode'));
   }
 
   console.log('[dashboard-auth] exchangeDashboardCodeForSession:start', {
@@ -105,7 +132,7 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
     const { data, error } = await withTimeout(
       client.auth.exchangeCodeForSession(code),
       OAUTH_EXCHANGE_TIMEOUT_MS,
-      `El intercambio OAuth tardo demasiado (${OAUTH_EXCHANGE_TIMEOUT_MS / 1000}s). Revisa la red, Supabase Auth y la configuracion de redirect URLs.`,
+      i18n.t('dashboardAuth.errors.exchangeTimeout', { seconds: OAUTH_EXCHANGE_TIMEOUT_MS / 1000 }),
     );
 
     if (error) {
@@ -123,7 +150,7 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
     const dashboardError = createDashboardError(
       'auth.oauth.exchange',
       error,
-      'No se pudo intercambiar el codigo OAuth con Supabase.',
+      i18n.t('dashboardAuth.errors.exchangeFailed'),
     );
     console.error('[dashboard-auth] exchangeDashboardCodeForSession:error', {
       durationMs: Date.now() - startedAt,
@@ -134,12 +161,25 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
   }
 }
 
+export async function getFreshDashboardSession(): Promise<DashboardSessionState> {
+  try {
+    return await getDashboardSession();
+  } catch (error: unknown) {
+    if (isInvalidJwtError(error)) {
+      await clearDashboardAuthState();
+      throw new Error(i18n.t('dashboardAuth.errors.invalidSession'));
+    }
+
+    throw error;
+  }
+}
+
 export async function syncDiscordGuilds(providerToken: string): Promise<DashboardSyncResult> {
   const startedAt = Date.now();
   const client = getSupabaseClient();
 
   if (!providerToken.trim()) {
-    throw new Error('No llego un provider token valido para sincronizar los servidores.');
+    throw new Error(i18n.t('dashboardAuth.errors.syncMissingToken'));
   }
 
   console.log('[dashboard-auth] syncDiscordGuilds:start', {
@@ -155,7 +195,7 @@ export async function syncDiscordGuilds(providerToken: string): Promise<Dashboar
         },
       }),
       GUILD_SYNC_TIMEOUT_MS,
-      `La sincronizacion inicial de servidores tardo demasiado (${GUILD_SYNC_TIMEOUT_MS / 1000}s). Revisa la funcion sync-discord-guilds, la red y el estado de Supabase.`,
+      i18n.t('dashboardAuth.errors.syncTimeout', { seconds: GUILD_SYNC_TIMEOUT_MS / 1000 }),
     );
 
     if (error) {
@@ -163,7 +203,7 @@ export async function syncDiscordGuilds(providerToken: string): Promise<Dashboar
     }
 
     if (!data) {
-      throw new Error('La funcion sync-discord-guilds respondio vacio.');
+      throw new Error(i18n.t('dashboardAuth.errors.syncEmptyResponse'));
     }
 
     const parsedResult = dashboardSyncResultSchema.parse(data);

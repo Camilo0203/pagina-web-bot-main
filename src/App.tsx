@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Logo from './components/Logo';
 import LandingPage from './pages/LandingPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -8,13 +9,15 @@ const DashboardPage = lazy(() => import('./dashboard/DashboardPage'));
 const AuthCallbackPage = lazy(() => import('./dashboard/AuthCallbackPage'));
 
 function AppLoadingFallback() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
       <div className="flex flex-col items-center gap-4 rounded-[2rem] border border-white/10 bg-white/5 px-8 py-10 backdrop-blur-xl">
         <Logo size="lg" withText={false} />
         <div className="text-center">
-          <p className="text-lg font-semibold">Cargando experiencia</p>
-          <p className="text-sm text-slate-300">Preparando el panel y la navegacion.</p>
+          <p className="text-lg font-semibold">{t('app.loadingTitle')}</p>
+          <p className="text-sm text-slate-300">{t('app.loadingDescription')}</p>
         </div>
       </div>
     </div>

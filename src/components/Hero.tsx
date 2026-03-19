@@ -238,7 +238,7 @@ export default function Hero() {
               ? instantReveal
               : { initial: { opacity: 0, x: 20 }, animate: { opacity: 1, x: 0 }, transition: { duration: 0.75, delay: 0.25 } })}
             className="cinematic-glass relative overflow-hidden rounded-[2rem] border-white/10 p-6 md:p-7"
-            aria-label="Product highlights"
+            aria-label={t('hero.highlightsAria')}
           >
             <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent opacity-80"></div>
             <p className="mb-6 text-[10px] font-black uppercase tracking-[0.32em] text-indigo-300">{t('hero.panelLabel')}</p>

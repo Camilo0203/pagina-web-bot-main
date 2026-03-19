@@ -1,4 +1,5 @@
 import { AlertTriangle, LockKeyhole, LogIn, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import StateCard from './StateCard';
 import Logo from '../../components/Logo';
 import { config } from '../../config';
@@ -16,14 +17,15 @@ export default function AuthCard({
   errorMessage,
   onLogin,
 }: AuthCardProps) {
+  const { t } = useTranslation();
   const dashboardBrandLabel = `${config.botName} Dashboard`;
 
   if (!canUseDashboard) {
     return (
       <StateCard
-        eyebrow="Configuracion requerida"
-        title="Falta conectar Supabase"
-        description="Agrega VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY para activar el login con Discord, sincronizar servidores y guardar configuraciones del bot."
+        eyebrow={t('dashboardAuth.authCard.missingConfigEyebrow')}
+        title={t('dashboardAuth.authCard.missingConfigTitle')}
+        description={t('dashboardAuth.authCard.missingConfigDescription')}
         icon={AlertTriangle}
         tone="warning"
       />
@@ -47,7 +49,7 @@ export default function AuthCard({
 
         <div className="dashboard-auth-badge mt-5 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em]">
           <LockKeyhole className="h-3.5 w-3.5" />
-          Acceso protegido
+          {t('dashboardAuth.authCard.protectedAccess')}
         </div>
 
         <div className="mt-6 space-y-3">
@@ -55,10 +57,10 @@ export default function AuthCard({
             {dashboardBrandLabel}
           </p>
           <h1 className="text-balance text-[2rem] font-bold tracking-[-0.05em] text-slate-950 dark:text-white sm:text-[2.35rem]">
-            Inicia sesion para entrar al panel de control
+            {t('dashboardAuth.authCard.cardTitle')}
           </h1>
           <p className="mx-auto max-w-xl text-sm leading-7 text-slate-700 dark:text-slate-300 sm:text-[0.95rem]">
-            {errorMessage || 'Accede con Discord para validar tu sesion, sincronizar guilds administrables y operar el dashboard con permisos reales.'}
+            {errorMessage || t('dashboardAuth.authCard.cardDescription')}
           </p>
         </div>
 
@@ -71,17 +73,17 @@ export default function AuthCard({
             className="dashboard-auth-button relative inline-flex w-full items-center justify-center gap-3 rounded-2xl px-5 py-4 text-sm font-semibold transition duration-300 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <LogIn className="h-4 w-4" />
-            {isLoading ? 'Conectando...' : 'Continuar con Discord'}
+            {isLoading ? t('dashboardAuth.authCard.loadingCta') : t('dashboardAuth.authCard.cta')}
           </button>
         </div>
 
         <p className="mt-5 text-xs leading-6 text-slate-500 dark:text-slate-400">
-          Cifrado seguro - Sincronizacion de servidores - Acceso con Supabase
+          {t('dashboardAuth.authCard.trustLine')}
         </p>
       </div>
       <div className="relative z-[1] mt-7 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
         <ShieldCheck className="h-3.5 w-3.5 text-brand-500 dark:text-brand-300" />
-        TON618 mantiene el branding y el flujo oficial de Discord OAuth
+        {t('dashboardAuth.authCard.trustFooter')}
       </div>
     </section>
   );

@@ -14,6 +14,9 @@ const resources = {
         architecture: 'Dashboard',
         whyTon: 'Reliability',
         network: 'Live stats',
+        docs: 'Docs',
+        status: 'Status',
+        support: 'Support',
         primaryCta: 'Invite bot',
         secondaryCta: 'Open dashboard',
         mobilePrimaryCta: 'Invite to Discord',
@@ -21,6 +24,14 @@ const resources = {
         openMenu: 'Open navigation menu',
         closeMenu: 'Close navigation menu',
         homeAria: 'Go to home',
+        primaryAria: 'Primary navigation',
+      },
+      app: {
+        loadingTitle: 'Loading experience',
+        loadingDescription: 'Preparing the dashboard and navigation.',
+      },
+      landing: {
+        skipToContent: 'Skip to content',
       },
       hero: {
         badge: 'Discord operations platform for serious servers',
@@ -41,6 +52,36 @@ const resources = {
         },
         panelLabel: 'Why teams move fast with TON618',
         scroll: 'Scroll to explore',
+        highlightsAria: 'Product highlights',
+      },
+      docsSection: {
+        eyebrow: 'Operational resources',
+        title: 'Everything Needed',
+        titleAccent: 'To Evaluate And Launch',
+        description:
+          'TON618 does not stop at a polished landing page: it exposes value, opens the dashboard and keeps the resources a serious team expects before adopting the product.',
+        cards: {
+          docs: {
+            title: 'Operational documentation',
+            description:
+              'Setup guidance, module coverage and operating notes so teams can move from installation to real usage without tribal knowledge.',
+            ctaExternal: 'Open docs',
+            ctaFallback: 'Review launch path',
+          },
+          dashboard: {
+            title: 'Dashboard for staff',
+            description:
+              'Open configuration, tickets and operational follow-up from a panel that already degrades gracefully when a secondary source fails.',
+            cta: 'Open dashboard',
+          },
+          support: {
+            title: 'Support and trust path',
+            description:
+              'Support, contact and launch guidance stay visible to reduce friction during evaluation, onboarding and incident handling.',
+            ctaExternal: 'Open support',
+            ctaFallback: 'Go to launch CTA',
+          },
+        },
       },
       features: {
         tag: 'What You Can Run',
@@ -237,6 +278,65 @@ const resources = {
             'This site may use essential and analytics cookies to maintain performance, understand product usage and improve the landing and dashboard experience. Cookie behavior can be controlled from your browser settings.',
         },
       },
+      dashboardAuth: {
+        pageTitle: 'Auth',
+        oauthLabel: 'Discord OAuth',
+        pageHeading: 'Access to {{name}}',
+        pageDescription:
+          'We are validating the secure session and syncing server access without changing your current configuration.',
+        errorEyebrow: 'Access was not completed',
+        errorTitle: 'We need one action to continue.',
+        retrySync: 'Retry sync',
+        restartLogin: 'Restart Discord login',
+        successEyebrowRedirecting: 'Finishing access',
+        successEyebrowLoading: 'Access in progress',
+        syncingDescription:
+          'We are preparing the authenticated account so you can enter the dashboard with your manageable guilds already resolved.',
+        holdingContextDescription:
+          'The callback keeps your login context so you do not lose the server you wanted to open.',
+        authCard: {
+          missingConfigEyebrow: 'Configuration required',
+          missingConfigTitle: 'Supabase connection missing',
+          missingConfigDescription:
+            'Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable Discord login, sync servers and persist bot settings.',
+          protectedAccess: 'Protected access',
+          cardTitle: 'Sign in to enter the control panel',
+          cardDescription:
+            'Use Discord to validate your session, sync manageable guilds and operate the dashboard with real permissions.',
+          loadingCta: 'Connecting...',
+          cta: 'Continue with Discord',
+          trustLine: 'Secure encryption - Server sync - Supabase access',
+          trustFooter: 'TON618 keeps the branding and official Discord OAuth flow',
+        },
+        state: {
+          preparing: 'Preparing Discord authentication...',
+          exchanging: 'Exchanging code for a secure session...',
+          syncing: 'Syncing manageable servers with Supabase...',
+          redirectingWithGuilds: 'Ready. Redirecting to the panel with your synced servers...',
+          redirectingWithoutGuilds: 'Ready. Redirecting to the dashboard to continue with the authenticated account...',
+          retryingSync: 'Retrying server sync...',
+          secureAccessFailed: 'Secure access could not be completed.',
+        },
+        errors: {
+          restartLoginFailed: 'Discord login could not be restarted.',
+          restartLoginAction: 'Could not restart login with Discord.',
+          missingSessionAfterCallback:
+            'There is no valid dashboard session after the callback. Start sign-in again from the dashboard.',
+          missingProviderToken:
+            'Discord did not return a provider token. Repeat the login to sync servers.',
+          invalidSession:
+            'The dashboard session is invalid or expired. Restart the login to continue.',
+          callbackFailed: 'The dashboard callback could not be completed.',
+          missingOauthCode: 'A valid OAuth code did not reach the callback.',
+          syncMissingToken: 'A valid provider token did not arrive to sync servers.',
+          syncEmptyResponse: 'The sync-discord-guilds function returned an empty response.',
+          exchangeFailed: 'The OAuth code could not be exchanged with Supabase.',
+          exchangeTimeout:
+            'The OAuth exchange took too long ({{seconds}}s). Check the network, Supabase Auth and the redirect URL configuration.',
+          syncTimeout:
+            'The initial server sync took too long ({{seconds}}s). Check the sync-discord-guilds function, the network and Supabase status.',
+        },
+      },
     },
   },
   es: {
@@ -251,6 +351,9 @@ const resources = {
         architecture: 'Dashboard',
         whyTon: 'Confiabilidad',
         network: 'Métricas en vivo',
+        docs: 'Docs',
+        status: 'Status',
+        support: 'Soporte',
         primaryCta: 'Invitar bot',
         secondaryCta: 'Abrir dashboard',
         mobilePrimaryCta: 'Invitar a Discord',
@@ -258,6 +361,14 @@ const resources = {
         openMenu: 'Abrir menú de navegación',
         closeMenu: 'Cerrar menú de navegación',
         homeAria: 'Ir al inicio',
+        primaryAria: 'Navegación principal',
+      },
+      app: {
+        loadingTitle: 'Cargando experiencia',
+        loadingDescription: 'Preparando el dashboard y la navegación.',
+      },
+      landing: {
+        skipToContent: 'Saltar al contenido',
       },
       hero: {
         badge: 'Plataforma de operaciones para Discord enfocada en servidores serios',
@@ -278,6 +389,36 @@ const resources = {
         },
         panelLabel: 'Por qué los equipos avanzan más rápido con TON618',
         scroll: 'Desplázate para explorar',
+        highlightsAria: 'Aspectos destacados del producto',
+      },
+      docsSection: {
+        eyebrow: 'Recursos operativos',
+        title: 'Todo Lo Necesario',
+        titleAccent: 'Para Evaluar Y Lanzar',
+        description:
+          'TON618 no se queda en una landing cuidada: muestra valor, abre el dashboard y deja visibles los recursos que un equipo serio espera antes de adoptar el producto.',
+        cards: {
+          docs: {
+            title: 'Documentación operativa',
+            description:
+              'Guía de setup, módulos y notas operativas para pasar de la instalación al uso real sin depender de conocimiento tribal.',
+            ctaExternal: 'Abrir docs',
+            ctaFallback: 'Revisar ruta de lanzamiento',
+          },
+          dashboard: {
+            title: 'Dashboard listo para staff',
+            description:
+              'Abre configuración, tickets y seguimiento operativo desde un panel que ya degrada con gracia cuando una fuente secundaria falla.',
+            cta: 'Abrir dashboard',
+          },
+          support: {
+            title: 'Ruta de soporte y confianza',
+            description:
+              'Soporte, contacto y guía de lanzamiento siguen visibles para reducir fricción durante evaluación, onboarding y resolución de incidencias.',
+            ctaExternal: 'Abrir soporte',
+            ctaFallback: 'Ir al CTA de lanzamiento',
+          },
+        },
       },
       features: {
         tag: 'Qué Puedes Operar',
@@ -472,6 +613,65 @@ const resources = {
           title: 'Política de Cookies',
           content:
             'Este sitio puede usar cookies esenciales y de analítica para mantener el rendimiento, entender el uso del producto y mejorar la experiencia de la landing y del dashboard. El comportamiento de cookies puede controlarse desde la configuración del navegador.',
+        },
+      },
+      dashboardAuth: {
+        pageTitle: 'Auth',
+        oauthLabel: 'Discord OAuth',
+        pageHeading: 'Acceso a {{name}}',
+        pageDescription:
+          'Estamos validando la sesión segura y sincronizando el acceso a servidores sin alterar tu configuración actual.',
+        errorEyebrow: 'No se completó el acceso',
+        errorTitle: 'Necesitamos una acción para continuar.',
+        retrySync: 'Reintentar sincronización',
+        restartLogin: 'Reiniciar login con Discord',
+        successEyebrowRedirecting: 'Finalizando acceso',
+        successEyebrowLoading: 'Acceso en progreso',
+        syncingDescription:
+          'Estamos dejando lista la cuenta autenticada para entrar al dashboard con tus guilds administrables ya resueltos.',
+        holdingContextDescription:
+          'El callback mantiene el contexto del login para que no pierdas el servidor que querías abrir.',
+        authCard: {
+          missingConfigEyebrow: 'Configuración requerida',
+          missingConfigTitle: 'Falta conectar Supabase',
+          missingConfigDescription:
+            'Agrega VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY para activar el login con Discord, sincronizar servidores y guardar configuraciones del bot.',
+          protectedAccess: 'Acceso protegido',
+          cardTitle: 'Inicia sesión para entrar al panel de control',
+          cardDescription:
+            'Accede con Discord para validar tu sesión, sincronizar guilds administrables y operar el dashboard con permisos reales.',
+          loadingCta: 'Conectando...',
+          cta: 'Continuar con Discord',
+          trustLine: 'Cifrado seguro - Sincronización de servidores - Acceso con Supabase',
+          trustFooter: 'TON618 mantiene el branding y el flujo oficial de Discord OAuth',
+        },
+        state: {
+          preparing: 'Preparando autenticación con Discord...',
+          exchanging: 'Intercambiando código por sesión segura...',
+          syncing: 'Sincronizando servidores administrables con Supabase...',
+          redirectingWithGuilds: 'Listo. Redirigiendo al panel con tus servidores sincronizados...',
+          redirectingWithoutGuilds: 'Listo. Redirigiendo al dashboard para continuar con la cuenta autenticada...',
+          retryingSync: 'Reintentando sincronización de servidores...',
+          secureAccessFailed: 'El acceso seguro no pudo completarse.',
+        },
+        errors: {
+          restartLoginFailed: 'No se pudo reiniciar el login.',
+          restartLoginAction: 'No se pudo reiniciar el login con Discord.',
+          missingSessionAfterCallback:
+            'No hay una sesión válida del dashboard después del callback. Vuelve a iniciar sesión desde el dashboard.',
+          missingProviderToken:
+            'Discord no devolvió provider_token. Repite el login para sincronizar servidores.',
+          invalidSession:
+            'La sesión del dashboard es inválida o expiró. Reinicia el login para continuar.',
+          callbackFailed: 'No se pudo completar el callback del dashboard.',
+          missingOauthCode: 'No llegó un código OAuth válido al callback.',
+          syncMissingToken: 'No llegó un provider token válido para sincronizar los servidores.',
+          syncEmptyResponse: 'La función sync-discord-guilds respondió vacío.',
+          exchangeFailed: 'No se pudo intercambiar el código OAuth con Supabase.',
+          exchangeTimeout:
+            'El intercambio OAuth tardó demasiado ({{seconds}}s). Revisa la red, Supabase Auth y la configuración de redirect URLs.',
+          syncTimeout:
+            'La sincronización inicial de servidores tardó demasiado ({{seconds}}s). Revisa la función sync-discord-guilds, la red y el estado de Supabase.',
         },
       },
     },

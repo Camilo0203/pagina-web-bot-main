@@ -73,7 +73,7 @@ export default function LandingPage() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-slate-950"
       >
-        Skip to content
+        {t('landing.skipToContent')}
       </a>
 
       <div className="fixed inset-0 z-0 pointer-events-none">

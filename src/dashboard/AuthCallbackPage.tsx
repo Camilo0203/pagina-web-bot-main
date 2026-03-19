@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertOctagon, ArrowRight, CheckCircle2, Loader2, RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { config } from '../config';
 import Logo from '../components/Logo';
 import {
@@ -18,6 +19,7 @@ import {
 } from './authCallbackFlow';
 
 export default function AuthCallbackPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -67,11 +69,11 @@ export default function AuthCallbackPage() {
       const message =
         error instanceof Error && error.message
           ? error.message
-          : 'No se pudo reiniciar el login con Discord.';
+          : t('dashboardAuth.errors.restartLoginAction');
 
       updateExecutionState(attemptKey, {
         phase: 'error',
-        statusText: 'No se pudo reiniciar el login.',
+        statusText: t('dashboardAuth.errors.restartLoginFailed'),
         errorMessage: message,
         canRetrySync: false,
         canRestartLogin: true,
@@ -82,17 +84,17 @@ export default function AuthCallbackPage() {
   return (
     <main className="dashboard-shell flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6">
       <Helmet>
-        <title>{dashboardBrandLabel} | Auth</title>
+        <title>{dashboardBrandLabel} | {t('dashboardAuth.pageTitle')}</title>
       </Helmet>
       <div className="dashboard-surface relative w-full max-w-xl overflow-hidden p-6 sm:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(88,101,242,0.12),transparent_28%)]" />
         <div className="relative z-[1] flex flex-col gap-4 sm:flex-row sm:items-center">
           <Logo size="lg" subtitle={config.botName} />
           <div>
-            <p className="dashboard-panel-label">Discord OAuth</p>
-            <h1 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">Acceso a {dashboardBrandLabel}</h1>
+            <p className="dashboard-panel-label">{t('dashboardAuth.oauthLabel')}</p>
+            <h1 className="text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">{t('dashboardAuth.pageHeading', { name: dashboardBrandLabel })}</h1>
             <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-              Verificando la sesion segura y sincronizando acceso a servidores sin alterar tu configuracion actual.
+              {t('dashboardAuth.pageDescription')}
             </p>
           </div>
         </div>
@@ -102,19 +104,19 @@ export default function AuthCallbackPage() {
             <div className="flex items-start gap-3">
               <AlertOctagon className="mt-0.5 h-5 w-5" />
               <div className="w-full">
-                <p className="text-sm font-semibold uppercase tracking-[0.18em]">No se completo el acceso</p>
-                <p className="mt-2 text-lg font-semibold">Necesitamos una accion para continuar.</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em]">{t('dashboardAuth.errorEyebrow')}</p>
+                <p className="mt-2 text-lg font-semibold">{t('dashboardAuth.errorTitle')}</p>
                 <p className="mt-2 text-sm leading-relaxed text-current/80">{viewState.errorMessage}</p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   {viewState.canRetrySync ? (
                     <button type="button" onClick={handleRetrySync} className="dashboard-primary-button">
                       <RotateCcw className="h-4 w-4" />
-                      Reintentar sincronizacion
+                      {t('dashboardAuth.retrySync')}
                     </button>
                   ) : null}
                   {viewState.canRestartLogin ? (
                     <button type="button" onClick={handleRestartLogin} className="dashboard-secondary-button">
-                      Reiniciar login con Discord
+                      {t('dashboardAuth.restartLogin')}
                       <ArrowRight className="h-4 w-4" />
                     </button>
                   ) : null}
@@ -132,13 +134,13 @@ export default function AuthCallbackPage() {
               )}
               <div className="w-full">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                  {viewState.phase === 'redirecting' ? 'Finalizando acceso' : 'Acceso en progreso'}
+                  {viewState.phase === 'redirecting' ? t('dashboardAuth.successEyebrowRedirecting') : t('dashboardAuth.successEyebrowLoading')}
                 </p>
                 <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{viewState.statusText}</p>
                 <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                   {viewState.phase === 'syncing'
-                    ? 'Estamos dejando lista la cuenta autenticada para entrar al dashboard con tus guilds administrables ya resueltos.'
-                    : 'El callback mantiene el contexto del login para que no pierdas el servidor que querias abrir.'}
+                    ? t('dashboardAuth.syncingDescription')
+                    : t('dashboardAuth.holdingContextDescription')}
                 </p>
               </div>
             </div>

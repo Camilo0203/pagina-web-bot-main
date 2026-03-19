@@ -86,13 +86,30 @@ export default function Navbar() {
   ];
 
   const utilityLinks = [
-    config.docsUrl ? { href: config.docsUrl, label: 'Docs' } : null,
-    config.statusUrl ? { href: config.statusUrl, label: 'Status' } : null,
-    config.supportServerUrl ? { href: config.supportServerUrl, label: 'Support' } : null,
+    { href: config.docsUrl || '#docs', label: t('nav.docs') },
+    config.statusUrl ? { href: config.statusUrl, label: t('nav.status') } : null,
+    config.supportServerUrl ? { href: config.supportServerUrl, label: t('nav.support') } : null,
   ].filter(Boolean) as { href: string; label: string }[];
 
+  function renderUtilityLink(link: { href: string; label: string }) {
+    const isHash = link.href.startsWith('#');
+
+    return (
+      <a
+        key={link.label}
+        href={link.href}
+        target={isHash ? undefined : '_blank'}
+        rel={isHash ? undefined : 'noopener noreferrer'}
+        className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+      >
+        <span>{link.label}</span>
+        {!isHash ? <ExternalLink className="h-3 w-3" /> : null}
+      </a>
+    );
+  }
+
   return (
-    <nav className={`fixed left-0 right-0 top-0 z-[90] transition-all duration-500 ${scrolled ? 'py-4' : 'py-5 md:py-6'}`} aria-label="Primary">
+    <nav className={`fixed left-0 right-0 top-0 z-[90] transition-all duration-500 ${scrolled ? 'py-4' : 'py-5 md:py-6'}`} aria-label={t('nav.primaryAria')}>
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className={`relative flex items-center justify-between overflow-visible rounded-[1.75rem] px-4 py-3 transition-all duration-500 md:px-6 ${navbarClassName}`}>
           <div className="flex min-w-0 items-center gap-6 lg:gap-10">
@@ -124,18 +141,7 @@ export default function Navbar() {
           <div className="hidden items-center gap-5 lg:flex">
             {utilityLinks.length > 0 ? (
               <div className="hidden items-center gap-4 xl:flex">
-                {utilityLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-                  >
-                    <span>{link.label}</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ))}
+                {utilityLinks.map(renderUtilityLink)}
               </div>
             ) : null}
 
@@ -207,13 +213,13 @@ export default function Navbar() {
                     <a
                       key={link.label}
                       href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target={link.href.startsWith('#') ? undefined : '_blank'}
+                      rel={link.href.startsWith('#') ? undefined : 'noopener noreferrer'}
                       onClick={() => setMobileMenuOpen(false)}
                       className="inline-flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3 text-sm font-semibold text-slate-300 transition hover:border-white/15 hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80"
                     >
                       <span>{link.label}</span>
-                      <ExternalLink className="h-4 w-4" />
+                      {link.href.startsWith('#') ? null : <ExternalLink className="h-4 w-4" />}
                     </a>
                   ))}
                 </div>

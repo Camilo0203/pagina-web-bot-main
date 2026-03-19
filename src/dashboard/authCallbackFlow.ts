@@ -1,9 +1,13 @@
 import type { Session } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
+import i18n from '../i18n';
 import {
+  clearDashboardAuthState,
   clearDashboardAuthIntent,
   exchangeDashboardCodeForSession,
+  getFreshDashboardSession,
   getDashboardSession,
+  isInvalidJwtError,
   peekDashboardAuthIntent,
   resolveDashboardRedirectPath,
   signInWithDiscord,
@@ -41,14 +45,19 @@ export function normalizeAuthError(value: string | null): string {
     return '';
   }
 
-  const decoded = value.replace(/\+/g, ' ').trim();
-  return decoded || value;
+  try {
+    const decoded = decodeURIComponent(value.replace(/\+/g, ' ')).trim();
+    return decoded || value;
+  } catch {
+    const decoded = value.replace(/\+/g, ' ').trim();
+    return decoded || value;
+  }
 }
 
 function createInitialState(): CallbackViewState {
   return {
     phase: 'exchanging',
-    statusText: 'Preparando autenticacion con Discord...',
+    statusText: i18n.t('dashboardAuth.state.preparing'),
     errorMessage: '',
     isCompleted: false,
     canRetrySync: false,
@@ -172,8 +181,43 @@ export function updateExecutionState(attemptKey: string, patch: Partial<Callback
 }
 
 async function recoverExistingSession() {
-  const authState = await getDashboardSession();
+  const authState = await getFreshDashboardSession();
   return authState.session;
+}
+
+async function resolveFreshSessionAfterExchange(code: string | null) {
+  let exchangeError: unknown = null;
+
+  if (code) {
+    try {
+      await exchangeDashboardCodeForSession(code);
+    } catch (error: unknown) {
+      exchangeError = error;
+    }
+  }
+
+  let authState: Awaited<ReturnType<typeof getDashboardSession>> | null = null;
+  let sessionError: unknown = null;
+
+  try {
+    authState = await getFreshDashboardSession();
+  } catch (error: unknown) {
+    sessionError = error;
+  }
+
+  if (authState?.session) {
+    return authState.session;
+  }
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+  if (exchangeError) {
+    throw exchangeError;
+  }
+
+  return null;
 }
 
 function buildRedirectPath(execution: CallbackExecution, availableGuildIds: string[]): string {
@@ -200,15 +244,29 @@ async function invalidateDashboardQueries(queryClient: QueryClient, redirectGuil
 
 function resolveRetryFlags(errorMessage: string, execution: CallbackExecution) {
   const lowerMessage = errorMessage.toLowerCase();
+  if (
+    lowerMessage.includes('invalid jwt')
+    || lowerMessage.includes('sesion del dashboard es invalida')
+    || lowerMessage.includes('dashboard session is invalid')
+    || lowerMessage.includes('expired')
+  ) {
+    return {
+      canRetrySync: false,
+      canRestartLogin: true,
+    };
+  }
+
   const canRetrySync =
     Boolean(execution.session?.provider_token)
     && !lowerMessage.includes('codigo')
+    && !lowerMessage.includes('code')
     && !lowerMessage.includes('oauth')
     && !lowerMessage.includes('provider_token');
   const canRestartLogin =
     lowerMessage.includes('provider_token')
     || lowerMessage.includes('oauth')
     || lowerMessage.includes('codigo')
+    || lowerMessage.includes('code')
     || !canRetrySync;
 
   return {
@@ -250,33 +308,19 @@ export function runAuthCallbackFlow(
     if (!execution.session) {
       updateExecutionState(attemptKey, {
         phase: 'exchanging',
-        statusText: 'Intercambiando codigo por sesion segura...',
+        statusText: i18n.t('dashboardAuth.state.exchanging'),
         errorMessage: '',
         canRetrySync: false,
         canRestartLogin: false,
       });
 
-      let session: Session | null = null;
-      let exchangeError: unknown = null;
-
-      if (code) {
-        try {
-          session = await exchangeDashboardCodeForSession(code);
-        } catch (error: unknown) {
-          exchangeError = error;
-        }
-      }
+      const session = code
+        ? await resolveFreshSessionAfterExchange(code)
+        : await recoverExistingSession();
 
       if (!session) {
-        session = await recoverExistingSession();
-      }
-
-      if (!session && exchangeError) {
-        throw exchangeError;
-      }
-
-      if (!session) {
-        throw new Error('No llego ninguna sesion valida al callback. Vuelve a iniciar sesion desde el dashboard.');
+        await clearDashboardAuthState();
+        throw new Error(i18n.t('dashboardAuth.errors.missingSessionAfterCallback'));
       }
 
       execution.session = session;
@@ -284,12 +328,12 @@ export function runAuthCallbackFlow(
     }
 
     if (!execution.session?.provider_token) {
-      throw new Error('Discord no devolvio provider_token. Repite el login para sincronizar servidores.');
+      throw new Error(i18n.t('dashboardAuth.errors.missingProviderToken'));
     }
 
     updateExecutionState(attemptKey, {
       phase: 'syncing',
-      statusText: 'Sincronizando servidores administrables con Supabase...',
+      statusText: i18n.t('dashboardAuth.state.syncing'),
       errorMessage: '',
       canRetrySync: false,
       canRestartLogin: false,
@@ -312,8 +356,8 @@ export function runAuthCallbackFlow(
     updateExecutionState(attemptKey, {
       phase: 'redirecting',
       statusText: syncResult.guilds.length
-        ? 'Listo. Redirigiendo al panel con tus servidores sincronizados...'
-        : 'Listo. Redirigiendo al dashboard para continuar con la cuenta autenticada...',
+        ? i18n.t('dashboardAuth.state.redirectingWithGuilds')
+        : i18n.t('dashboardAuth.state.redirectingWithoutGuilds'),
       errorMessage: '',
       isCompleted: true,
       canRetrySync: false,
@@ -323,10 +367,13 @@ export function runAuthCallbackFlow(
 
     return redirectPath;
   })().catch((error: unknown) => {
+    const shouldResetAuth = isInvalidJwtError(error);
     const message =
-      error instanceof Error && error.message
-        ? error.message
-        : 'No se pudo completar el callback del dashboard.';
+      shouldResetAuth
+        ? i18n.t('dashboardAuth.errors.invalidSession')
+        : error instanceof Error && error.message
+          ? error.message
+          : i18n.t('dashboardAuth.errors.callbackFailed');
     const retryFlags = resolveRetryFlags(message, execution);
 
     console.error('[dashboard-auth] callback:error', {
@@ -338,9 +385,16 @@ export function runAuthCallbackFlow(
       error,
     });
 
+    if (shouldResetAuth) {
+      void clearDashboardAuthState();
+      execution.session = null;
+      clearDashboardAuthIntent();
+      persistExecutionStorage(attemptKey, execution);
+    }
+
     updateExecutionState(attemptKey, {
       phase: 'error',
-      statusText: 'El acceso seguro no pudo completarse.',
+      statusText: i18n.t('dashboardAuth.state.secureAccessFailed'),
       errorMessage: message,
       isCompleted: false,
       canRetrySync: retryFlags.canRetrySync,
@@ -363,7 +417,7 @@ export function restartAuthCallbackFlow(attemptKey: string) {
   const execution = getOrCreateExecution(attemptKey);
   updateExecutionState(attemptKey, {
     phase: 'syncing',
-    statusText: 'Reintentando sincronizacion de servidores...',
+    statusText: i18n.t('dashboardAuth.state.retryingSync'),
     errorMessage: '',
     canRetrySync: false,
     canRestartLogin: false,
@@ -372,11 +426,12 @@ export function restartAuthCallbackFlow(attemptKey: string) {
   persistExecutionStorage(attemptKey, execution);
 }
 
-export function restartDiscordLogin(attemptKey: string) {
+export async function restartDiscordLogin(attemptKey: string) {
   const execution = getOrCreateExecution(attemptKey);
   execution.promise = null;
   execution.session = null;
   persistExecutionStorage(attemptKey, execution);
 
+  await clearDashboardAuthState();
   return signInWithDiscord(execution.requestedGuildId);
 }
