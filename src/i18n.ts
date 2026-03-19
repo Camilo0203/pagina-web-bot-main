@@ -359,7 +359,13 @@ const resources = {
           goToAvailableGuild: 'Go to available server',
           retrySnapshot: 'Retry snapshot',
           resyncServer: 'Re-sync server',
+          resyncNow: 'Re-sync now',
+          syncingNow: 'Syncing...',
           switchAccount: 'Switch account',
+        },
+        inviteBot: {
+          helper: 'This server does not have the bot installed yet.',
+          cta: 'Invite bot to this server',
         },
         errors: {
           authValidation: 'The dashboard session could not be validated.',
@@ -769,7 +775,13 @@ const resources = {
           goToAvailableGuild: 'Ir al servidor disponible',
           retrySnapshot: 'Reintentar snapshot',
           resyncServer: 'Re-sincronizar servidor',
+          resyncNow: 'Re-sincronizar ahora',
+          syncingNow: 'Sincronizando...',
           switchAccount: 'Cambiar de cuenta',
+        },
+        inviteBot: {
+          helper: 'Este servidor aún no tiene el bot instalado.',
+          cta: 'Invitar bot a este servidor',
         },
         errors: {
           authValidation: 'No se pudo validar la sesión del dashboard.',

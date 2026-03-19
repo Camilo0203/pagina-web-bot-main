@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   ChevronRight,
@@ -26,7 +27,7 @@ import {
   resolveGuildIconUrl,
   resolveUserAvatarUrl,
 } from '../utils';
-import { config } from '../../config';
+import { config, getDiscordInviteUrl } from '../../config';
 import { useTheme } from '../../components/ThemeProvider';
 import Logo from '../../components/Logo';
 
@@ -375,10 +376,16 @@ export default function DashboardShell({
   children,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const userAvatarUrl = resolveUserAvatarUrl(user);
   const guildIconUrl = selectedGuild ? resolveGuildIconUrl(selectedGuild) : null;
   const dashboardBrandLabel = `${config.botName} Dashboard`;
+  const inviteUrl =
+    selectedGuild && !selectedGuild.botInstalled
+      ? getDiscordInviteUrl(selectedGuild.guildId)
+      : '';
+  const showInviteCta = Boolean(selectedGuild && !selectedGuild.botInstalled && inviteUrl);
 
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -590,6 +597,22 @@ export default function DashboardShell({
                     {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                   </button>
 
+                  {showInviteCta ? (
+                    <div className="w-full rounded-[1.1rem] border border-amber-200/70 bg-amber-50/90 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100 sm:w-auto">
+                      <p className="text-xs leading-5 text-current/85">
+                        {t('dashboard.inviteBot.helper')}
+                      </p>
+                      <a
+                        href={inviteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="dashboard-secondary-button mt-3 w-full border-amber-300/80 bg-white/80 text-amber-900 hover:border-amber-400 hover:bg-white dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100 dark:hover:border-amber-500/70 dark:hover:bg-amber-950/40 sm:min-w-[14rem] sm:w-auto"
+                      >
+                        {t('dashboard.inviteBot.cta')}
+                      </a>
+                    </div>
+                  ) : null}
+
                   <button
                     type="button"
                     onClick={onSync}
@@ -597,7 +620,7 @@ export default function DashboardShell({
                     className="dashboard-primary-button w-full sm:min-w-[12.25rem] sm:w-auto"
                   >
                     <RefreshCcw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                    {isSyncing ? 'Sincronizando...' : 'Re-sincronizar ahora'}
+                    {isSyncing ? t('dashboard.actions.syncingNow') : t('dashboard.actions.resyncNow')}
                   </button>
                 </div>
 
