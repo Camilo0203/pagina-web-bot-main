@@ -1,6 +1,6 @@
 import type { Session } from '@supabase/supabase-js';
 import { getAuthCallbackUrl } from '../../config';
-import i18n from '../../i18n';
+import i18n from '../../locales/i18n';
 import { clearSupabaseAuthStorage } from '../../lib/supabaseClient';
 import { dashboardSyncResultSchema } from '../schemas';
 import type { DashboardSessionState, DashboardSyncResult } from '../types';

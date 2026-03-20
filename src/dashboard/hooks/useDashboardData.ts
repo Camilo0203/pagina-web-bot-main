@@ -81,7 +81,7 @@ export function useGuildDashboardSnapshot(guildId: string | null, enabled: boole
     queryFn: () => fetchGuildDashboardSnapshot(guildId ?? ''),
     enabled: enabled && Boolean(guildId),
     refetchOnWindowFocus: true,
-    staleTime: 10_000,
+    staleTime: 60_000,
     retry: shouldRetryDashboardRequest,
     placeholderData: (previousData) => previousData,
     refetchInterval: (query) => {
@@ -92,21 +92,16 @@ export function useGuildDashboardSnapshot(guildId: string | null, enabled: boole
       const snapshot = query.state.data;
       const hasPendingMutation = snapshot?.mutations.some((mutation) => mutation.status === 'pending');
       const hasOpenTickets = snapshot?.ticketWorkspace.inbox.some((ticket) => ticket.isOpen);
-      const hasTicketHistory = (snapshot?.ticketWorkspace.inbox.length ?? 0) > 0;
 
       if (hasPendingMutation) {
-        return 5_000;
-      }
-
-      if (hasOpenTickets) {
         return 10_000;
       }
 
-      if (hasTicketHistory) {
-        return 20_000;
+      if (hasOpenTickets) {
+        return 30_000;
       }
 
-      return 30_000;
+      return 120_000;
     },
   });
 }

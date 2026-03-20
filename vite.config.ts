@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
   const siteUrl = normalizeSiteUrl(env.VITE_SITE_URL);
   const siteRootUrl = siteUrl ? `${siteUrl}/` : '/';
   const socialImageUrl = buildAbsoluteUrl(siteUrl, socialImagePath);
+  const isProd = mode === 'production';
 
   return {
     plugins: [
@@ -68,10 +69,14 @@ ${siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml` : '# Set VITE_SITE_URL to emit the
         },
       },
     ],
+    esbuild: {
+      drop: isProd ? ['console', 'debugger'] : [],
+    },
     optimizeDeps: {
       exclude: ['lucide-react'],
     },
     build: {
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -113,7 +118,7 @@ ${siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml` : '# Set VITE_SITE_URL to emit the
               return 'ui-vendor';
             }
 
-            return undefined;
+            return 'vendor';
           },
         },
       },

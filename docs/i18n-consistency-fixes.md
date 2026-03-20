@@ -29,6 +29,7 @@
 - Textos visibles y accesibles del callback OAuth.
 - Textos visibles del `AuthCard`.
 - Mensajes de estado y error expuestos por el callback/auth API que llegan a UI.
+- Extracción del diccionario monolítico `i18n.ts` hacia el directorio modular `src/locales/` para facilitar su mantenimiento.
 
 ## Idiomas revisados
 
@@ -36,6 +37,3 @@
 - `es`
 
 ## Pendientes
-
-- El dashboard sigue teniendo mucho copy interna de modulos y shell avanzada solo en espanol; esta pasada cubrio solo las superficies top-level visibles que rompian consistencia inmediata con landing/auth.
-- `site.webmanifest` permanece como asset estatico y no cambia por idioma.

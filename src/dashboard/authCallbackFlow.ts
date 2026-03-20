@@ -1,6 +1,6 @@
 import type { Session } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
-import i18n from '../i18n';
+import i18n from '../locales/i18n';
 import {
   clearDashboardAuthState,
   clearDashboardAuthIntent,

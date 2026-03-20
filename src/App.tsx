@@ -3,10 +3,10 @@ import { Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Logo from './components/Logo';
 import LandingPage from './pages/LandingPage';
-import NotFoundPage from './pages/NotFoundPage';
 
 const DashboardPage = lazy(() => import('./dashboard/DashboardPage'));
 const AuthCallbackPage = lazy(() => import('./dashboard/AuthCallbackPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function AppLoadingFallback() {
   const { t } = useTranslation();

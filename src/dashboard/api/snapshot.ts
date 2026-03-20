@@ -38,11 +38,6 @@ import {
   runQueryWithTimeout,
 } from './shared';
 
-interface OptionalSnapshotResult<T> {
-  data: T;
-  failure: DashboardPartialFailure | null;
-}
-
 const OPTIONAL_SNAPSHOT_METADATA: Record<
   DashboardPartialFailureId,
   { label: string; contextHint: string }
@@ -474,79 +469,77 @@ function buildPartialFailure(id: DashboardPartialFailureId, error: unknown): Das
   };
 }
 
-async function resolveOptionalSnapshotPart<T>(
-  id: DashboardPartialFailureId,
-  loader: () => Promise<T>,
-  fallbackValue: T,
-): Promise<OptionalSnapshotResult<T>> {
-  try {
-    return {
-      data: await loader(),
-      failure: null,
-    };
-  } catch (error: unknown) {
-    const failure = buildPartialFailure(id, error);
-    if (import.meta.env.DEV) {
-      console.warn('[dashboard-snapshot] optional-dataset-failed', {
-        dataset: id,
-        message: failure.message,
-        error,
-      });
-    }
-
-    return {
-      data: fallbackValue,
-      failure,
-    };
-  }
-}
-
 export async function fetchGuildDashboardSnapshot(guildId: string): Promise<GuildDashboardSnapshot> {
   const resolvedGuildId = ensureGuildId(guildId, 'cargar el snapshot del dashboard');
-  const [
-    config,
-    inventory,
-    mutations,
-    syncStatus,
-    backupsResult,
-    ticketInboxResult,
-    activityResult,
-    metricsResult,
-    ticketEventsResult,
-    ticketMacrosResult,
-  ] = await Promise.all([
+
+  const results = await Promise.allSettled([
     fetchGuildConfig(resolvedGuildId),
     fetchGuildInventory(resolvedGuildId),
     fetchGuildMutations(resolvedGuildId),
     fetchGuildSyncStatus(resolvedGuildId),
-    resolveOptionalSnapshotPart('backups', () => fetchGuildBackups(resolvedGuildId), [] as GuildBackupManifest[]),
-    resolveOptionalSnapshotPart('ticket_inbox', () => fetchGuildTicketInbox(resolvedGuildId), [] as TicketInboxItem[]),
-    resolveOptionalSnapshotPart('activity', () => fetchGuildActivity(resolvedGuildId), [] as GuildEvent[]),
-    resolveOptionalSnapshotPart('metrics', () => fetchGuildMetrics(resolvedGuildId), [] as GuildMetricsDaily[]),
-    resolveOptionalSnapshotPart('ticket_events', () => fetchGuildTicketEvents(resolvedGuildId), [] as TicketConversationEvent[]),
-    resolveOptionalSnapshotPart('ticket_macros', () => fetchGuildTicketMacros(resolvedGuildId), [] as TicketMacro[]),
+    fetchGuildBackups(resolvedGuildId),
+    fetchGuildTicketInbox(resolvedGuildId),
+    fetchGuildActivity(resolvedGuildId),
+    fetchGuildMetrics(resolvedGuildId),
+    fetchGuildTicketEvents(resolvedGuildId),
+    fetchGuildTicketMacros(resolvedGuildId),
   ]);
+
+  const partialFailures: DashboardPartialFailure[] = [];
+
+  function getCritical<T>(result: PromiseSettledResult<T>): T {
+    if (result.status === 'rejected') {
+      throw result.reason;
+    }
+    return result.value;
+  }
+
+  function getOptional<T>(
+    result: PromiseSettledResult<T>,
+    id: DashboardPartialFailureId,
+    fallbackValue: T
+  ): T {
+    if (result.status === 'fulfilled') {
+      return result.value;
+    }
+
+    const failure = buildPartialFailure(id, result.reason);
+    if (import.meta.env.DEV) {
+      console.warn('[dashboard-snapshot] optional-dataset-failed', {
+        dataset: id,
+        message: failure.message,
+        error: result.reason,
+      });
+    }
+    partialFailures.push(failure);
+    return fallbackValue;
+  }
+
+  const config = getCritical(results[0]);
+  const inventory = getCritical(results[1]);
+  const mutations = getCritical(results[2]);
+  const syncStatus = getCritical(results[3]);
+
+  const backups = getOptional(results[4], 'backups', [] as GuildBackupManifest[]);
+  const ticketInbox = getOptional(results[5], 'ticket_inbox', [] as TicketInboxItem[]);
+  const activity = getOptional(results[6], 'activity', [] as GuildEvent[]);
+  const metrics = getOptional(results[7], 'metrics', [] as GuildMetricsDaily[]);
+  const ticketEvents = getOptional(results[8], 'ticket_events', [] as TicketConversationEvent[]);
+  const ticketMacros = getOptional(results[9], 'ticket_macros', [] as TicketMacro[]);
 
   return {
     config,
     inventory,
-    events: activityResult.data,
-    metrics: metricsResult.data,
+    events: activity,
+    metrics,
     mutations,
-    backups: backupsResult.data,
+    backups,
     syncStatus,
     ticketWorkspace: {
-      inbox: ticketInboxResult.data,
-      events: ticketEventsResult.data,
-      macros: ticketMacrosResult.data,
+      inbox: ticketInbox,
+      events: ticketEvents,
+      macros: ticketMacros,
     },
-    partialFailures: [
-      backupsResult.failure,
-      ticketInboxResult.failure,
-      activityResult.failure,
-      metricsResult.failure,
-      ticketEventsResult.failure,
-      ticketMacrosResult.failure,
-    ].filter((failure): failure is DashboardPartialFailure => Boolean(failure)),
+    partialFailures,
   };
 }
