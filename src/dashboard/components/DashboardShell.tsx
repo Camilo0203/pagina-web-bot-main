@@ -460,7 +460,7 @@ export default function DashboardShell({
             animate="show"
             className="dashboard-header-shell overflow-hidden px-4 py-4 sm:px-5 lg:px-6"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.16),transparent_24%),linear-gradient(135deg,rgba(88,101,242,0.16),transparent_55%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.1),transparent_28%),radial-gradient(circle_at_14%_0%,rgba(88,101,242,0.15),transparent_36%),linear-gradient(135deg,rgba(8,12,28,0.26),transparent_58%)]" />
             <div className="relative z-[1] flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between 2xl:items-center">
               <div className="flex min-w-0 items-start gap-3 lg:gap-4">
                 <button
