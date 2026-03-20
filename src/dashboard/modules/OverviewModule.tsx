@@ -241,37 +241,43 @@ export default function OverviewModule({
                 />
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <div className="mt-5 dashboard-overview-quick-list" role="list" aria-label="Resumen rapido">
                 {[
                   {
                     icon: RadioTower,
                     label: 'Bridge',
                     value: getHealthLabel(syncStatus),
-                    copy: syncStatus?.bridgeMessage ?? 'Sin detalles extra reportados por el bridge.',
+                    copy: syncStatus?.bridgeMessage ?? 'Bridge operativo.',
                   },
                   {
                     icon: Ticket,
                     label: 'Soporte',
                     value: `${openTickets.length} abiertos`,
                     copy: breachedTickets.length
-                      ? `${breachedTickets.length} vencido${breachedTickets.length > 1 ? 's' : ''} y ${warningTickets.length} en alerta.`
-                      : 'No hay vencimientos visibles ahora mismo.',
+                      ? `${breachedTickets.length} SLA vencido${breachedTickets.length > 1 ? 's' : ''}. ${warningTickets.length} en alerta.`
+                      : warningTickets.length
+                        ? `${warningTickets.length} en alerta.`
+                        : 'Sin vencimientos.',
                   },
                   {
                     icon: HardDriveDownload,
                     label: 'Backups',
                     value: latestBackup ? formatRelativeTime(latestBackup.createdAt) : 'Pendiente',
-                    copy: latestBackup ? 'Ya hay una base de restauracion.' : 'Conviene crear uno antes de tocar sistema.',
+                    copy: latestBackup ? 'Backup reciente.' : 'Crea el primer backup.',
                   },
                 ].map((item) => (
-                  <div key={item.label} className="dashboard-overview-inline-note">
-                    <item.icon className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{item.label}</p>
-                      <p className="mt-2 text-sm font-semibold text-slate-950 dark:text-white">{item.value}</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">{item.copy}</p>
+                  <article key={item.label} role="listitem" className="dashboard-overview-quick-row">
+                    <div className="dashboard-overview-quick-icon" aria-hidden="true">
+                      <item.icon className="h-4 w-4" />
                     </div>
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                        <p className="text-[0.66rem] font-semibold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">{item.label}</p>
+                        <p className="text-[0.95rem] font-semibold leading-5 text-slate-950 dark:text-white">{item.value}</p>
+                      </div>
+                      <p className="dashboard-overview-quick-copy">{item.copy}</p>
+                    </div>
+                  </article>
                 ))}
               </div>
             </section>
