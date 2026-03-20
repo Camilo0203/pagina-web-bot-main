@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { Ticket } from 'lucide-react';
 import {
   ConfigFormActions,
@@ -38,13 +39,6 @@ interface TicketsModuleProps {
   onSave: (values: TicketsSettings) => Promise<void>;
 }
 
-const priorityLabels = [
-  ['low', 'Baja'],
-  ['normal', 'Normal'],
-  ['high', 'Alta'],
-  ['urgent', 'Urgente'],
-] as const;
-
 export default function TicketsModule({
   guild,
   config,
@@ -54,6 +48,15 @@ export default function TicketsModule({
   isSaving,
   onSave,
 }: TicketsModuleProps) {
+  const { t } = useTranslation();
+
+  const priorityLabels = [
+    ['low', t('dashboard.tickets.priority.low')],
+    ['normal', t('dashboard.tickets.priority.normal')],
+    ['high', t('dashboard.tickets.priority.high')],
+    ['urgent', t('dashboard.tickets.priority.urgent')],
+  ] as const;
+
   const channelOptions = getChannelOptions(inventory, ['text', 'announcement', 'forum']);
   const roleOptions = getRoleOptions(inventory);
   const categoryOptions = getCategoryOptions(inventory);
@@ -83,28 +86,28 @@ export default function TicketsModule({
   const missingSelections = [
     ...findMissingSelections(
       [
-        { label: 'Rol escalado', value: config.ticketsSettings.slaEscalationRoleId },
+        { label: t('dashboard.tickets.escalation.roleLabel'), value: config.ticketsSettings.slaEscalationRoleId },
       ],
       roleOptions,
     ),
     ...findMissingSelections(
       [
-        { label: 'Canal escalado', value: config.ticketsSettings.slaEscalationChannelId },
-        { label: 'Canal reporte diario', value: config.ticketsSettings.dailySlaReportChannelId },
+        { label: t('dashboard.tickets.escalation.channelLabel'), value: config.ticketsSettings.slaEscalationChannelId },
+        { label: t('dashboard.tickets.escalation.reportLabel'), value: config.ticketsSettings.dailySlaReportChannelId },
       ],
       channelOptions,
     ),
   ];
   const missingIncidentCategories = config.ticketsSettings.incidentPausedCategories
     .filter((categoryId) => !categoryOptions.some((category) => category.value === categoryId))
-    .map((categoryId) => `La categoria pausada ${categoryId} ya no existe en el inventario.`);
+    .map((categoryId) => t('dashboard.tickets.advanced.missingCategory', { id: categoryId }));
 
   if (!guild.botInstalled) {
     return (
       <StateCard
-        eyebrow="Onboarding"
-        title="Instala el bot para activar configuracion de tickets"
-        description="En cuanto el bot este dentro podremos aplicar limites, SLA, autoasignacion y modo incidente al flujo real de tickets."
+        eyebrow={t('dashboard.tickets.onboarding.eyebrow')}
+        title={t('dashboard.tickets.onboarding.title')}
+        description={t('dashboard.tickets.onboarding.desc')}
         icon={Ticket}
         tone="warning"
       />
@@ -119,15 +122,15 @@ export default function TicketsModule({
       className="space-y-6"
     >
       <PanelCard
-        eyebrow="Tickets y SLA"
-        title="Operacion del sistema de tickets"
-        description="Aqui decides cuanta carga soporta el sistema, cuanto tarda en pedir ayuda y cuando debe escalar o reportar automaticamente."
+        eyebrow={t('dashboard.tickets.main.eyebrow')}
+        title={t('dashboard.tickets.main.title')}
+        description={t('dashboard.tickets.main.desc')}
         actions={(
           <ConfigFormActions
             isDirty={isDirty}
             isSaving={isSaving}
             onReset={() => reset(config.ticketsSettings)}
-            saveLabel="Guardar operacion de tickets"
+            saveLabel={t('dashboard.tickets.main.save')}
           />
         )}
       >
@@ -136,27 +139,27 @@ export default function TicketsModule({
           <ValidationSummary errors={[...validationErrors, ...missingSelections, ...missingIncidentCategories]} />
           {!inventoryState.hasInventory ? (
             <InventoryNotice
-              title="Inventario operativo incompleto"
-              message="Faltan canales, roles o categorias sincronizadas. Puedes revisar la configuracion, pero conviene re-sincronizar antes de cerrar escalados o incidentes."
+              title={t('dashboard.tickets.inventoryNotice.title')}
+              message={t('dashboard.tickets.inventoryNotice.message')}
             />
           ) : null}
         </div>
 
         <div className="mt-8 space-y-8">
           <FormSection
-            title="Capacidad y tiempos"
-            description="Estos valores marcan cuanto trabajo soporta la cola, cuanto debe esperar el usuario y cuando el sistema considera que un ticket necesita ayuda."
+            title={t('dashboard.tickets.capacity.title')}
+            description={t('dashboard.tickets.capacity.desc')}
           >
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {[
-                ['maxTickets', 'Max tickets por usuario', 1, 10],
-                ['globalTicketLimit', 'Limite global', 0, 500],
-                ['cooldownMinutes', 'Cooldown (min)', 0, 1440],
-                ['minDays', 'Minimo dias en servidor', 0, 365],
-                ['autoCloseMinutes', 'Auto close (min)', 0, 10080],
-                ['slaMinutes', 'SLA alerta (min)', 0, 1440],
-                ['smartPingMinutes', 'Smart ping (min)', 0, 1440],
-                ['slaEscalationMinutes', 'Escalado SLA (min)', 0, 10080],
+                ['maxTickets', t('dashboard.tickets.capacity.maxTickets'), 1, 10],
+                ['globalTicketLimit', t('dashboard.tickets.capacity.globalLimit'), 0, 500],
+                ['cooldownMinutes', t('dashboard.tickets.capacity.cooldown'), 0, 1440],
+                ['minDays', t('dashboard.tickets.capacity.minDays'), 0, 365],
+                ['autoCloseMinutes', t('dashboard.tickets.capacity.autoClose'), 0, 10080],
+                ['slaMinutes', t('dashboard.tickets.capacity.slaMinutes'), 0, 1440],
+                ['smartPingMinutes', t('dashboard.tickets.capacity.smartPing'), 0, 1440],
+                ['slaEscalationMinutes', t('dashboard.tickets.capacity.slaEscalation'), 0, 10080],
               ].map(([field, label, min, max]) => (
                 <FieldShell key={String(field)} label={String(label)} error={errors[field as keyof typeof errors]?.message as string | undefined}>
                   <input
@@ -172,21 +175,21 @@ export default function TicketsModule({
           </FormSection>
 
           <FormSection
-            title="Automatizaciones y experiencia"
-            description="Auto-assign, incident mode, reportes y mensajes directos se gestionan por separado para que el admin entienda que esta activando."
+            title={t('dashboard.tickets.automation.title')}
+            description={t('dashboard.tickets.automation.desc')}
           >
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {[
-                ['autoAssignEnabled', 'Autoasignacion', 'Asigna tickets nuevos automaticamente.'],
-                ['autoAssignRequireOnline', 'Solo online', 'Evita asignar staff desconectado.'],
-                ['autoAssignRespectAway', 'Respeta ausentes', 'No asigna a miembros marcados como away.'],
-                ['dailySlaReportEnabled', 'Reporte diario SLA', 'Envia un resumen diario de tickets incumplidos o en riesgo.'],
-                ['incidentModeEnabled', 'Modo incidente', 'Pausa categorias concretas y muestra un mensaje especial.'],
-                ['dmOnOpen', 'DM al abrir', 'Confirma al usuario que el ticket fue creado.'],
-                ['dmOnClose', 'DM al cerrar', 'Avisa cuando el ticket se cierra.'],
-                ['dmTranscripts', 'Enviar transcripts', 'Comparte transcripciones por DM cuando aplique.'],
-                ['dmAlerts', 'DM alertas', 'Permite mensajes directos relacionados con SLA o eventos.'],
-                ['slaEscalationEnabled', 'Escalado automatico', 'Escala tickets vencidos a un rol o canal adicional.'],
+                ['autoAssignEnabled', t('dashboard.tickets.automation.autoAssign.label'), t('dashboard.tickets.automation.autoAssign.desc')],
+                ['autoAssignRequireOnline', t('dashboard.tickets.automation.requireOnline.label'), t('dashboard.tickets.automation.requireOnline.desc')],
+                ['autoAssignRespectAway', t('dashboard.tickets.automation.respectAway.label'), t('dashboard.tickets.automation.respectAway.desc')],
+                ['dailySlaReportEnabled', t('dashboard.tickets.automation.dailyReport.label'), t('dashboard.tickets.automation.dailyReport.desc')],
+                ['incidentModeEnabled', t('dashboard.tickets.automation.incidentMode.label'), t('dashboard.tickets.automation.incidentMode.desc')],
+                ['dmOnOpen', t('dashboard.tickets.automation.dmOpen.label'), t('dashboard.tickets.automation.dmOpen.desc')],
+                ['dmOnClose', t('dashboard.tickets.automation.dmClose.label'), t('dashboard.tickets.automation.dmClose.desc')],
+                ['dmTranscripts', t('dashboard.tickets.automation.dmTranscripts.label'), t('dashboard.tickets.automation.dmTranscripts.desc')],
+                ['dmAlerts', t('dashboard.tickets.automation.dmAlerts.label'), t('dashboard.tickets.automation.dmAlerts.desc')],
+                ['slaEscalationEnabled', t('dashboard.tickets.automation.slaEscalation.label'), t('dashboard.tickets.automation.slaEscalation.desc')],
               ].map(([field, label, description]) => (
                 <ToggleCard key={field} title={label} description={description}>
                   <input
@@ -202,15 +205,15 @@ export default function TicketsModule({
       </PanelCard>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <PanelCard title="Escalado y reportes" description="Roles y canales usados cuando un ticket necesita visibilidad extra o seguimiento diario.">
+        <PanelCard title={t('dashboard.tickets.escalation.title')} description={t('dashboard.tickets.escalation.desc')}>
           <div className="grid gap-5 md:grid-cols-2">
-            <FieldShell label="Rol escalado" error={errors.slaEscalationRoleId?.message}>
+            <FieldShell label={t('dashboard.tickets.escalation.roleLabel')} error={errors.slaEscalationRoleId?.message}>
               <select
                 {...register('slaEscalationRoleId')}
                 disabled={!slaEscalationEnabled}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700"
               >
-                <option value="">No configurado</option>
+                <option value="">{t('dashboard.tickets.escalation.notConfigured')}</option>
                 {roleOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -219,13 +222,13 @@ export default function TicketsModule({
               </select>
             </FieldShell>
 
-            <FieldShell label="Canal escalado">
+            <FieldShell label={t('dashboard.tickets.escalation.channelLabel')}>
               <select
                 {...register('slaEscalationChannelId')}
                 disabled={!slaEscalationEnabled}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700"
               >
-                <option value="">No configurado</option>
+                <option value="">{t('dashboard.tickets.escalation.notConfigured')}</option>
                 {channelOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -234,13 +237,13 @@ export default function TicketsModule({
               </select>
             </FieldShell>
 
-            <FieldShell label="Canal reporte diario" error={errors.dailySlaReportChannelId?.message}>
+            <FieldShell label={t('dashboard.tickets.escalation.reportLabel')} error={errors.dailySlaReportChannelId?.message}>
               <select
                 {...register('dailySlaReportChannelId')}
                 disabled={!dailySlaReportEnabled}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700"
               >
-                <option value="">Usar fallback del bot</option>
+                <option value="">{t('dashboard.tickets.escalation.useFallback')}</option>
                 {channelOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -249,7 +252,7 @@ export default function TicketsModule({
               </select>
             </FieldShell>
 
-            <FieldShell label="Mensaje modo incidente" error={errors.incidentMessage?.message}>
+            <FieldShell label={t('dashboard.tickets.escalation.incidentLabel')} error={errors.incidentMessage?.message}>
               <textarea
                 {...register('incidentMessage')}
                 rows={3}
@@ -259,10 +262,10 @@ export default function TicketsModule({
           </div>
         </PanelCard>
 
-        <PanelCard title="Reglas avanzadas" description="Ajustes finos para cambiar SLA o escalado segun prioridad y categoria sin tocar la base general.">
+        <PanelCard title={t('dashboard.tickets.advanced.title')} description={t('dashboard.tickets.advanced.desc')}>
           <div className="space-y-6">
             <div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Overrides SLA por prioridad</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('dashboard.tickets.advanced.slaOverrides')}</p>
               <div className="mt-3 grid gap-4 md:grid-cols-2">
                 {priorityLabels.map(([key, label]) => (
                   <label key={key} className="block">
@@ -287,7 +290,7 @@ export default function TicketsModule({
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Categorias pausadas en incidente</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('dashboard.tickets.advanced.pausedCategories')}</p>
               <div className="mt-3 grid gap-3">
                 {categoryOptions.length ? (
                   categoryOptions.map((category) => {
@@ -321,7 +324,7 @@ export default function TicketsModule({
                   })
                 ) : (
                   <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 p-5 text-sm text-slate-500 dark:border-surface-600 dark:bg-surface-700/40 dark:text-slate-400">
-                    El inventario todavia no ha publicado categorias de tickets configurables.
+                    {t('dashboard.tickets.advanced.noCategories')}
                   </div>
                 )}
               </div>

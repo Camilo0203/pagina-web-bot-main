@@ -1,5 +1,6 @@
 import { BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
 import DashboardDegradationNotice from '../components/DashboardDegradationNotice';
+import { useTranslation } from 'react-i18next';
 import PanelCard from '../components/PanelCard';
 import StateCard from '../components/StateCard';
 import ModuleEmptyState from '../components/ModuleEmptyState';
@@ -68,35 +69,37 @@ function buildSparkline(points: Array<{ value: number | null }>) {
   return path;
 }
 
-function renderDelta(delta: ReturnType<typeof getMetricDelta>) {
-  if (!delta) {
-    return <span className="text-slate-500 dark:text-slate-400">Sin comparacion</span>;
-  }
-
-  if (delta.direction === 'flat') {
-    return <span className="text-slate-500 dark:text-slate-400">{delta.label}</span>;
-  }
-
-  const positive = delta.direction === 'up';
-  return (
-    <span className={positive ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}>
-      {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
-      {delta.label}
-    </span>
-  );
-}
-
 export default function AnalyticsModule({
   guild,
   metrics,
   partialFailure,
 }: AnalyticsModuleProps) {
+  const { t } = useTranslation();
+
+  function renderDelta(delta: ReturnType<typeof getMetricDelta>) {
+    if (!delta) {
+      return <span className="text-slate-500 dark:text-slate-400">{t('dashboard.analytics.noComparison')}</span>;
+    }
+
+    if (delta.direction === 'flat') {
+      return <span className="text-slate-500 dark:text-slate-400">{delta.label}</span>;
+    }
+
+    const positive = delta.direction === 'up';
+    return (
+      <span className={positive ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'}>
+        {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+        {delta.label}
+      </span>
+    );
+  }
+
   if (!guild.botInstalled) {
     return (
       <StateCard
-        eyebrow="Instalacion"
-        title="La analitica se activara cuando el bot este dentro del servidor"
-        description="El bot necesita instalarse y publicar snapshots diarios en guild_metrics_daily para mostrar uso real, tickets y estabilidad."
+        eyebrow={t('dashboard.analytics.onboarding.eyebrow')}
+        title={t('dashboard.analytics.onboarding.title')}
+        description={t('dashboard.analytics.onboarding.desc')}
         icon={BarChart3}
         tone="warning"
       />
@@ -106,8 +109,8 @@ export default function AnalyticsModule({
   if (!metrics.length && partialFailure) {
     return (
       <StateCard
-        eyebrow="Analitica degradada"
-        title="La telemetria diaria no esta disponible por ahora"
+        eyebrow={t('dashboard.analytics.states.degraded.eyebrow')}
+        title={t('dashboard.analytics.states.degraded.title')}
         description={partialFailure.message}
         icon={BarChart3}
         tone="warning"
@@ -119,8 +122,8 @@ export default function AnalyticsModule({
     return (
       <ModuleEmptyState
         icon={BarChart3}
-        title="Aun no hay telemetria diaria"
-        description="La dashboard ya esta preparada para leer tendencias. Solo falta que el bridge publique snapshots diarios para este guild."
+        title={t('dashboard.analytics.states.empty.title')}
+        description={t('dashboard.analytics.states.empty.desc')}
       />
     );
   }
@@ -135,13 +138,13 @@ export default function AnalyticsModule({
     <div className="space-y-6">
       <DashboardDegradationNotice
         failures={partialFailure ? [partialFailure] : []}
-        title="La analitica se esta mostrando con cobertura parcial"
+        title={t('dashboard.analytics.degraded')}
       />
 
       <PanelCard
-        eyebrow="Analitica"
-        title="Tendencias de los ultimos 14 dias"
-        description="Una lectura corta para detectar crecimiento, carga de soporte y estabilidad sin salir del dashboard."
+        eyebrow={t('dashboard.analytics.trends.eyebrow')}
+        title={t('dashboard.analytics.trends.title')}
+        description={t('dashboard.analytics.trends.desc')}
         variant="highlight"
       >
         <div className="dashboard-grid-fit-standard">
@@ -169,7 +172,7 @@ export default function AnalyticsModule({
                     </svg>
                   ) : (
                     <div className="flex h-16 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
-                      Sin serie suficiente
+                      {t('dashboard.analytics.trends.emptySeries')}
                     </div>
                   )}
                 </div>
@@ -181,25 +184,25 @@ export default function AnalyticsModule({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
         <PanelCard
-          eyebrow="Actividad"
-          title="Comandos y tickets por dia"
-          description="Compara intensidad de uso y carga operativa a lo largo de la ventana visible."
+          eyebrow={t('dashboard.analytics.activity.eyebrow')}
+          title={t('dashboard.analytics.activity.title')}
+          description={t('dashboard.analytics.activity.desc')}
           variant="soft"
         >
           <div className="dashboard-chart-shell">
             <div className="overflow-x-auto pb-2">
-              <div className="grid h-72 min-w-[42rem] grid-cols-14 items-end gap-2" role="img" aria-label="Comparativa diaria de comandos y tickets de los ultimos 14 dias">
+              <div className="grid h-72 min-w-[42rem] grid-cols-14 items-end gap-2" role="img" aria-label={t('dashboard.analytics.activity.ariaChart')}>
                 {last14.map((metric) => (
                   <div key={metric.metricDate} className="flex h-full min-w-0 flex-col justify-end gap-2">
                     <div
                       className="dashboard-mini-bar bg-[linear-gradient(180deg,rgba(88,101,242,0.95),rgba(56,189,248,0.85))]"
                       style={{ height: `${getBarHeight(metric.commandsExecuted, maxCommands)}%` }}
-                      title={`${metric.commandsExecuted.toLocaleString('es-CO')} comandos`}
+                      title={t('dashboard.analytics.activity.tooltipCommands', { formattedCount: metric.commandsExecuted.toLocaleString('es-CO') })}
                     />
                     <div
                       className="dashboard-mini-bar bg-[linear-gradient(180deg,rgba(16,185,129,0.92),rgba(59,130,246,0.78))]"
                       style={{ height: `${getBarHeight(Math.max(metric.ticketsOpened, metric.ticketsClosed, metric.openTickets), maxTickets)}%` }}
-                      title={`${metric.ticketsOpened} abiertos / ${metric.ticketsClosed} cerrados / ${metric.openTickets} abiertos activos`}
+                      title={t('dashboard.analytics.activity.tooltipTickets', { opened: metric.ticketsOpened, closed: metric.ticketsClosed, open: metric.openTickets })}
                     />
                     <p className="text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                       {formatMetricDate(metric.metricDate)}
@@ -211,35 +214,35 @@ export default function AnalyticsModule({
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-300">
               <span className="inline-flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-500" aria-hidden="true" />
-                Comandos ejecutados
+                {t('dashboard.analytics.activity.legendCommands')}
               </span>
               <span className="inline-flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                Tickets y carga de soporte
+                {t('dashboard.analytics.activity.legendTickets')}
               </span>
             </div>
             <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-              En movil puedes desplazarte horizontalmente para revisar los 14 dias completos.
+              {t('dashboard.analytics.activity.mobileHint')}
             </p>
           </div>
         </PanelCard>
 
         <PanelCard
-          eyebrow="Lectura rapida"
-          title="Resumen de la ventana visible"
-          description="Totales y promedios para entender la foto general sin revisar cada dia."
+          eyebrow={t('dashboard.analytics.summary.eyebrow')}
+          title={t('dashboard.analytics.summary.title')}
+          description={t('dashboard.analytics.summary.desc')}
           variant="soft"
         >
           <div className="dashboard-grid-fit-compact">
             {[
-              ['Comandos acumulados', summary.totals.commandsExecuted.toLocaleString('es-CO')],
-              ['Tickets abiertos', summary.totals.ticketsOpened.toLocaleString('es-CO')],
-              ['Tickets cerrados', summary.totals.ticketsClosed.toLocaleString('es-CO')],
-              ['Miembros activos max', formatCompactNumber(summary.totals.activeMembers)],
-              ['Uptime promedio', formatPercentage(summary.averageUptime, 2)],
-              ['FRT promedio', formatMinutes(summary.averageFirstResponseMinutes)],
-              ['Brechas SLA', summary.totals.slaBreaches.toLocaleString('es-CO')],
-              ['Modulos detectados', String(summary.modulesActive.length)],
+              [t('dashboard.analytics.summary.labels.commands'), summary.totals.commandsExecuted.toLocaleString('es-CO')],
+              [t('dashboard.analytics.summary.labels.ticketsOpened'), summary.totals.ticketsOpened.toLocaleString('es-CO')],
+              [t('dashboard.analytics.summary.labels.ticketsClosed'), summary.totals.ticketsClosed.toLocaleString('es-CO')],
+              [t('dashboard.analytics.summary.labels.maxMembers'), formatCompactNumber(summary.totals.activeMembers)],
+              [t('dashboard.analytics.summary.labels.uptime'), formatPercentage(summary.averageUptime, 2)],
+              [t('dashboard.analytics.summary.labels.frt'), formatMinutes(summary.averageFirstResponseMinutes)],
+              [t('dashboard.analytics.summary.labels.slaBreaches'), summary.totals.slaBreaches.toLocaleString('es-CO')],
+              [t('dashboard.analytics.summary.labels.modules'), String(summary.modulesActive.length)],
             ].map(([label, value]) => (
               <article key={label} className="dashboard-kpi-card">
                 <p className="dashboard-data-label">{label}</p>
@@ -251,9 +254,9 @@ export default function AnalyticsModule({
       </div>
 
       <PanelCard
-        eyebrow="Snapshots"
-        title="Detalle diario"
-        description="Fallback legible para inspeccionar cada dia cuando la comparativa general no basta."
+        eyebrow={t('dashboard.analytics.daily.eyebrow')}
+        title={t('dashboard.analytics.daily.title')}
+        description={t('dashboard.analytics.daily.desc')}
         variant="soft"
       >
         <div className="grid gap-4 lg:grid-cols-2">
@@ -268,39 +271,39 @@ export default function AnalyticsModule({
                       <p className="text-lg font-semibold text-slate-950 dark:text-white">{formatMetricDate(metric.metricDate)}</p>
                       <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                         {metric.modulesActive.length
-                          ? `${metric.modulesActive.length} modulo${metric.modulesActive.length > 1 ? 's' : ''} activo${metric.modulesActive.length > 1 ? 's' : ''}`
-                          : 'Sin modulos reportados ese dia'}
+                          ? t('dashboard.analytics.daily.modulesActive', { count: metric.modulesActive.length })
+                          : t('dashboard.analytics.daily.noModules')}
                       </p>
                     </div>
                     <div className="dashboard-status-pill-compact dashboard-neutral-pill">
-                      {formatPercentage(metric.uptimePercentage, 2)} uptime
+                      {formatPercentage(metric.uptimePercentage, 2)} {t('dashboard.analytics.daily.uptimeLabel')}
                     </div>
                   </div>
                   <div className="dashboard-grid-fit-compact mt-4">
                     <div>
-                      <p className="dashboard-data-label">Comandos</p>
+                      <p className="dashboard-data-label">{t('dashboard.analytics.daily.commands')}</p>
                       <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.commandsExecuted.toLocaleString('es-CO')}</p>
                     </div>
                     <div>
-                      <p className="dashboard-data-label">Tickets</p>
+                      <p className="dashboard-data-label">{t('dashboard.analytics.daily.tickets')}</p>
                       <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">
                         {metric.ticketsOpened} / {metric.ticketsClosed} / {metric.openTickets}
                       </p>
                     </div>
                     <div>
-                      <p className="dashboard-data-label">FRT</p>
+                      <p className="dashboard-data-label">{t('dashboard.analytics.daily.frt')}</p>
                       <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{formatMinutes(metric.avgFirstResponseMinutes)}</p>
                     </div>
                     <div>
-                      <p className="dashboard-data-label">SLA</p>
-                      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{metric.slaBreaches} brechas</p>
+                      <p className="dashboard-data-label">{t('dashboard.analytics.daily.sla')}</p>
+                      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">{t('dashboard.analytics.daily.slaBreaches', { count: metric.slaBreaches })}</p>
                     </div>
                   </div>
                 </article>
               ))
           ) : (
             <div className="dashboard-empty-state">
-              Todavia no hay snapshots diarios suficientes para mostrar detalle historico.
+              {t('dashboard.analytics.daily.empty')}
             </div>
           )}
         </div>

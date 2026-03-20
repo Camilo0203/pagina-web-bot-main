@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { ArchiveRestore, HardDriveDownload, ShieldAlert, Wrench } from 'lucide-react';
 import {
   ConfigFormActions,
@@ -54,6 +55,8 @@ export default function SystemModule({
   onCreateBackup,
   onRestoreBackup,
 }: SystemModuleProps) {
+  const { t } = useTranslation();
+
   const [restoreDraft, setRestoreDraft] = useState<string | null>(null);
   const [restoreConfirmation, setRestoreConfirmation] = useState('');
   const {
@@ -83,12 +86,14 @@ export default function SystemModule({
     }
   }, [restoreTarget]);
 
+  const restoreKeyword = t('dashboard.system.restore.keyword');
+
   if (!guild.botInstalled) {
     return (
       <StateCard
-        eyebrow="Onboarding"
-        title="Instala el bot para administrar el sistema"
-        description="El modo mantenimiento y los backups dependen del bridge real del bot sobre Mongo y Supabase."
+        eyebrow={t('dashboard.system.onboarding.eyebrow')}
+        title={t('dashboard.system.onboarding.title')}
+        description={t('dashboard.system.onboarding.desc')}
         icon={Wrench}
         tone="warning"
       />
@@ -103,15 +108,15 @@ export default function SystemModule({
         })}
       >
         <PanelCard
-          eyebrow="Sistema"
-          title="Mantenimiento y compatibilidad"
-          description="Ajustes globales del bot y lectura del estado tecnico para saber si puedes seguir configurando con seguridad."
+          eyebrow={t('dashboard.system.main.eyebrow')}
+          title={t('dashboard.system.main.title')}
+          description={t('dashboard.system.main.desc')}
           actions={(
             <ConfigFormActions
               isDirty={isDirty}
               isSaving={isSaving}
               onReset={() => reset(config.systemSettings)}
-              saveLabel="Guardar estado del sistema"
+              saveLabel={t('dashboard.system.main.save')}
             />
           )}
         >
@@ -123,15 +128,15 @@ export default function SystemModule({
           <div className="mt-8 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
             <div className="space-y-5">
               <ToggleCard
-                title="Modo mantenimiento"
-                description="Detiene aperturas nuevas y deja visible el motivo configurado."
+                title={t('dashboard.system.maintenance.label')}
+                description={t('dashboard.system.maintenance.desc')}
               >
                 <input type="checkbox" {...register('maintenanceMode')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
               </ToggleCard>
 
               <FieldShell
-                label="Motivo"
-                hint="Explica el impacto esperado. Este texto es el que entendera el equipo cuando vea el bot en mantenimiento."
+                label={t('dashboard.system.maintenance.reasonLabel')}
+                hint={t('dashboard.system.maintenance.reasonHint')}
                 error={errors.maintenanceReason?.message}
               >
                 <textarea
@@ -145,12 +150,12 @@ export default function SystemModule({
 
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                ['Bridge', syncStatus?.bridgeStatus ?? 'unknown'],
-                ['Ultimo heartbeat', formatDateTime(syncStatus?.lastHeartbeatAt ?? guild.botLastSeenAt ?? null)],
-                ['Ultimo inventario', formatDateTime(syncStatus?.lastInventoryAt ?? null)],
-                ['Ultima config aplicada', formatDateTime(syncStatus?.lastConfigSyncAt ?? config.updatedAt ?? null)],
-                ['Mutaciones pendientes', String(syncStatus?.pendingMutations ?? 0)],
-                ['Mutaciones fallidas', String(syncStatus?.failedMutations ?? 0)],
+                [t('dashboard.system.sync.bridge'), syncStatus?.bridgeStatus ?? 'unknown'],
+                [t('dashboard.system.sync.heartbeat'), formatDateTime(syncStatus?.lastHeartbeatAt ?? guild.botLastSeenAt ?? null)],
+                [t('dashboard.system.sync.inventory'), formatDateTime(syncStatus?.lastInventoryAt ?? null)],
+                [t('dashboard.system.sync.config'), formatDateTime(syncStatus?.lastConfigSyncAt ?? config.updatedAt ?? null)],
+                [t('dashboard.system.sync.pendingMutations'), String(syncStatus?.pendingMutations ?? 0)],
+                [t('dashboard.system.sync.failedMutations'), String(syncStatus?.failedMutations ?? 0)],
               ].map(([label, value]) => (
                 <article key={label} className="rounded-3xl border border-slate-200 bg-slate-50/90 p-5 dark:border-surface-600 dark:bg-surface-700/70">
                   <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
@@ -163,8 +168,8 @@ export default function SystemModule({
       </form>
 
       <PanelCard
-        title="Backups y restore"
-        description="Crea una base segura antes de cambios grandes y restaura una version anterior si algo no queda como esperabas."
+        title={t('dashboard.system.backups.title')}
+        description={t('dashboard.system.backups.desc')}
         actions={(
           <button
             type="button"
@@ -173,7 +178,7 @@ export default function SystemModule({
             className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-violet-600 px-4 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <HardDriveDownload className="h-4 w-4" />
-            {isRequestingBackup ? 'Solicitando...' : 'Crear backup'}
+            {isRequestingBackup ? t('dashboard.system.backups.requesting') : t('dashboard.system.backups.create')}
           </button>
         )}
       >
@@ -181,48 +186,48 @@ export default function SystemModule({
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-4">
-          {backups.length ? (
-            backups.map((backup) => (
-              <article
-                key={backup.backupId}
-                className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50/90 p-5 dark:border-surface-600 dark:bg-surface-700/70 lg:flex-row lg:items-center lg:justify-between"
-              >
-                <div>
-                  <p className="text-lg font-semibold text-slate-950 dark:text-white">
-                    {backup.source}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Exportado {formatRelativeTime(backup.exportedAt)}. Creado {formatDateTime(backup.createdAt)}.
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Version de esquema {backup.schemaVersion}.
-                  </p>
-                  <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
-                    Backup ID: {backup.backupId}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setRestoreDraft(backup.backupId)}
-                  disabled={isRequestingBackup}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-surface-600 dark:bg-surface-800 dark:text-white"
+            {backups.length ? (
+              backups.map((backup) => (
+                <article
+                  key={backup.backupId}
+                  className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-slate-50/90 p-5 dark:border-surface-600 dark:bg-surface-700/70 lg:flex-row lg:items-center lg:justify-between"
                 >
-                  <ArchiveRestore className="h-4 w-4" />
-                  Restaurar
-                </button>
-              </article>
-            ))
-          ) : (
-            <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 p-6 text-sm text-slate-500 dark:border-surface-600 dark:bg-surface-700/40 dark:text-slate-400">
-              Aun no existe un backup inicial. Crear uno ahora te deja un punto seguro antes de tocar tickets, verificacion o automatizaciones delicadas.
-            </div>
-          )}
+                  <div>
+                    <p className="text-lg font-semibold text-slate-950 dark:text-white">
+                      {backup.source}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {t('dashboard.system.backups.item.exported', { time: formatRelativeTime(backup.exportedAt) })}. {t('dashboard.system.backups.item.created', { time: formatDateTime(backup.createdAt) })}.
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {t('dashboard.system.backups.item.schema', { version: backup.schemaVersion })}.
+                    </p>
+                    <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
+                      {t('dashboard.system.backups.item.id', { id: backup.backupId })}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRestoreDraft(backup.backupId)}
+                    disabled={isRequestingBackup}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-surface-600 dark:bg-surface-800 dark:text-white"
+                  >
+                    <ArchiveRestore className="h-4 w-4" />
+                    {t('dashboard.system.backups.item.restore')}
+                  </button>
+                </article>
+              ))
+            ) : (
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 p-6 text-sm text-slate-500 dark:border-surface-600 dark:bg-surface-700/40 dark:text-slate-400">
+                {t('dashboard.system.backups.empty')}
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
             <PanelCard
-              title="Restore seguro"
-              description="La restauracion crea una mutacion auditada. Pide confirmacion explicita para evitar restauraciones accidentales."
+              title={t('dashboard.system.restore.title')}
+              description={t('dashboard.system.restore.desc')}
               variant="danger"
               className="h-full"
             >
@@ -232,24 +237,24 @@ export default function SystemModule({
                     <div className="flex items-start gap-3">
                       <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
                       <div>
-                        <p className="text-sm font-semibold">Vas a restaurar un snapshot anterior</p>
+                        <p className="text-sm font-semibold">{t('dashboard.system.restore.alertTitle')}</p>
                         <p className="mt-1 text-sm leading-6 opacity-90">
-                          Seleccion actual: {restoreTarget.source}. Exportado {formatDateTime(restoreTarget.exportedAt)}.
+                          {t('dashboard.system.restore.alertDesc', { source: restoreTarget.source, time: formatDateTime(restoreTarget.exportedAt) })}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <FormSection
-                    title="Confirmacion"
-                    description={`Escribe RESTORE para solicitar la restauracion del backup ${restoreTarget.backupId}.`}
+                    title={t('dashboard.system.restore.confirmTitle')}
+                    description={t('dashboard.system.restore.confirmDesc', { keyword: restoreKeyword, id: restoreTarget.backupId })}
                   >
-                    <FieldShell label="Texto de confirmacion">
+                    <FieldShell label={t('dashboard.system.restore.confirmLabel')}>
                       <input
                         value={restoreConfirmation}
                         onChange={(event) => setRestoreConfirmation(event.target.value)}
                         className="dashboard-form-field"
-                        placeholder="RESTORE"
+                        placeholder={restoreKeyword}
                       />
                     </FieldShell>
                   </FormSection>
@@ -263,11 +268,11 @@ export default function SystemModule({
                       }}
                       className="dashboard-secondary-button"
                     >
-                      Cancelar
+                      {t('dashboard.system.restore.cancel')}
                     </button>
                     <button
                       type="button"
-                      disabled={isRequestingBackup || restoreConfirmation.trim().toUpperCase() !== 'RESTORE'}
+                      disabled={isRequestingBackup || restoreConfirmation.trim().toUpperCase() !== restoreKeyword.toUpperCase()}
                       onClick={() => {
                         void onRestoreBackup(restoreTarget.backupId);
                         setRestoreDraft(null);
@@ -276,13 +281,13 @@ export default function SystemModule({
                       className="dashboard-primary-button"
                     >
                       <ArchiveRestore className="h-4 w-4" />
-                      Solicitar restore
+                      {t('dashboard.system.restore.submit')}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50/80 p-6 text-sm leading-6 text-slate-500 dark:border-surface-600 dark:bg-surface-700/40 dark:text-slate-400">
-                  Elige primero un backup del historial para abrir el flujo seguro de restauracion.
+                  {t('dashboard.system.restore.empty')}
                 </div>
               )}
             </PanelCard>

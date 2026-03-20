@@ -12,6 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 import DashboardDegradationNotice from '../components/DashboardDegradationNotice';
+import { useTranslation } from 'react-i18next';
 import PanelCard from '../components/PanelCard';
 import type {
   DashboardPartialFailure,
@@ -49,19 +50,6 @@ interface OverviewModuleProps {
   checklist: DashboardChecklistStep[];
   quickActions: DashboardQuickAction[];
   partialFailures: DashboardPartialFailure[];
-}
-
-function getStatusLabel(status: DashboardSectionState['status']) {
-  switch (status) {
-    case 'active':
-      return 'Listo';
-    case 'basic':
-      return 'En progreso';
-    case 'needs_attention':
-      return 'Revisar';
-    default:
-      return 'Pendiente';
-  }
 }
 
 function getStatusClasses(status: DashboardSectionState['status']) {
@@ -135,6 +123,21 @@ export default function OverviewModule({
   quickActions,
   partialFailures,
 }: OverviewModuleProps) {
+  const { t, i18n } = useTranslation();
+
+  function getStatusLabel(status: DashboardSectionState['status']) {
+    switch (status) {
+      case 'active':
+        return t('dashboard.overview.status.active');
+      case 'basic':
+        return t('dashboard.overview.status.basic');
+      case 'needs_attention':
+        return t('dashboard.overview.status.needsAttention');
+      default:
+        return t('dashboard.overview.status.pending');
+    }
+  }
+
   const insight = getOverviewInsight(
     guild,
     config,
@@ -159,17 +162,19 @@ export default function OverviewModule({
   const openTickets = workspace.inbox.filter((ticket) => ticket.isOpen);
   const breachedTickets = openTickets.filter((ticket) => ticket.slaState === 'breached');
   const warningTickets = openTickets.filter((ticket) => ticket.slaState === 'warning');
+
   const syncFacts = [
-    ['Bridge', getHealthLabel(syncStatus)],
-    ['Heartbeat', formatRelativeTime(syncStatus?.lastHeartbeatAt ?? guild.botLastSeenAt ?? null)],
-    ['Inventario', formatRelativeTime(syncStatus?.lastInventoryAt ?? null)],
-    ['Config aplicada', formatRelativeTime(syncStatus?.lastConfigSyncAt ?? config.updatedAt ?? null)],
+    [t('dashboard.overview.syncFacts.bridge'), getHealthLabel(syncStatus)],
+    [t('dashboard.overview.syncFacts.heartbeat'), formatRelativeTime(syncStatus?.lastHeartbeatAt ?? guild.botLastSeenAt ?? null)],
+    [t('dashboard.overview.syncFacts.inventory'), formatRelativeTime(syncStatus?.lastInventoryAt ?? null)],
+    [t('dashboard.overview.syncFacts.config'), formatRelativeTime(syncStatus?.lastConfigSyncAt ?? config.updatedAt ?? null)],
   ];
+
   const coverageFacts = [
-    ['Miembros', guild.memberCount ? guild.memberCount.toLocaleString('es-CO') : 'Sin dato'],
-    ['Ultimo snapshot', metrics[0] ? formatDateTime(metrics[0].metricDate) : 'Pendiente'],
-    ['Eventos recientes', String(events.length)],
-    ['Tickets abiertos', String(openTickets.length)],
+    [t('dashboard.overview.pulseStats.facts.members'), guild.memberCount ? guild.memberCount.toLocaleString(i18n.language) : t('dashboard.overview.pulseStats.facts.noData')],
+    [t('dashboard.overview.pulseStats.facts.snapshot'), metrics[0] ? formatDateTime(metrics[0].metricDate) : t('dashboard.overview.pulseStats.facts.pending')],
+    [t('dashboard.overview.pulseStats.facts.events'), String(events.length)],
+    [t('dashboard.overview.pulseStats.facts.tickets'), String(openTickets.length)],
   ];
 
   return (
@@ -177,13 +182,13 @@ export default function OverviewModule({
       <div className="space-y-6">
         <DashboardDegradationNotice
           failures={partialFailures}
-          title="La portada sigue disponible con datos parciales"
+          title={t('dashboard.overview.degraded')}
         />
 
         <PanelCard
-          eyebrow="Overview"
-          title="Centro operativo del servidor"
-          description="La portada resume salud tecnica, soporte en curso y que tarea tiene mas impacto para el admin en este momento."
+          eyebrow={t('dashboard.overview.center.eyebrow')}
+          title={t('dashboard.overview.center.title')}
+          description={t('dashboard.overview.center.desc')}
           variant="highlight"
           titleClassName="text-[1.75rem] lg:text-[2.15rem]"
           descriptionClassName="max-w-4xl text-[1rem] text-slate-600 dark:text-slate-300"
@@ -192,24 +197,24 @@ export default function OverviewModule({
             <section className="dashboard-next-step-card">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="max-w-3xl">
-                  <p className="dashboard-panel-label">Prioridad actual</p>
+                  <p className="dashboard-panel-label">{t('dashboard.overview.nextStep.label')}</p>
                   <h3 className="mt-3 text-[1.55rem] font-semibold tracking-[-0.05em] text-slate-950 dark:text-white lg:text-[1.85rem]">
-                    {nextStep?.label ?? 'La ruta base ya esta cubierta'}
+                    {nextStep?.label ?? t('dashboard.overview.nextStep.ready')}
                   </h3>
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    {nextStep?.description ?? 'La portada no detecta pasos criticos pendientes en el checklist principal.'}
+                    {nextStep?.description ?? t('dashboard.overview.nextStep.emptyDesc')}
                   </p>
                   <p className="mt-3 text-sm font-medium text-slate-800 dark:text-slate-100">
-                    {nextStep?.summary ?? 'Desde aqui puedes pasar a soporte, analitica o refinamiento de modulos.'}
+                    {nextStep?.summary ?? t('dashboard.overview.nextStep.emptySummary')}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   <span className="dashboard-overview-badge dashboard-overview-badge-progress">
-                    {completedChecklist}/{checklist.length || 0} pasos listos
+                    {t('dashboard.overview.nextStep.count', { completed: completedChecklist, total: checklist.length || 0 })}
                   </span>
                   <span className={`dashboard-status-pill-compact ${getStatusClasses(nextStepState?.status ?? 'active')}`}>
-                    {nextStep ? getStatusLabel(nextStep.status) : 'Todo al dia'}
+                    {nextStep ? getStatusLabel(nextStep.status) : t('dashboard.overview.nextStep.allDone')}
                   </span>
                 </div>
               </div>
@@ -221,7 +226,7 @@ export default function OverviewModule({
                     onClick={() => onSectionChange(nextStep.sectionId)}
                     className="dashboard-primary-button"
                   >
-                    Abrir tarea recomendada
+                    {t('dashboard.overview.nextStep.cta')}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 ) : null}
@@ -230,7 +235,7 @@ export default function OverviewModule({
                   onClick={() => onSectionChange(openTickets.length ? 'inbox' : 'activity')}
                   className="dashboard-secondary-button"
                 >
-                  {openTickets.length ? 'Ir a soporte activo' : 'Revisar actividad reciente'}
+                  {openTickets.length ? t('dashboard.overview.nextStep.toSupport') : t('dashboard.overview.nextStep.toActivity')}
                 </button>
               </div>
 
@@ -245,25 +250,25 @@ export default function OverviewModule({
                 {[
                   {
                     icon: RadioTower,
-                    label: 'Bridge',
+                    label: t('dashboard.overview.quickList.bridge.label'),
                     value: getHealthLabel(syncStatus),
-                    copy: syncStatus?.bridgeMessage ?? 'Bridge operativo.',
+                    copy: syncStatus?.bridgeMessage ?? t('dashboard.overview.quickList.bridge.ok'),
                   },
                   {
                     icon: Ticket,
-                    label: 'Soporte',
-                    value: `${openTickets.length} abiertos`,
+                    label: t('dashboard.overview.quickList.support.label'),
+                    value: t('dashboard.overview.quickList.support.open', { count: openTickets.length }),
                     copy: breachedTickets.length
-                      ? `${breachedTickets.length} SLA vencido${breachedTickets.length > 1 ? 's' : ''}. ${warningTickets.length} en alerta.`
+                      ? t('dashboard.overview.quickList.support.breached', { breached: breachedTickets.length, warning: warningTickets.length })
                       : warningTickets.length
-                        ? `${warningTickets.length} en alerta.`
-                        : 'Sin vencimientos.',
+                        ? t('dashboard.overview.quickList.support.warning', { warning: warningTickets.length })
+                        : t('dashboard.overview.quickList.support.clean'),
                   },
                   {
                     icon: HardDriveDownload,
-                    label: 'Backups',
-                    value: latestBackup ? formatRelativeTime(latestBackup.createdAt) : 'Pendiente',
-                    copy: latestBackup ? 'Backup reciente.' : 'Crea el primer backup.',
+                    label: t('dashboard.overview.quickList.backups.label'),
+                    value: latestBackup ? formatRelativeTime(latestBackup.createdAt) : t('dashboard.overview.quickList.backups.pending'),
+                    copy: latestBackup ? t('dashboard.overview.quickList.backups.recent') : t('dashboard.overview.quickList.backups.empty'),
                   },
                 ].map((item) => (
                   <article key={item.label} role="listitem" className="dashboard-overview-quick-row">
@@ -284,12 +289,12 @@ export default function OverviewModule({
 
             <section className="space-y-3">
               <div className="dashboard-overview-summary-card">
-                <p className="dashboard-panel-label">Lectura de admin</p>
+                <p className="dashboard-panel-label">{t('dashboard.overview.summary.label')}</p>
                 <p className="mt-2 text-lg font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
-                  {insight.actionItems[0]?.title ?? 'El servidor esta estable y con una siguiente accion clara.'}
+                  {insight.actionItems[0]?.title ?? t('dashboard.overview.summary.fallbackTitle')}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  {insight.actionItems[0]?.description ?? 'Usa la portada para entrar rapido a soporte, sistema o al modulo que aun no este cerrado.'}
+                  {insight.actionItems[0]?.description ?? t('dashboard.overview.summary.fallbackDesc')}
                 </p>
               </div>
 
@@ -309,9 +314,9 @@ export default function OverviewModule({
         </PanelCard>
 
         <PanelCard
-          eyebrow="Checklist y acciones"
-          title="Que hacer despues"
-          description="El checklist mantiene la ruta base y los quick actions recortan la distancia hacia el problema mas urgente."
+          eyebrow={t('dashboard.overview.checklist.eyebrow')}
+          title={t('dashboard.overview.checklist.title')}
+          description={t('dashboard.overview.checklist.desc')}
           variant="soft"
         >
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)]">
@@ -322,7 +327,7 @@ export default function OverviewModule({
                   type="button"
                   onClick={() => onSectionChange(step.sectionId)}
                   className={`dashboard-checklist-item w-full text-left ${nextStep?.id === step.id ? 'dashboard-checklist-item-featured' : ''}`}
-                  aria-label={`${step.label}. ${step.complete ? 'Listo' : getStatusLabel(step.status)}.`}
+                  aria-label={`${step.label}. ${step.complete ? t('dashboard.overview.checklist.ctaReady') : getStatusLabel(step.status)}.`}
                 >
                   <div className="flex items-start gap-4">
                     <div className={`dashboard-checklist-index ${step.complete ? 'dashboard-checklist-index-complete' : ''}`}>
@@ -332,7 +337,7 @@ export default function OverviewModule({
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-base font-semibold text-slate-950 dark:text-white">{step.label}</p>
                         <span className={`dashboard-status-pill-compact ${getStatusClasses(step.status)}`}>
-                          {step.complete ? 'Listo' : getStatusLabel(step.status)}
+                          {step.complete ? t('dashboard.overview.checklist.ctaReady') : getStatusLabel(step.status)}
                         </span>
                       </div>
                       <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.description}</p>
@@ -348,9 +353,9 @@ export default function OverviewModule({
               <section className="dashboard-guided-stack">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="dashboard-panel-label">Quick actions</p>
+                    <p className="dashboard-panel-label">{t('dashboard.overview.actions.label')}</p>
                     <h3 className="mt-2 text-lg font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
-                      Entradas directas para operar
+                      {t('dashboard.overview.actions.title')}
                     </h3>
                   </div>
                   <Sparkles className="mt-1 h-4 w-4 text-slate-400" />
@@ -369,7 +374,7 @@ export default function OverviewModule({
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-semibold text-slate-950 dark:text-white">{action.label}</p>
                             {index === 0 ? (
-                              <span className="dashboard-overview-badge dashboard-overview-badge-progress">Ahora</span>
+                              <span className="dashboard-overview-badge dashboard-overview-badge-progress">{t('dashboard.overview.actions.now')}</span>
                             ) : null}
                           </div>
                           <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{action.description}</p>
@@ -384,9 +389,9 @@ export default function OverviewModule({
               <section className="dashboard-guided-stack">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="dashboard-panel-label">Alertas operativas</p>
+                    <p className="dashboard-panel-label">{t('dashboard.overview.alerts.label')}</p>
                     <h3 className="mt-2 text-lg font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
-                      Lo que conviene no dejar para despues
+                      {t('dashboard.overview.alerts.title')}
                     </h3>
                   </div>
                   <ShieldAlert className="mt-1 h-4 w-4 text-slate-400" />
@@ -407,8 +412,8 @@ export default function OverviewModule({
                     <div className="dashboard-action-success">
                       <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
                       <div>
-                        <p className="font-semibold">No hay alertas criticas visibles.</p>
-                        <p className="mt-1 text-sm text-current/80">Puedes pasar a optimizar modulos o revisar tendencias de uso.</p>
+                        <p className="font-semibold">{t('dashboard.overview.alerts.emptyTitle')}</p>
+                        <p className="mt-1 text-sm text-current/80">{t('dashboard.overview.alerts.emptyDesc')}</p>
                       </div>
                     </div>
                   )}
@@ -419,30 +424,30 @@ export default function OverviewModule({
         </PanelCard>
 
         <PanelCard
-          eyebrow="Cobertura"
-          title="Estado por modulo"
-          description="Cada bloque resume que tan operativa esta cada area y te deja entrar directamente donde falta cierre."
+          eyebrow={t('dashboard.overview.coverage.eyebrow')}
+          title={t('dashboard.overview.coverage.title')}
+          description={t('dashboard.overview.coverage.desc')}
           variant="soft"
         >
           <div className="grid gap-4 xl:grid-cols-3">
             {[
               {
-                title: 'Revisar ahora',
-                description: 'Impacta soporte, salud o consistencia del servidor.',
+                title: t('dashboard.overview.coverage.groups.attention.title'),
+                description: t('dashboard.overview.coverage.groups.attention.desc'),
                 sections: areas.filter((section) => section.status === 'needs_attention'),
-                empty: 'No hay modulos exigiendo revision inmediata.',
+                empty: t('dashboard.overview.coverage.groups.attention.empty'),
               },
               {
-                title: 'En progreso',
-                description: 'Ya tienen base, pero todavia no conviene darlos por cerrados.',
+                title: t('dashboard.overview.coverage.groups.progress.title'),
+                description: t('dashboard.overview.coverage.groups.progress.desc'),
                 sections: areas.filter((section) => section.status === 'basic' || section.status === 'not_configured'),
-                empty: 'No hay modulos a medio camino.',
+                empty: t('dashboard.overview.coverage.groups.progress.empty'),
               },
               {
-                title: 'Operativos',
-                description: 'La configuracion actual ya permite usarlos con tranquilidad.',
+                title: t('dashboard.overview.coverage.groups.ready.title'),
+                description: t('dashboard.overview.coverage.groups.ready.desc'),
                 sections: areas.filter((section) => section.status === 'active'),
-                empty: 'Todavia no hay modulos cerrados por completo.',
+                empty: t('dashboard.overview.coverage.groups.ready.empty'),
               },
             ].map((group) => (
               <section key={group.title} className="dashboard-area-group">
@@ -493,12 +498,12 @@ export default function OverviewModule({
           <div className="absolute -right-10 top-0 h-32 w-32 rounded-full bg-brand-500/16 blur-3xl" />
           <div className="relative z-[1] flex items-start justify-between gap-4">
             <div>
-              <p className="dashboard-panel-label text-brand-100">Sincronizacion y bridge</p>
+              <p className="dashboard-panel-label text-brand-100">{t('dashboard.overview.pulse.bridgeTitle')}</p>
               <h3 className="mt-2 text-[1.45rem] font-semibold tracking-[-0.04em] text-white">
-                {guild.botInstalled ? 'Sistema conectado al servidor' : 'Instalacion pendiente'}
+                {guild.botInstalled ? t('dashboard.overview.pulse.connected') : t('dashboard.overview.pulse.pending')}
               </h3>
               <p className="mt-2 max-w-sm text-sm leading-6 text-white/72">
-                {syncStatus?.bridgeMessage ?? 'El bridge traducira aqui su estado tecnico a senales faciles de seguir.'}
+                {syncStatus?.bridgeMessage ?? t('dashboard.overview.pulse.bridgeDesc')}
               </p>
             </div>
             <span className="dashboard-status-pill-compact dashboard-live-pill text-white/88">
@@ -518,27 +523,27 @@ export default function OverviewModule({
           <div className="relative z-[1] mt-5 grid gap-3 sm:grid-cols-2">
             {[
               {
-                label: 'Cambios pendientes',
+                label: t('dashboard.overview.pulse.details.changes.label'),
                 value: insight.kpis.find((card) => card.id === 'changes')?.value ?? '0',
-                note: insight.kpis.find((card) => card.id === 'changes')?.note ?? 'No hay cola pendiente.',
+                note: insight.kpis.find((card) => card.id === 'changes')?.note ?? t('dashboard.overview.pulse.details.changes.empty'),
                 icon: Zap,
               },
               {
-                label: 'Tickets abiertos',
+                label: t('dashboard.overview.pulse.details.support.label'),
                 value: insight.kpis.find((card) => card.id === 'support')?.value ?? '0',
-                note: insight.kpis.find((card) => card.id === 'support')?.note ?? 'Sin carga de soporte actual.',
+                note: insight.kpis.find((card) => card.id === 'support')?.note ?? t('dashboard.overview.pulse.details.support.empty'),
                 icon: Ticket,
               },
               {
-                label: 'Ultimo backup',
-                value: latestBackup ? formatDateTime(latestBackup.createdAt) : 'No existe aun',
-                note: latestBackup ? 'Ya puedes volver atras si hace falta.' : 'Crea uno antes de cambios delicados.',
+                label: t('dashboard.overview.pulse.details.backup.label'),
+                value: latestBackup ? formatDateTime(latestBackup.createdAt) : t('dashboard.overview.pulse.details.backup.none'),
+                note: latestBackup ? t('dashboard.overview.pulse.details.backup.ready') : t('dashboard.overview.pulse.details.backup.create'),
                 icon: HardDriveDownload,
               },
               {
-                label: 'Checklist base',
+                label: t('dashboard.overview.pulse.details.base.label'),
                 value: `${completedChecklist}/${checklist.length}`,
-                note: nextStep?.label ?? 'No quedan tareas base pendientes.',
+                note: nextStep?.label ?? t('dashboard.overview.pulse.details.base.none'),
                 icon: ListChecks,
               },
             ].map((item) => (
@@ -559,8 +564,8 @@ export default function OverviewModule({
         </article>
 
         <PanelCard
-          title="Pulso del servidor"
-          description="Lectura rapida del tamano, la telemetria visible y la cobertura del panel."
+          title={t('dashboard.overview.pulseStats.title')}
+          description={t('dashboard.overview.pulseStats.desc')}
           variant="success"
         >
           <div className="dashboard-grid-fit-compact">
@@ -576,15 +581,18 @@ export default function OverviewModule({
             <div className="mt-4 dashboard-action-note">
               <Clock3 className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
-                La ultima ventana visible muestra {formatCompactNumber(metrics[0]?.commandsExecuted ?? null)} comandos y {formatCompactNumber(metrics[0]?.activeMembers ?? null)} miembros activos en el snapshot mas reciente.
+                {t('dashboard.overview.pulseStats.info', {
+                  commands: formatCompactNumber(metrics[0]?.commandsExecuted ?? null),
+                  members: formatCompactNumber(metrics[0]?.activeMembers ?? null)
+                })}
               </p>
             </div>
           ) : null}
         </PanelCard>
 
         <PanelCard
-          title="Actividad reciente"
-          description="Sirve para validar si los cambios y procesos del bot estan dejando huella operativa."
+          title={t('dashboard.overview.activity.title')}
+          description={t('dashboard.overview.activity.desc')}
           variant="soft"
         >
           <div className="space-y-4">
@@ -603,15 +611,15 @@ export default function OverviewModule({
               ))
             ) : (
               <div className="dashboard-empty-state">
-                Cuando el bot publique eventos de cambios, backups o tickets, apareceran aqui como senales recientes.
+                {t('dashboard.overview.activity.empty')}
               </div>
             )}
           </div>
         </PanelCard>
 
         <PanelCard
-          title="Notas de operacion"
-          description="Contexto rapido para saber si la salud visible coincide con el estado esperado."
+          title={t('dashboard.overview.notes.title')}
+          description={t('dashboard.overview.notes.desc')}
           variant="soft"
         >
           <div className="space-y-3">
@@ -631,7 +639,7 @@ export default function OverviewModule({
               ))
             ) : (
               <div className="dashboard-empty-state">
-                No hay notas adicionales. El dashboard no detecta tensiones entre bridge, tickets y backups.
+                {t('dashboard.overview.notes.empty')}
               </div>
             )}
           </div>

@@ -474,7 +474,7 @@ export default function DashboardShell({
                     {guildIconUrl ? (
                       <img
                         src={guildIconUrl}
-                        alt={selectedGuild?.guildName ?? 'Servidor'}
+                        alt={selectedGuild?.guildName ?? t('dashboard.shell.defaultServerAlt')}
                         loading="lazy"
                         decoding="async"
                         className="h-full w-full rounded-[0.95rem] object-cover"
@@ -555,7 +555,7 @@ export default function DashboardShell({
                       {userAvatarUrl ? (
                         <img
                           src={userAvatarUrl}
-                          alt={user.email ?? 'Usuario'}
+                          alt={user.email ?? t('dashboard.shell.defaultUserAlt')}
                           loading="lazy"
                           decoding="async"
                           className="h-full w-full object-cover"
@@ -662,7 +662,7 @@ export default function DashboardShell({
           <div className="fixed inset-0 z-40 lg:hidden">
             <motion.button
               type="button"
-              aria-label="Cerrar menu"
+              aria-label={t('dashboard.shell.closeMenuAria')}
               className="absolute inset-0 bg-slate-950/72 backdrop-blur-md"
               variants={fadeInVariants}
               initial="hidden"

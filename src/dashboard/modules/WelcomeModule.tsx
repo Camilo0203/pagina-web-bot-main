@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
 import {
   ConfigFormActions,
@@ -47,6 +48,7 @@ export default function WelcomeModule({
   isSaving,
   onSave,
 }: WelcomeModuleProps) {
+  const { t } = useTranslation();
   const channelOptions = getChannelOptions(inventory, ['text', 'announcement', 'forum']);
   const roleOptions = getRoleOptions(inventory);
 
@@ -72,13 +74,13 @@ export default function WelcomeModule({
   const missingSelections = [
     ...findMissingSelections(
       [
-        { label: 'Canal bienvenida', value: config.welcomeSettings.welcomeChannelId },
-        { label: 'Canal despedida', value: config.welcomeSettings.goodbyeChannelId },
+        { label: t('dashboard.welcome.welcome.channelLabel'), value: config.welcomeSettings.welcomeChannelId },
+        { label: t('dashboard.welcome.goodbye.channelLabel'), value: config.welcomeSettings.goodbyeChannelId },
       ],
       channelOptions,
     ),
     ...findMissingSelections(
-      [{ label: 'Autorole', value: config.welcomeSettings.welcomeAutoroleId }],
+      [{ label: t('dashboard.welcome.welcome.autoroleLabel'), value: config.welcomeSettings.welcomeAutoroleId }],
       roleOptions,
     ),
   ];
@@ -86,9 +88,9 @@ export default function WelcomeModule({
   if (!guild.botInstalled) {
     return (
       <StateCard
-        eyebrow="Onboarding"
-        title="Instala el bot para editar bienvenida y despedida"
-        description="Estos mensajes se aplican en eventos reales de miembros. El bot necesita estar dentro del servidor para ejecutarlos."
+        eyebrow={t('dashboard.welcome.onboarding.eyebrow')}
+        title={t('dashboard.welcome.onboarding.title')}
+        description={t('dashboard.welcome.onboarding.desc')}
         icon={Sparkles}
         tone="warning"
       />
@@ -103,15 +105,15 @@ export default function WelcomeModule({
       className="grid gap-6 xl:grid-cols-2"
     >
       <PanelCard
-        eyebrow="Bienvenida"
-        title="Experiencia de bienvenida"
-        description="Prepara el primer mensaje que vera un miembro nuevo, si recibira DM y si saldra con un autorrol base."
+        eyebrow={t('dashboard.welcome.main.eyebrow')}
+        title={t('dashboard.welcome.main.title')}
+        description={t('dashboard.welcome.main.desc')}
         actions={(
           <ConfigFormActions
             isDirty={isDirty}
             isSaving={isSaving}
             onReset={() => reset(config.welcomeSettings)}
-            saveLabel="Guardar experiencia"
+            saveLabel={t('dashboard.welcome.main.save')}
           />
         )}
       >
@@ -120,106 +122,106 @@ export default function WelcomeModule({
           <ValidationSummary errors={[...validationErrors, ...missingSelections]} />
           {!inventoryState.hasInventory ? (
             <InventoryNotice
-              title="Inventario sin publicar"
-              message="Los canales y roles del servidor todavia no estan disponibles para validar bienvenida, despedida o autoroles."
+              title={t('dashboard.welcome.notices.emptyTitle')}
+              message={t('dashboard.welcome.notices.emptyMessage')}
             />
           ) : null}
         </div>
 
         <div className="mt-8 space-y-8">
           <ToggleCard
-            title="Activar bienvenida"
-            description="Publica embeds de bienvenida y opcionalmente DM al usuario."
+            title={t('dashboard.welcome.welcome.enableLabel')}
+            description={t('dashboard.welcome.welcome.enableDesc')}
           >
             <input type="checkbox" {...register('welcomeEnabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
           </ToggleCard>
 
           <FormSection
-            title="Bienvenida publica"
-            description="Deja lista la pieza publica que ve el servidor y la automatizacion opcional por DM o autorrol."
+            title={t('dashboard.welcome.welcome.sectionTitle')}
+            description={t('dashboard.welcome.welcome.sectionDesc')}
           >
             <div className="grid gap-5 md:grid-cols-2">
-              <FieldShell label="Canal bienvenida" error={errors.welcomeChannelId?.message}>
-              <select {...register('welcomeChannelId')} disabled={!welcomeEnabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-                <option value="">No configurado</option>
-                {channelOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
+              <FieldShell label={t('dashboard.welcome.welcome.channelLabel')} error={errors.welcomeChannelId?.message}>
+                <select {...register('welcomeChannelId')} disabled={!welcomeEnabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="">{t('dashboard.welcome.notConfigured')}</option>
+                  {channelOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </FieldShell>
-              <FieldShell label="Autorole">
-              <select {...register('welcomeAutoroleId')} disabled={!welcomeEnabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-                <option value="">No configurado</option>
-                {roleOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
+              <FieldShell label={t('dashboard.welcome.welcome.autoroleLabel')}>
+                <select {...register('welcomeAutoroleId')} disabled={!welcomeEnabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="">{t('dashboard.welcome.notConfigured')}</option>
+                  {roleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </FieldShell>
             </div>
 
-            <FieldShell label="Titulo">
+            <FieldShell label={t('dashboard.welcome.welcome.titleLabel')}>
               <input {...register('welcomeTitle')} className="dashboard-form-field" />
             </FieldShell>
-            <FieldShell label="Mensaje">
+            <FieldShell label={t('dashboard.welcome.welcome.messageLabel')}>
               <textarea {...register('welcomeMessage')} rows={4} className="dashboard-form-field" />
             </FieldShell>
-          <div className="grid gap-5 md:grid-cols-2">
-            <FieldShell label="Color HEX" error={errors.welcomeColor?.message}>
-              <input {...register('welcomeColor')} className="dashboard-form-field" />
-            </FieldShell>
-            <FieldShell label="Banner">
-              <input {...register('welcomeBanner')} placeholder="https://..." className="dashboard-form-field" />
-            </FieldShell>
-          </div>
-            <FieldShell label="Footer">
+            <div className="grid gap-5 md:grid-cols-2">
+              <FieldShell label={t('dashboard.welcome.welcome.colorLabel')} error={errors.welcomeColor?.message}>
+                <input {...register('welcomeColor')} className="dashboard-form-field" />
+              </FieldShell>
+              <FieldShell label={t('dashboard.welcome.welcome.bannerLabel')}>
+                <input {...register('welcomeBanner')} placeholder="https://..." className="dashboard-form-field" />
+              </FieldShell>
+            </div>
+            <FieldShell label={t('dashboard.welcome.welcome.footerLabel')}>
               <input {...register('welcomeFooter')} className="dashboard-form-field" />
             </FieldShell>
-          <div className="grid gap-4 md:grid-cols-2">
-            <ToggleCard title="Mostrar thumbnail">
-              <input type="checkbox" {...register('welcomeThumbnail')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-            </ToggleCard>
-            <ToggleCard title="Enviar DM">
-              <input type="checkbox" {...register('welcomeDm')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-            </ToggleCard>
-          </div>
-            <FieldShell label="Mensaje DM" error={errors.welcomeDmMessage?.message}>
+            <div className="grid gap-4 md:grid-cols-2">
+              <ToggleCard title={t('dashboard.welcome.welcome.thumbnailLabel')}>
+                <input type="checkbox" {...register('welcomeThumbnail')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+              </ToggleCard>
+              <ToggleCard title={t('dashboard.welcome.welcome.dmLabel')}>
+                <input type="checkbox" {...register('welcomeDm')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+              </ToggleCard>
+            </div>
+            <FieldShell label={t('dashboard.welcome.welcome.dmMessageLabel')} error={errors.welcomeDmMessage?.message}>
               <textarea {...register('welcomeDmMessage')} rows={3} className="dashboard-form-field" />
             </FieldShell>
           </FormSection>
         </div>
       </PanelCard>
 
-      <PanelCard title="Despedida" description="Configura el mensaje que deja trazabilidad cuando alguien abandona el servidor.">
+      <PanelCard title={t('dashboard.welcome.goodbye.title')} description={t('dashboard.welcome.goodbye.desc')}>
         <div className="space-y-5">
           <ToggleCard
-            title="Activar despedida"
-            description="Publica embed cuando un miembro sale del servidor."
+            title={t('dashboard.welcome.goodbye.enableLabel')}
+            description={t('dashboard.welcome.goodbye.enableDesc')}
           >
             <input type="checkbox" {...register('goodbyeEnabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
           </ToggleCard>
-          <FieldShell label="Canal despedida" error={errors.goodbyeChannelId?.message}>
+          <FieldShell label={t('dashboard.welcome.goodbye.channelLabel')} error={errors.goodbyeChannelId?.message}>
             <select {...register('goodbyeChannelId')} disabled={!goodbyeEnabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="">No configurado</option>
+              <option value="">{t('dashboard.welcome.notConfigured')}</option>
               {channelOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
           </FieldShell>
-          <FieldShell label="Titulo">
+          <FieldShell label={t('dashboard.welcome.goodbye.titleLabel')}>
             <input {...register('goodbyeTitle')} className="dashboard-form-field" />
           </FieldShell>
-          <FieldShell label="Mensaje">
+          <FieldShell label={t('dashboard.welcome.goodbye.messageLabel')}>
             <textarea {...register('goodbyeMessage')} rows={4} className="dashboard-form-field" />
           </FieldShell>
           <div className="grid gap-5 md:grid-cols-2">
-            <FieldShell label="Color HEX" error={errors.goodbyeColor?.message}>
+            <FieldShell label={t('dashboard.welcome.goodbye.colorLabel')} error={errors.goodbyeColor?.message}>
               <input {...register('goodbyeColor')} className="dashboard-form-field" />
             </FieldShell>
-            <ToggleCard title="Mostrar thumbnail">
+            <ToggleCard title={t('dashboard.welcome.goodbye.thumbnailLabel')}>
               <input type="checkbox" {...register('goodbyeThumbnail')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
             </ToggleCard>
           </div>
-          <FieldShell label="Footer">
+          <FieldShell label={t('dashboard.welcome.goodbye.footerLabel')}>
             <input {...register('goodbyeFooter')} className="dashboard-form-field" />
           </FieldShell>
         </div>

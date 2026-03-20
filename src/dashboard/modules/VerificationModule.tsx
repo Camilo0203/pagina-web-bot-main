@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { Shield } from 'lucide-react';
 import {
   ConfigFormActions,
@@ -47,6 +48,7 @@ export default function VerificationModule({
   isSaving,
   onSave,
 }: VerificationModuleProps) {
+  const { t } = useTranslation();
   const channelOptions = getChannelOptions(inventory, ['text', 'announcement', 'forum']);
   const roleOptions = getRoleOptions(inventory);
 
@@ -72,15 +74,15 @@ export default function VerificationModule({
   const missingSelections = [
     ...findMissingSelections(
       [
-        { label: 'Canal del panel', value: config.verificationSettings.channelId },
-        { label: 'Canal de logs', value: config.verificationSettings.logChannelId },
+        { label: t('dashboard.verification.flow.channel'), value: config.verificationSettings.channelId },
+        { label: t('dashboard.verification.flow.logs'), value: config.verificationSettings.logChannelId },
       ],
       channelOptions,
     ),
     ...findMissingSelections(
       [
-        { label: 'Rol verificado', value: config.verificationSettings.verifiedRoleId },
-        { label: 'Rol no verificado', value: config.verificationSettings.unverifiedRoleId },
+        { label: t('dashboard.verification.flow.verifiedRole'), value: config.verificationSettings.verifiedRoleId },
+        { label: t('dashboard.verification.flow.unverifiedRole'), value: config.verificationSettings.unverifiedRoleId },
       ],
       roleOptions,
     ),
@@ -89,9 +91,9 @@ export default function VerificationModule({
   if (!guild.botInstalled) {
     return (
       <StateCard
-        eyebrow="Onboarding"
-        title="Instala el bot para administrar la verificacion"
-        description="El panel de verificacion depende del inventario y de los handlers activos del bot dentro del servidor."
+        eyebrow={t('dashboard.verification.onboarding.eyebrow')}
+        title={t('dashboard.verification.onboarding.title')}
+        description={t('dashboard.verification.onboarding.desc')}
         icon={Shield}
         tone="warning"
       />
@@ -106,15 +108,15 @@ export default function VerificationModule({
       className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]"
     >
       <PanelCard
-        eyebrow="Verificacion"
-        title="Flujo de acceso al servidor"
-        description="Configura como entra la gente al servidor, que rol recibe al completar el proceso y que pasa si llega una oleada sospechosa."
+        eyebrow={t('dashboard.verification.main.eyebrow')}
+        title={t('dashboard.verification.main.title')}
+        description={t('dashboard.verification.main.desc')}
         actions={(
           <ConfigFormActions
             isDirty={isDirty}
             isSaving={isSaving}
             onReset={() => reset(config.verificationSettings)}
-            saveLabel="Guardar acceso"
+            saveLabel={t('dashboard.verification.main.save')}
           />
         )}
       >
@@ -123,67 +125,67 @@ export default function VerificationModule({
           <ValidationSummary errors={[...validationErrors, ...missingSelections]} />
           {!inventoryState.hasInventory ? (
             <InventoryNotice
-              title="Inventario incompleto"
-              message="No llegaron roles o canales suficientes para validar el flujo completo de verificacion."
+              title={t('dashboard.verification.notices.emptyTitle')}
+              message={t('dashboard.verification.notices.emptyMessage')}
             />
           ) : null}
         </div>
 
         <div className="mt-8 space-y-8">
           <FormSection
-            title="Flujo principal"
-            description="Primero define donde vive el panel y que roles participan. Luego decide el modo exacto de verificacion."
+            title={t('dashboard.verification.flow.title')}
+            description={t('dashboard.verification.flow.desc')}
           >
             <div className="grid gap-5 md:grid-cols-2">
-              <ToggleCard title="Sistema activo" description="Activa el panel y las reglas de acceso verificable.">
-            <input type="checkbox" {...register('enabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+              <ToggleCard title={t('dashboard.verification.flow.enabled.label')} description={t('dashboard.verification.flow.enabled.desc')}>
+                <input type="checkbox" {...register('enabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
               </ToggleCard>
 
-              <FieldShell label="Canal del panel" error={errors.channelId?.message}>
-            <select {...register('channelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="">No configurado</option>
-              {channelOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+              <FieldShell label={t('dashboard.verification.flow.channel')} error={errors.channelId?.message}>
+                <select {...register('channelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="">{t('dashboard.verification.notConfigured')}</option>
+                  {channelOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </FieldShell>
 
-              <FieldShell label="Canal de logs">
-            <select {...register('logChannelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="">No configurado</option>
-              {channelOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+              <FieldShell label={t('dashboard.verification.flow.logs')}>
+                <select {...register('logChannelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="">{t('dashboard.verification.notConfigured')}</option>
+                  {channelOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </FieldShell>
 
-              <FieldShell label="Rol verificado" error={errors.verifiedRoleId?.message}>
-            <select {...register('verifiedRoleId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="">No configurado</option>
-              {roleOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+              <FieldShell label={t('dashboard.verification.flow.verifiedRole')} error={errors.verifiedRoleId?.message}>
+                <select {...register('verifiedRoleId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="">{t('dashboard.verification.notConfigured')}</option>
+                  {roleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </FieldShell>
 
-              <FieldShell label="Rol no verificado">
-            <select {...register('unverifiedRoleId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="">No configurado</option>
-              {roleOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+              <FieldShell label={t('dashboard.verification.flow.unverifiedRole')}>
+                <select {...register('unverifiedRoleId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="">{t('dashboard.verification.notConfigured')}</option>
+                  {roleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </FieldShell>
 
-              <FieldShell label="Modo">
-            <select {...register('mode')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="button">Boton</option>
-              <option value="code">Codigo</option>
-              <option value="question">Pregunta</option>
-            </select>
+              <FieldShell label={t('dashboard.verification.flow.mode.label')}>
+                <select {...register('mode')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
+                  <option value="button">{t('dashboard.verification.flow.mode.button')}</option>
+                  <option value="code">{t('dashboard.verification.flow.mode.code')}</option>
+                  <option value="question">{t('dashboard.verification.flow.mode.question')}</option>
+                </select>
               </FieldShell>
 
-              <FieldShell label="Autokick (horas)" hint="0 desactiva el retiro automatico.">
+              <FieldShell label={t('dashboard.verification.flow.autokick.label')} hint={t('dashboard.verification.flow.autokick.hint')}>
                 <input type="number" min={0} max={168} {...register('kickUnverifiedHours', { valueAsNumber: true })} className="dashboard-form-field" />
               </FieldShell>
             </div>
@@ -191,53 +193,53 @@ export default function VerificationModule({
         </div>
       </PanelCard>
 
-      <PanelCard title="Panel visual y antiraid" description="Textos, apariencia y reglas defensivas para que el acceso sea claro para miembros y seguro para el staff.">
+      <PanelCard title={t('dashboard.verification.visual.title')} description={t('dashboard.verification.visual.desc')}>
         <div className="space-y-6">
-          <FieldShell label="Titulo">
+          <FieldShell label={t('dashboard.verification.visual.titleLabel')}>
             <input {...register('panelTitle')} className="dashboard-form-field" />
           </FieldShell>
-          <FieldShell label="Descripcion">
+          <FieldShell label={t('dashboard.verification.visual.descLabel')}>
             <textarea {...register('panelDescription')} rows={4} className="dashboard-form-field" />
           </FieldShell>
           <div className="grid gap-5 md:grid-cols-2">
-            <FieldShell label="Color HEX" error={errors.panelColor?.message}>
+            <FieldShell label={t('dashboard.verification.visual.colorLabel')} error={errors.panelColor?.message}>
               <input {...register('panelColor')} className="dashboard-form-field" />
             </FieldShell>
-            <FieldShell label="Imagen">
+            <FieldShell label={t('dashboard.verification.visual.imageLabel')}>
               <input {...register('panelImage')} placeholder="https://..." className="dashboard-form-field" />
             </FieldShell>
           </div>
           {mode === 'question' ? (
             <div className="grid gap-5 md:grid-cols-2">
-              <FieldShell label="Pregunta" error={errors.question?.message}>
+              <FieldShell label={t('dashboard.verification.visual.questionLabel')} error={errors.question?.message}>
                 <input {...register('question')} className="dashboard-form-field" />
               </FieldShell>
-              <FieldShell label="Respuesta esperada" error={errors.questionAnswer?.message}>
+              <FieldShell label={t('dashboard.verification.visual.answerLabel')} error={errors.questionAnswer?.message}>
                 <input {...register('questionAnswer')} className="dashboard-form-field" />
               </FieldShell>
             </div>
           ) : null}
 
           <div className="grid gap-4 md:grid-cols-2">
-            <ToggleCard title="Antiraid" description="Controla joins anormales antes de verificar.">
+            <ToggleCard title={t('dashboard.verification.visual.antiraid.label')} description={t('dashboard.verification.visual.antiraid.desc')}>
               <input type="checkbox" {...register('antiraidEnabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
             </ToggleCard>
-            <ToggleCard title="DM al verificar" description="Confirma por mensaje directo cuando alguien completa el proceso.">
+            <ToggleCard title={t('dashboard.verification.visual.dm.label')} description={t('dashboard.verification.visual.dm.desc')}>
               <input type="checkbox" {...register('dmOnVerify')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
             </ToggleCard>
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Joins umbral</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">{t('dashboard.verification.visual.thresholds.joins')}</span>
               <input type="number" min={3} max={50} {...register('antiraidJoins', { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Ventana (seg)</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">{t('dashboard.verification.visual.thresholds.window')}</span>
               <input type="number" min={5} max={60} {...register('antiraidSeconds', { valueAsNumber: true })} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Accion</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">{t('dashboard.verification.visual.thresholds.action')}</span>
               <select {...register('antiraidAction')} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 dark:border-surface-600 dark:bg-surface-700">
                 <option value="pause">Pause</option>
                 <option value="kick">Kick</option>

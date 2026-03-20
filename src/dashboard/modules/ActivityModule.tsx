@@ -8,6 +8,7 @@ import {
   History,
   TimerReset,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import PanelCard from '../components/PanelCard';
 import StateCard from '../components/StateCard';
 import ModuleEmptyState from '../components/ModuleEmptyState';
@@ -66,55 +67,43 @@ function getSeverityStyles(severity: InsightTone) {
   }
 }
 
-function getSeverityLabel(severity: InsightTone) {
-  switch (severity) {
-    case 'success':
-      return 'Ok';
-    case 'warning':
-      return 'Atencion';
-    case 'danger':
-      return 'Critico';
-    case 'info':
-      return 'Info';
-    default:
-      return 'Neutral';
-  }
-}
-
-function getSourceLabel(source: ActivityFilter) {
-  switch (source) {
-    case 'event':
-      return 'Solo eventos';
-    case 'mutation':
-      return 'Solo mutaciones';
-    default:
-      return 'Todo';
-  }
-}
-
-function getSeverityFilterLabel(severity: SeverityFilter) {
-  switch (severity) {
-    case 'success':
-      return 'Ok';
-    case 'warning':
-      return 'Atencion';
-    case 'danger':
-      return 'Critico';
-    case 'info':
-      return 'Info';
-    case 'neutral':
-      return 'Neutral';
-    default:
-      return 'Todas';
-  }
-}
-
 export default function ActivityModule({
   guild,
   events,
   mutations,
   partialFailure,
 }: ActivityModuleProps) {
+  const { t } = useTranslation();
+
+  function getSeverityLabel(severity: InsightTone) {
+    switch (severity) {
+      case 'success': return t('dashboard.activity.filters.severity.success');
+      case 'warning': return t('dashboard.activity.filters.severity.warning');
+      case 'danger': return t('dashboard.activity.filters.severity.danger');
+      case 'info': return t('dashboard.activity.filters.severity.info');
+      default: return t('dashboard.activity.filters.severity.neutral');
+    }
+  }
+
+  function getSourceLabel(source: ActivityFilter) {
+    switch (source) {
+      case 'event': return t('dashboard.activity.filters.source.events');
+      case 'mutation': return t('dashboard.activity.filters.source.mutations');
+      default: return t('dashboard.activity.filters.source.all');
+    }
+  }
+
+  function getSeverityFilterLabel(severity: SeverityFilter) {
+    switch (severity) {
+      case 'success': return t('dashboard.activity.filters.severity.success');
+      case 'warning': return t('dashboard.activity.filters.severity.warning');
+      case 'danger': return t('dashboard.activity.filters.severity.danger');
+      case 'info': return t('dashboard.activity.filters.severity.info');
+      case 'neutral': return t('dashboard.activity.filters.severity.neutral');
+      default: return t('dashboard.activity.filters.severity.all');
+    }
+  }
+
   const [sourceFilter, setSourceFilter] = useState<ActivityFilter>('all');
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
 
@@ -135,8 +124,8 @@ export default function ActivityModule({
   if (!events.length && !mutations.length && partialFailure) {
     return (
       <StateCard
-        eyebrow="Actividad degradada"
-        title="La auditoria reciente no esta disponible por ahora"
+        eyebrow={t('dashboard.activity.states.degraded.eyebrow')}
+        title={t('dashboard.activity.states.degraded.title')}
         description={partialFailure.message}
         icon={AlertTriangle}
         tone="warning"
@@ -148,10 +137,10 @@ export default function ActivityModule({
     return (
       <ModuleEmptyState
         icon={Activity}
-        title="La bitacora esta limpia"
+        title={t('dashboard.activity.states.empty.title')}
         description={guild.botInstalled
-          ? 'Cuando solicites cambios, se procesen tickets o el bot publique eventos, aqui aparecera la linea de tiempo operativa.'
-          : 'Invita el bot a este servidor y realiza la primera configuracion para empezar a construir la auditoria.'}
+          ? t('dashboard.activity.states.empty.descInstalled')
+          : t('dashboard.activity.states.empty.descPending')}
       />
     );
   }
@@ -160,14 +149,14 @@ export default function ActivityModule({
     <div className="space-y-6">
       <DashboardDegradationNotice
         failures={partialFailure ? [partialFailure] : []}
-        title="La linea de tiempo esta operando con cobertura parcial"
+        title={t('dashboard.activity.degraded')}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.32fr)_minmax(21rem,0.8fr)]">
         <PanelCard
-          eyebrow="Timeline"
-          title="Actividad reciente del panel y del bot"
-          description="La linea de tiempo combina mutaciones de configuracion con eventos del sistema para que puedas seguir el estado del servidor de una sola pasada."
+          eyebrow={t('dashboard.activity.timeline.eyebrow')}
+          title={t('dashboard.activity.timeline.title')}
+          description={t('dashboard.activity.timeline.desc')}
           variant="highlight"
           actions={(
             <div className="flex flex-wrap gap-2">
@@ -180,7 +169,7 @@ export default function ActivityModule({
                 className="dashboard-secondary-button"
               >
                 <TimerReset className="h-4 w-4" />
-                Limpiar filtros
+                {t('dashboard.activity.timeline.clearFilters')}
               </button>
             </div>
           )}
@@ -265,7 +254,7 @@ export default function ActivityModule({
 
                         {relatedMutation ? (
                           <div className="mt-4 rounded-[1.1rem] border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-sm text-slate-700 dark:border-surface-600 dark:bg-surface-700/65 dark:text-slate-300">
-                            Payload: {summarizeMutationPayload(relatedMutation.requestedPayload)}
+                            {t('dashboard.activity.timeline.payload')}: {summarizeMutationPayload(relatedMutation.requestedPayload)}
                             {relatedMutation.errorMessage ? (
                               <p className="mt-2 text-rose-600 dark:text-rose-300">{relatedMutation.errorMessage}</p>
                             ) : null}
@@ -278,7 +267,7 @@ export default function ActivityModule({
               })
             ) : (
               <div className="dashboard-empty-state">
-                No hay elementos para la combinacion actual de filtros. Prueba con todas las fuentes o todas las severidades.
+                {t('dashboard.activity.timeline.empty')}
               </div>
             )}
           </div>
@@ -286,30 +275,30 @@ export default function ActivityModule({
 
         <div className="space-y-6">
           <PanelCard
-            eyebrow="Resumen"
-            title="Estado de la cola"
-            description="Lectura rapida para saber si la operacion esta tranquila o si hay que entrar a revisar."
+            eyebrow={t('dashboard.activity.summary.eyebrow')}
+            title={t('dashboard.activity.summary.title')}
+            description={t('dashboard.activity.summary.desc')}
             variant={failedMutations ? 'danger' : pendingMutations ? 'soft' : 'success'}
           >
             <div className="dashboard-grid-fit-compact">
               {[
                 {
-                  label: 'Mutaciones pendientes',
+                  label: t('dashboard.activity.summary.pending'),
                   value: String(pendingMutations),
                   icon: Clock3,
                 },
                 {
-                  label: 'Mutaciones fallidas',
+                  label: t('dashboard.activity.summary.failed'),
                   value: String(failedMutations),
                   icon: AlertTriangle,
                 },
                 {
-                  label: 'Eventos recientes',
+                  label: t('dashboard.activity.summary.events'),
                   value: String(events.length),
                   icon: History,
                 },
                 {
-                  label: 'Timeline visible',
+                  label: t('dashboard.activity.summary.visible'),
                   value: String(filteredTimeline.length),
                   icon: CheckCircle2,
                 },
@@ -326,28 +315,28 @@ export default function ActivityModule({
           </PanelCard>
 
           <PanelCard
-            eyebrow="Lectura"
-            title="Como interpretar esta actividad"
-            description="Pequenas guias para leer la timeline con menos friccion."
+            eyebrow={t('dashboard.activity.reading.eyebrow')}
+            title={t('dashboard.activity.reading.title')}
+            description={t('dashboard.activity.reading.desc')}
             variant="soft"
           >
             <div className="space-y-3">
               <div className="dashboard-action-note">
                 <Clock3 className="mt-0.5 h-4 w-4 flex-shrink-0" />
                 <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
-                  La timeline mezcla solicitudes de la dashboard con eventos confirmados por el sistema y los ordena por la fecha mas relevante.
+                  {t('dashboard.activity.reading.guide1')}
                 </p>
               </div>
               <div className="dashboard-action-note">
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                 <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
-                  Usa severidad critica o de atencion para encontrar rapido errores, atascos o cambios que aun esperan aplicacion.
+                  {t('dashboard.activity.reading.guide2')}
                 </p>
               </div>
               <div className="dashboard-action-note">
                 <Filter className="mt-0.5 h-4 w-4 flex-shrink-0" />
                 <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
-                  Si quieres ver solo lo que salio del admin panel, filtra por mutaciones. Si buscas confirmaciones del bridge, filtra por eventos.
+                  {t('dashboard.activity.reading.guide3')}
                 </p>
               </div>
             </div>

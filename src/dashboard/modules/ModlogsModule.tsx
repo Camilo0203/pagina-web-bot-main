@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { ShieldCheck } from 'lucide-react';
 import {
   ConfigFormActions,
@@ -46,6 +47,7 @@ export default function ModlogsModule({
   isSaving,
   onSave,
 }: ModlogsModuleProps) {
+  const { t } = useTranslation();
   const channelOptions = getChannelOptions(inventory, ['text', 'announcement', 'forum']);
 
   const {
@@ -67,16 +69,16 @@ export default function ModlogsModule({
   const validationErrors = flattenFormErrors(errors);
   const inventoryState = getInventoryState(inventory);
   const missingSelections = findMissingSelections(
-    [{ label: 'Canal de modlogs', value: config.modlogSettings.channelId }],
+    [{ label: t('dashboard.modlogs.validation.channel'), value: config.modlogSettings.channelId }],
     channelOptions,
   );
 
   if (!guild.botInstalled) {
     return (
       <StateCard
-        eyebrow="Onboarding"
-        title="Instala el bot para configurar modlogs"
-        description="Los eventos de moderacion dependen de que el bot pueda escuchar acciones reales dentro del servidor."
+        eyebrow={t('dashboard.modlogs.onboarding.eyebrow')}
+        title={t('dashboard.modlogs.onboarding.title')}
+        description={t('dashboard.modlogs.onboarding.desc')}
         icon={ShieldCheck}
         tone="warning"
       />
@@ -91,15 +93,15 @@ export default function ModlogsModule({
       className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]"
     >
       <PanelCard
-        eyebrow="Modlogs"
-        title="Canal de auditoria"
-        description="Deja una bitacora clara de moderacion para que el equipo pueda revisar que paso y cuando paso."
+        eyebrow={t('dashboard.modlogs.main.eyebrow')}
+        title={t('dashboard.modlogs.main.title')}
+        description={t('dashboard.modlogs.main.desc')}
         actions={(
           <ConfigFormActions
             isDirty={isDirty}
             isSaving={isSaving}
             onReset={() => reset(config.modlogSettings)}
-            saveLabel="Guardar modlogs"
+            saveLabel={t('dashboard.modlogs.main.save')}
           />
         )}
       >
@@ -108,27 +110,27 @@ export default function ModlogsModule({
           <ValidationSummary errors={[...validationErrors, ...missingSelections]} />
           {!inventoryState.hasInventory ? (
             <InventoryNotice
-              title="Inventario vacio"
-              message="No llegaron canales del servidor, asi que no podemos validar el destino real de los modlogs."
+              title={t('dashboard.modlogs.notices.emptyTitle')}
+              message={t('dashboard.modlogs.notices.emptyMessage')}
             />
           ) : null}
         </div>
 
         <div className="mt-8 space-y-5">
           <ToggleCard
-            title="Modlogs activos"
-            description="El bot escribira eventos de moderacion y cambios de miembros."
+            title={t('dashboard.modlogs.setup.enableLabel')}
+            description={t('dashboard.modlogs.setup.enableDesc')}
           >
             <input type="checkbox" {...register('enabled')} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
           </ToggleCard>
 
           <FieldShell
-            label="Canal"
-            hint="Canal central donde quedara la auditoria."
+            label={t('dashboard.modlogs.setup.channelLabel')}
+            hint={t('dashboard.modlogs.setup.channelHint')}
             error={errors.channelId?.message}
           >
             <select {...register('channelId')} disabled={!enabled} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-brand-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-surface-600 dark:bg-surface-700">
-              <option value="">No configurado</option>
+              <option value="">{t('dashboard.modlogs.notConfigured')}</option>
               {channelOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -137,20 +139,20 @@ export default function ModlogsModule({
         </div>
       </PanelCard>
 
-      <PanelCard title="Eventos registrados" description="Elige exactamente que acciones del servidor deben quedar guardadas en la bitacora.">
+      <PanelCard title={t('dashboard.modlogs.events.title')} description={t('dashboard.modlogs.events.desc')}>
         <div className="grid gap-4 md:grid-cols-2">
           {[
-            ['logBans', 'Baneos'],
-            ['logUnbans', 'Desbaneos'],
-            ['logKicks', 'Expulsiones'],
-            ['logMessageDelete', 'Mensajes eliminados'],
-            ['logMessageEdit', 'Mensajes editados'],
-            ['logRoleAdd', 'Roles agregados'],
-            ['logRoleRemove', 'Roles retirados'],
-            ['logNickname', 'Cambios de nickname'],
-            ['logJoins', 'Entradas'],
-            ['logLeaves', 'Salidas'],
-            ['logVoice', 'Eventos de voz'],
+            ['logBans', t('dashboard.modlogs.events.logBans')],
+            ['logUnbans', t('dashboard.modlogs.events.logUnbans')],
+            ['logKicks', t('dashboard.modlogs.events.logKicks')],
+            ['logMessageDelete', t('dashboard.modlogs.events.logMessageDelete')],
+            ['logMessageEdit', t('dashboard.modlogs.events.logMessageEdit')],
+            ['logRoleAdd', t('dashboard.modlogs.events.logRoleAdd')],
+            ['logRoleRemove', t('dashboard.modlogs.events.logRoleRemove')],
+            ['logNickname', t('dashboard.modlogs.events.logNickname')],
+            ['logJoins', t('dashboard.modlogs.events.logJoins')],
+            ['logLeaves', t('dashboard.modlogs.events.logLeaves')],
+            ['logVoice', t('dashboard.modlogs.events.logVoice')],
           ].map(([field, label]) => (
             <ToggleCard key={field} title={label}>
               <input type="checkbox" {...register(field as keyof ModlogSettings)} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
