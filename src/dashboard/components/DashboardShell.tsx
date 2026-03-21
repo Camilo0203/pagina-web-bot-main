@@ -216,10 +216,10 @@ function SidebarContent({
                     </div>
                     <div className="min-w-0">
                       <p className="text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-white/70">
-                        {group.label}
+                        {t(group.label)}
                       </p>
                       <p className="text-[0.78rem] leading-5 text-white/46">
-                        {group.description}
+                        {t(group.description)}
                       </p>
                     </div>
                   </div>
@@ -261,7 +261,7 @@ function SidebarContent({
                             <div className="min-w-0 flex-1 pr-1">
                               <div className="flex min-w-0 items-center gap-2">
                                 <p className="truncate text-[0.92rem] font-semibold tracking-[-0.02em] text-white">
-                                  {section.label}
+                                  {t(section.label)}
                                 </p>
                                 {state ? (
                                   <span className={`dashboard-status-pill-compact hidden px-2.5 py-1 text-[0.62rem] xl:inline-flex ${getSectionStatusClasses(state.status)}`}>
@@ -270,7 +270,7 @@ function SidebarContent({
                                 ) : null}
                               </div>
                               <p className="dashboard-sidebar-nav-copy mt-0.5 transition-colors group-hover:text-white/84">
-                                {state?.summary ?? section.description}
+                                {state?.summary ?? t(section.description)}
                               </p>
                               {state ? (
                                 <div className="mt-2 flex items-center gap-2">
@@ -308,9 +308,9 @@ function SidebarContent({
                           }}
                           className={`dashboard-sidebar-shortcut ${shortcutActive ? 'dashboard-sidebar-shortcut-active' : ''
                             }`}
-                          title={shortcut.description}
+                          title={t(shortcut.description)}
                         >
-                          {shortcut.label}
+                          {t(shortcut.label)}
                         </button>
                       );
                     })}

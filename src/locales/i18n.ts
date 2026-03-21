@@ -70,6 +70,7 @@ i18n.use(initReactI18next).init({
   nonExplicitSupportedLngs: true,
   load: 'languageOnly',
   cleanCode: true,
+  initImmediate: false,
   interpolation: {
     escapeValue: false,
   },

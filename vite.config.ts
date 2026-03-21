@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === 'production';
 
   return {
+    test: {
+      setupFiles: ['./src/test-setup.ts'],
+    },
     plugins: [
       react(),
       {

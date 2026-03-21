@@ -168,9 +168,9 @@ describe('getDashboardSectionStates', () => {
     const system = getState(states, 'system');
 
     expect(system.status).toBe('basic');
-    expect(system.messages).toContain('El bot todavia no esta instalado en este servidor.');
-    expect(system.messages).toContain('El bot esta conectado, pero la sincronizacion reporta errores.');
-    expect(system.messages).toContain('Todavia no existe un backup inicial.');
+    expect(system.messages).toContain('El bot todavía no está instalado en este servidor.');
+    expect(system.messages).toContain('El bot está conectado, pero la sincronización reporta errores.');
+    expect(system.messages).toContain('Todavía no existe un backup inicial.');
   });
 
   it('distingue sincronizacion healthy, degraded y error sin cambiar el contrato de estado', () => {
@@ -206,9 +206,9 @@ describe('getDashboardSectionStates', () => {
     expect(healthy.status).toBe('active');
     expect(healthy.messages).toEqual([]);
     expect(degraded.status).toBe('needs_attention');
-    expect(degraded.summary).toBe('La sincronizacion funciona, pero llega con retraso.');
+    expect(degraded.summary).toBe('La sincronización funciona, pero llega con retraso.');
     expect(errored.status).toBe('needs_attention');
-    expect(errored.summary).toBe('El bot esta conectado, pero la sincronizacion reporta errores.');
+    expect(errored.summary).toBe('El bot está conectado, pero la sincronización reporta errores.');
   });
 
   it('marca tickets y roles/canales como incompletos con mensajes accionables', () => {
@@ -235,14 +235,14 @@ describe('getDashboardSectionStates', () => {
     const roles = getState(states, 'server_roles');
     const tickets = getState(states, 'tickets');
 
-    expect(roles.messages).toContain('Falta elegir el canal donde se publicara el panel de tickets.');
-    expect(roles.messages).toContain('Aun no has seleccionado un rol de staff.');
+    expect(roles.messages).toContain('Falta elegir el canal donde se publicará el panel de tickets.');
+    expect(roles.messages).toContain('Aún no has seleccionado un rol de staff.');
     expect(roles.messages).toContain('Falta definir el rol administrador del bot.');
     expect(tickets.messages).toContain('Falta elegir el canal de tickets.');
-    expect(tickets.messages).toContain('Define un SLA base para saber cuando un ticket necesita seguimiento.');
-    expect(tickets.messages).toContain('La autoasignacion esta activa, pero todavia no existe un rol de staff base.');
-    expect(tickets.messages).toContain('El escalado de SLA esta activo pero no tiene rol ni canal de aviso.');
-    expect(tickets.messages).toContain('El reporte diario esta activo pero no tiene canal asignado.');
+    expect(tickets.messages).toContain('Define un SLA base para saber cuándo un ticket necesita seguimiento.');
+    expect(tickets.messages).toContain('La autoasignación está activa, pero todavía no existe un rol de staff base.');
+    expect(tickets.messages).toContain('El escalado de SLA está activo pero no tiene rol ni canal de aviso.');
+    expect(tickets.messages).toContain('El reporte diario está activo pero no tiene canal asignado.');
   });
 
   it('refleja verification, welcome y comandos invalidos con mensajes coherentes', () => {
@@ -281,15 +281,15 @@ describe('getDashboardSectionStates', () => {
     const commands = getState(states, 'commands');
     const general = getState(states, 'general');
 
-    expect(verification.messages).toContain('La verificacion esta activa pero no tiene canal asignado.');
-    expect(verification.messages).toContain('La verificacion necesita un rol para miembros verificados.');
-    expect(verification.messages).toContain('La verificacion por pregunta necesita una respuesta correcta.');
-    expect(welcome.messages).toContain('La bienvenida esta activa pero no tiene canal asignado.');
+    expect(verification.messages).toContain('La verificación está activa pero no tiene canal asignado.');
+    expect(verification.messages).toContain('La verificación necesita un rol para miembros verificados.');
+    expect(verification.messages).toContain('La verificación por pregunta necesita una respuesta correcta.');
+    expect(welcome.messages).toContain('La bienvenida está activa pero no tiene canal asignado.');
     expect(welcome.messages).toContain('Puedes completar la experiencia asignando un autorrol de entrada.');
-    expect(welcome.messages).toContain('La bienvenida ya publica mensajes, pero todavia no acompana al miembro con DM o autorrol.');
-    expect(commands.messages).toContain('Elegiste comandos por prefijo, pero aun no definiste el prefijo.');
+    expect(welcome.messages).toContain('La bienvenida ya publica mensajes, pero todavía no acompaña al miembro con DM o autorrol.');
+    expect(commands.messages).toContain('Elegiste comandos por prefijo, pero aún no definiste el prefijo.');
     expect(commands.messages).toContain('Falta elegir una zona horaria base para reportes y automatizaciones.');
-    expect(general.messages).toContain('Falta elegir la zona horaria principal del servidor.');
+    expect(general.messages).toContain('Falta elegir una zona horaria base para reportes y automatizaciones.');
   });
 
   it('usa los contadores de syncStatus para mutations fallidas y pendientes cuando existen', () => {
@@ -334,17 +334,17 @@ describe('getDashboardChecklist', () => {
     expect(getStep(checklist, 'select-server')).toMatchObject({
       complete: false,
       status: 'basic',
-      summary: 'El servidor ya fue elegido, pero el bot aun no esta dentro.',
+      summary: 'El servidor ya fue elegido, pero el bot aún no está dentro.',
     });
     expect(getStep(checklist, 'backup')).toMatchObject({
       complete: false,
       status: 'not_configured',
-      summary: 'Todavia no existe una copia segura inicial.',
+      summary: 'Todavía no existe una copia segura inicial.',
     });
     expect(getStep(checklist, 'sync')).toMatchObject({
       complete: false,
       status: 'basic',
-      summary: 'El bot todavia no esta instalado en este servidor.',
+      summary: 'El bot todavía no está instalado en este servidor.',
     });
   });
 
@@ -368,7 +368,7 @@ describe('getDashboardChecklist', () => {
 
     expect(memberExperience.sectionId).toBe('welcome');
     expect(memberExperience.status).toBe('active');
-    expect(memberExperience.summary).toBe('La bienvenida esta activa pero no tiene canal asignado.');
+    expect(memberExperience.summary).toBe('La bienvenida está activa pero no tiene canal asignado.');
   });
 
   it('mantiene completa la experiencia de miembros si verification ya esta activa aunque welcome siga pendiente', () => {
@@ -397,7 +397,7 @@ describe('getDashboardChecklist', () => {
 
     expect(memberExperience.complete).toBe(true);
     expect(memberExperience.status).toBe('active');
-    expect(memberExperience.summary).toBe('La bienvenida esta activa pero no tiene canal asignado.');
+    expect(memberExperience.summary).toBe('La bienvenida está activa pero no tiene canal asignado.');
   });
 
   it('mantiene backup y sync activos cuando ya existen backup y bridge healthy', () => {
@@ -483,7 +483,7 @@ describe('getDashboardQuickActions', () => {
     expect(actions).toContainEqual({
       id: 'review-sync',
       label: 'Revisar estado del bot',
-      description: 'El bot necesita revision antes de seguir aplicando cambios.',
+      description: 'El bot necesita revisión antes de seguir aplicando cambios.',
       sectionId: 'system',
       priority: 98,
     });
@@ -541,7 +541,7 @@ describe('getDashboardQuickActions', () => {
     expect(actions).toContainEqual({
       id: 'member-experience',
       label: 'Definir llegada de miembros',
-      description: 'Activa bienvenida o verificacion para que el acceso no quede improvisado.',
+      description: 'Activa bienvenida o verificación para que el acceso no quede improvisado.',
       sectionId: 'verification',
       priority: 88,
     });

@@ -111,61 +111,33 @@ export default function LandingPage() {
           <Hero />
           <Suspense fallback={<LoadingSkeleton />}>
             <Features />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <VisualExperience />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <ScreenshotGallery />
           </Suspense>
           <Suspense fallback={<LoadingSkeleton />}>
             <InteractiveDemo />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <WhyTon />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <ComparisonTable />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <Testimonials />
           </Suspense>
           <Suspense fallback={<LoadingSkeleton />}>
             <DocsSection />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <Integrations />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <LiveStats />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <CommandPreview />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <FAQ />
           </Suspense>
           <Suspense fallback={<LoadingSkeleton />}>
             <Pricing />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <Changelog />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <Roadmap />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
             <FinalCTA />
           </Suspense>
         </main>
 
         <Suspense fallback={null}>
           <LiveNotifications />
-        </Suspense>
-        <Suspense fallback={null}>
           <ScrollToTop />
-        </Suspense>
-        <Suspense fallback={null}>
           <StickyInviteCTA />
         </Suspense>
 

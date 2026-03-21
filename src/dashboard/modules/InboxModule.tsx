@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertTriangle,
@@ -30,7 +30,6 @@ import type {
   GuildSyncStatus,
   TicketDashboardActionId,
   TicketInboxItem,
-  TicketMacro,
   TicketWorkspaceSnapshot,
   TicketWorkflowStatus,
 } from '../types';
@@ -45,6 +44,24 @@ import {
   getTicketStatusLabel,
   getTicketWorkspaceSummary,
 } from '../utils';
+import type { ActionFeedback, AssignmentFilter, OpenStateFilter, PriorityFilter, SlaFilter } from './inbox/inboxTypes';
+import {
+  getActionLabel,
+  getAssignmentOptions,
+  getFeedbackClasses,
+  getMacroVisibilityLabel,
+  getOpenStateOptions,
+  getPriorityLabel,
+  getPriorityOptions,
+  getPriorityTone,
+  getSlaTone,
+  getSlaOptions,
+  getStatusTone,
+  getVisibilityLabel,
+  getWorkflowOptions,
+  priorityWeight,
+} from './inbox/inboxHelpers';
+import FilterField from './inbox/FilterField';
 
 interface InboxModuleProps {
   guild: DashboardGuild;
@@ -56,181 +73,10 @@ interface InboxModuleProps {
   partialFailures: DashboardPartialFailure[];
 }
 
-type OpenStateFilter = 'all' | 'open' | 'closed';
-type PriorityFilter = TicketInboxItem['priority'] | 'all';
-type SlaFilter = TicketInboxItem['slaState'] | 'all';
-type AssignmentFilter = 'all' | 'claimed' | 'unclaimed' | 'assigned' | 'unassigned';
-type ActionFeedbackTone = 'success' | 'error' | 'pending';
-
-interface ActionFeedback {
-  tone: ActionFeedbackTone;
-  message: string;
-  action: TicketDashboardActionId;
-  ticketId: string;
-}
-
-type T = ReturnType<typeof useTranslation>['t'];
-
-function getWorkflowOptions(t: T): Array<{ value: TicketWorkflowStatus; label: string }> {
-  return [
-    { value: 'new', label: t('dashboard.inbox.workflow.new') },
-    { value: 'triage', label: t('dashboard.inbox.workflow.triage') },
-    { value: 'waiting_staff', label: t('dashboard.inbox.workflow.waitingStaff') },
-    { value: 'waiting_user', label: t('dashboard.inbox.workflow.waitingUser') },
-    { value: 'escalated', label: t('dashboard.inbox.workflow.escalated') },
-    { value: 'resolved', label: t('dashboard.inbox.workflow.resolved') },
-    { value: 'closed', label: t('dashboard.inbox.workflow.closed') },
-  ];
-}
-
-function getOpenStateOptions(t: T): Array<{ value: OpenStateFilter; label: string }> {
-  return [
-    { value: 'all', label: t('dashboard.inbox.filters.all') },
-    { value: 'open', label: t('dashboard.inbox.filters.open') },
-    { value: 'closed', label: t('dashboard.inbox.filters.closed') },
-  ];
-}
-
-function getPriorityOptions(t: T): Array<{ value: PriorityFilter; label: string }> {
-  return [
-    { value: 'all', label: t('dashboard.inbox.filters.all') },
-    { value: 'urgent', label: t('dashboard.inbox.filters.urgent') },
-    { value: 'high', label: t('dashboard.inbox.filters.high') },
-    { value: 'normal', label: t('dashboard.inbox.filters.normal') },
-    { value: 'low', label: t('dashboard.inbox.filters.low') },
-  ];
-}
-
-function getSlaOptions(t: T): Array<{ value: SlaFilter; label: string }> {
-  return [
-    { value: 'all', label: t('dashboard.inbox.filters.all') },
-    { value: 'breached', label: t('dashboard.inbox.filters.breached') },
-    { value: 'warning', label: t('dashboard.inbox.filters.warning') },
-    { value: 'healthy', label: t('dashboard.inbox.filters.healthy') },
-    { value: 'paused', label: t('dashboard.inbox.filters.paused') },
-    { value: 'resolved', label: t('dashboard.inbox.filters.resolved') },
-  ];
-}
-
-function getAssignmentOptions(t: T): Array<{ value: AssignmentFilter; label: string }> {
-  return [
-    { value: 'all', label: t('dashboard.inbox.filters.allQueue') },
-    { value: 'unclaimed', label: t('dashboard.inbox.filters.unclaimed') },
-    { value: 'claimed', label: t('dashboard.inbox.filters.claimed') },
-    { value: 'unassigned', label: t('dashboard.inbox.filters.unassigned') },
-    { value: 'assigned', label: t('dashboard.inbox.filters.assigned') },
-  ];
-}
-
-function getStatusTone(status: TicketWorkflowStatus) {
-  if (status === 'escalated') return 'border-rose-300/60 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-200';
-  if (status === 'resolved' || status === 'closed') return 'border-emerald-300/60 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-200';
-  if (status === 'waiting_user') return 'border-sky-300/60 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/20 dark:text-sky-200';
-  if (status === 'waiting_staff') return 'border-amber-300/60 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-200';
-  return 'dashboard-neutral-pill';
-}
-
-function getSlaTone(state: TicketInboxItem['slaState']) {
-  if (state === 'breached') return 'border-rose-300/60 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-200';
-  if (state === 'warning') return 'border-amber-300/60 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-200';
-  if (state === 'resolved') return 'border-emerald-300/60 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-200';
-  if (state === 'paused') return 'border-slate-300/60 bg-slate-100 text-slate-700 dark:border-surface-600 dark:bg-surface-700 dark:text-slate-200';
-  return 'border-sky-300/60 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/20 dark:text-sky-200';
-}
-
-function getPriorityTone(priority: TicketInboxItem['priority']) {
-  if (priority === 'urgent') return 'border-rose-300/60 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-200';
-  if (priority === 'high') return 'border-orange-300/60 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/20 dark:text-orange-200';
-  if (priority === 'low') return 'border-slate-300/60 bg-slate-50 text-slate-700 dark:border-surface-600 dark:bg-surface-700 dark:text-slate-200';
-  return 'border-indigo-300/60 bg-indigo-50 text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/20 dark:text-indigo-200';
-}
-
-function getPriorityLabel(priority: TicketInboxItem['priority'], t: T) {
-  if (priority === 'urgent') return t('dashboard.inbox.filters.urgent');
-  if (priority === 'high') return t('dashboard.inbox.filters.high');
-  if (priority === 'low') return t('dashboard.inbox.filters.low');
-  return t('dashboard.inbox.filters.normal');
-}
-
-function getVisibilityLabel(visibility: string | null, t: T) {
-  if (visibility === 'internal') return t('dashboard.inbox.visibility.internal');
-  if (visibility === 'public') return t('dashboard.inbox.visibility.public');
-  return t('dashboard.inbox.visibility.system');
-}
-
-function priorityWeight(priority: TicketInboxItem['priority']) {
-  if (priority === 'urgent') return 4;
-  if (priority === 'high') return 3;
-  if (priority === 'normal') return 2;
-  return 1;
-}
-
-function getActionLabel(action: TicketDashboardActionId, t: T) {
-  switch (action) {
-    case 'claim':
-      return t('dashboard.inbox.actions.claim');
-    case 'unclaim':
-      return t('dashboard.inbox.actions.unclaim');
-    case 'assign_self':
-      return t('dashboard.inbox.actions.assignSelf');
-    case 'unassign':
-      return t('dashboard.inbox.actions.unassign');
-    case 'set_status':
-      return t('dashboard.inbox.actions.setStatus');
-    case 'close':
-      return t('dashboard.inbox.actions.close');
-    case 'reopen':
-      return t('dashboard.inbox.actions.reopen');
-    case 'add_note':
-      return t('dashboard.inbox.actions.addNote');
-    case 'add_tag':
-      return t('dashboard.inbox.actions.addTag');
-    case 'remove_tag':
-      return t('dashboard.inbox.actions.removeTag');
-    case 'reply_customer':
-      return t('dashboard.inbox.actions.replyCustomer');
-    case 'post_macro':
-      return t('dashboard.inbox.actions.postMacro');
-    case 'set_priority':
-      return t('dashboard.inbox.actions.setPriority');
-    default:
-      return t('dashboard.inbox.actions.fallback');
-  }
-}
-
-function getFeedbackClasses(tone: ActionFeedbackTone) {
-  if (tone === 'error') return 'dashboard-action-alert';
-  if (tone === 'success') return 'dashboard-action-success';
-  return 'dashboard-action-note';
-}
-
-function getFeedbackIcon(tone: ActionFeedbackTone) {
+function getFeedbackIcon(tone: ActionFeedback['tone']) {
   if (tone === 'error') return <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />;
   if (tone === 'success') return <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />;
   return <Clock3 className="mt-0.5 h-4 w-4 flex-shrink-0" />;
-}
-
-function FilterField({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  children: ReactNode;
-}) {
-  return (
-    <label htmlFor={htmlFor} className="grid gap-2">
-      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function getMacroVisibilityLabel(macro: TicketMacro, t: T) {
-  return macro.visibility === 'internal' ? t('dashboard.inbox.detail.ops.macroInternal') : t('dashboard.inbox.detail.ops.macroPublic');
 }
 
 export default function InboxModule({
