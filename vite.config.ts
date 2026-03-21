@@ -73,14 +73,26 @@ ${siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml` : '# Set VITE_SITE_URL to emit the
       drop: isProd ? ['console', 'debugger'] : [],
     },
     optimizeDeps: {
-      exclude: ['lucide-react'],
+      include: ['lucide-react'],
     },
     build: {
       chunkSizeWarningLimit: 1000,
+      sourcemap: isProd ? false : true,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: isProd,
+          drop_debugger: isProd,
+          pure_funcs: isProd ? ['console.log', 'console.info', 'console.debug'] : [],
+        },
+      },
       rollupOptions: {
         output: {
           manualChunks(id) {
             if (!id.includes('node_modules')) {
+              if (id.includes('src/dashboard/')) {
+                return 'dashboard-app';
+              }
               return undefined;
             }
 
@@ -115,11 +127,31 @@ ${siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml` : '# Set VITE_SITE_URL to emit the
             }
 
             if (id.includes('lucide-react')) {
-              return 'ui-vendor';
+              if (id.includes('/esm/icons/')) {
+                return 'icons-vendor';
+              }
+              return 'lucide-core';
+            }
+
+            if (id.includes('@sentry')) {
+              return 'sentry-vendor';
             }
 
             return 'vendor';
           },
+          assetFileNames: (assetInfo) => {
+            const info = assetInfo.name?.split('.');
+            const ext = info?.[info.length - 1];
+            if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(ext || '')) {
+              return `assets/images/[name]-[hash][extname]`;
+            }
+            if (/woff2?|ttf|otf|eot/i.test(ext || '')) {
+              return `assets/fonts/[name]-[hash][extname]`;
+            }
+            return `assets/[name]-[hash][extname]`;
+          },
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js',
         },
       },
     },

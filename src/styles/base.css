@@ -1,0 +1,56 @@
+/* Base styles - Variables, fonts, and global resets */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+@layer base {
+  :root {
+    /* Color palette */
+    --color-bg-deep:      #010103;
+    --color-bg-base:      #05060f;
+    --color-bg-surface:   #0a0c1a;
+    --color-bg-elevated:  #0f1229;
+    
+    --color-primary:      #4f46e5;
+    --color-secondary:    #8b5cf6;
+    --color-accent:       #22d3ee;
+    
+    --color-text-main:    #f8fafc;
+    --color-text-dim:     #64748b;
+    --color-text-ghost:   #334155;
+    
+    /* Typography */
+    --font-heading:       'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono:          'JetBrains Mono', monospace;
+  }
+
+  * {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  html {
+    font-family: var(--font-heading);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-slate-950 text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+}

@@ -6,6 +6,8 @@ import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Footer from '../components/Footer';
 import LegalModal from '../components/LegalModal';
+import ScrollProgress from '../components/ScrollProgress';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 import { config, getAbsoluteAssetUrl, getCanonicalUrl } from '../config';
 
 const Features = lazy(() => import('../components/Features'));
@@ -85,6 +87,8 @@ export default function LandingPage() {
         <div className="scanline-sweep absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
       </div>
 
+      <ScrollProgress />
+      
       <div className="relative z-10">
         <header>
           <Navbar />
@@ -92,12 +96,22 @@ export default function LandingPage() {
 
         <main id="main-content" className="relative">
           <Hero />
-          <Suspense fallback={<div className="h-64 w-full animate-pulse bg-transparent"></div>}>
+          <Suspense fallback={<LoadingSkeleton />}>
             <Features />
+          </Suspense>
+          <Suspense fallback={<LoadingSkeleton />}>
             <VisualExperience />
+          </Suspense>
+          <Suspense fallback={<LoadingSkeleton />}>
             <WhyTon />
+          </Suspense>
+          <Suspense fallback={<LoadingSkeleton />}>
             <DocsSection />
+          </Suspense>
+          <Suspense fallback={<LoadingSkeleton />}>
             <LiveStats />
+          </Suspense>
+          <Suspense fallback={<LoadingSkeleton />}>
             <FinalCTA />
           </Suspense>
         </main>

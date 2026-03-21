@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import Logo from './components/Logo';
 import LandingPage from './pages/LandingPage';
 
@@ -13,13 +14,40 @@ function AppLoadingFallback() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
-      <div className="flex flex-col items-center gap-4 rounded-[2rem] border border-white/10 bg-white/5 px-8 py-10 backdrop-blur-xl">
-        <Logo size="lg" withText={false} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center gap-4 rounded-[2rem] border border-white/10 bg-white/5 px-8 py-10 backdrop-blur-xl"
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          <Logo size="lg" withText={false} />
+        </motion.div>
         <div className="text-center">
           <p className="text-lg font-semibold">{t('app.loadingTitle')}</p>
           <p className="text-sm text-slate-300">{t('app.loadingDescription')}</p>
         </div>
-      </div>
+        <div className="flex gap-1">
+          <motion.div
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+            className="h-2 w-2 rounded-full bg-indigo-500"
+          />
+          <motion.div
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+            className="h-2 w-2 rounded-full bg-indigo-500"
+          />
+          <motion.div
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+            className="h-2 w-2 rounded-full bg-indigo-500"
+          />
+        </div>
+      </motion.div>
     </div>
   );
 }

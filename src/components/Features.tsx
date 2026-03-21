@@ -1,8 +1,9 @@
 import { Shield, Zap, Cpu, BarChart3, Lock, Globe, Layers, Radio } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
+import { staggerContainer, staggerItem, instantReveal } from '../lib/animations';
 
 interface Feature {
   icon: LucideIcon;
@@ -13,15 +14,7 @@ interface Feature {
 
 interface FeatureCardProps {
   feature: Feature;
-  variants: {
-    hidden: { opacity: number; scale: number; y: number };
-    visible: {
-      opacity: number;
-      scale: number;
-      y: number;
-      transition: { duration: number; ease: 'easeOut' };
-    };
-  };
+  variants: Variants;
 }
 
 const FeatureCard = memo(({ feature, variants }: FeatureCardProps) => {
@@ -72,26 +65,8 @@ export default function Features() {
     t('features.useCases.support'),
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.05,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.98, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' },
-    } as const,
-  };
+  const containerVariants = shouldReduceMotion ? instantReveal : staggerContainer;
+  const itemVariants = shouldReduceMotion ? instantReveal : staggerItem;
 
   return (
     <section id="features" aria-labelledby="features-heading" className="relative overflow-hidden bg-black/50 pb-28 pt-12 md:pt-16">
@@ -103,7 +78,7 @@ export default function Features() {
           <div className="max-w-3xl">
             <motion.div initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="mb-8 flex items-center gap-4">
               <div className="h-px w-8 bg-indigo-500/30"></div>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">{t('features.tag')}</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-indigo-400">{t('features.tag')}</span>
             </motion.div>
 
             <motion.h2
@@ -144,8 +119,8 @@ export default function Features() {
 
         <motion.div
           variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
+          initial="initial"
+          whileInView="animate"
           viewport={{ once: true, margin: '-50px' }}
           className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
         >

@@ -37,13 +37,10 @@ export default function VisualExperience() {
             WebkitMaskImage: 'radial-gradient(circle at center, transparent 0%, transparent 14%, black 50%, transparent 90%)',
           }}
         >
-          {shouldLoadVideo && !shouldReduceMotion ? (
-            <video autoPlay muted loop playsInline preload="none" poster="/cosmic-poster.jpg" aria-hidden="true" className="h-full w-full scale-110 object-cover">
-              <source src="/videos/cosmic-haze.mp4" type="video/mp4" />
-            </video>
-          ) : (
-            <img src="/cosmic-poster.jpg" alt="" aria-hidden="true" className="h-full w-full scale-110 object-cover" />
-          )}
+          <video autoPlay muted loop playsInline preload="auto" poster="/cosmic-poster.jpg" aria-hidden="true" className="h-full w-full scale-110 object-cover">
+            <source src="/videos/cosmic-haze.webm" type="video/webm" />
+            <source src="/videos/cosmic-haze.mp4" type="video/mp4" />
+          </video>
         </div>
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(2,4,10,0.12)_0%,rgba(2,4,10,0.18)_40%,rgba(0,0,0,0.72)_100%)]" />
@@ -75,13 +72,13 @@ export default function VisualExperience() {
 
           <div className="grid gap-4">
             <motion.article initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="tech-card">
-              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300">{t('experience.card1Eyebrow')}</p>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.1em] text-cyan-300">{t('experience.card1Eyebrow')}</p>
               <h3 className="mb-3 text-xl font-bold text-white">{t('experience.card1Title')}</h3>
               <p className="text-sm leading-relaxed text-slate-400">{t('experience.card1Desc')}</p>
             </motion.article>
 
             <motion.article initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="tech-card">
-              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300">{t('experience.card2Eyebrow')}</p>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.1em] text-indigo-300">{t('experience.card2Eyebrow')}</p>
               <h3 className="mb-3 text-xl font-bold text-white">{t('experience.card2Title')}</h3>
               <p className="text-sm leading-relaxed text-slate-400">{t('experience.card2Desc')}</p>
             </motion.article>
