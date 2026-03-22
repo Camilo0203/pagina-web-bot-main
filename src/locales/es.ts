@@ -386,6 +386,31 @@ export const es = {
                 syncTimeout:
                     'La sincronización inicial de servidores tardó demasiado ({{seconds}}s). Revisa la función sync-discord-guilds, la red y el estado de Supabase.',
             },
+            accessStage: {
+                progressLabel: 'Progreso del callback',
+                steps: {
+                    secureSession: 'Sesion segura',
+                    exchangeOauth: 'Intercambio OAuth',
+                    syncGuilds: 'Sync de guilds',
+                    redirect: 'Redireccion al dashboard',
+                },
+                states: {
+                    exchanging: 'Cerrando el handoff seguro con Discord y Supabase',
+                    syncing: 'Resolviendo servidores administrables antes de abrir el panel',
+                    redirecting: 'Manteniendo el contexto antes de entrar al dashboard',
+                    error: 'Hace falta una accion para terminar el acceso seguro',
+                },
+                descriptions: {
+                    exchanging:
+                        'Estamos cerrando el retorno de Discord OAuth y estableciendo la sesion segura del dashboard antes de mostrar datos del panel.',
+                    syncing:
+                        'La sesion ya es valida. Ahora resolvemos servidores administrables para que el dashboard abra con contexto real y no con suposiciones.',
+                    redirecting:
+                        'El acceso ya esta listo. Conservamos el servidor solicitado antes de soltarte en el shell del dashboard.',
+                    error:
+                        'Este callback guardo su estado de ejecucion para que puedas reintentar sin empezar todo el flujo desde cero.',
+                },
+            },
         },
         dashboard: {
             pageTitle: 'Dashboard',
@@ -655,6 +680,32 @@ export const es = {
                 authValidation: 'No se pudo validar la sesión del dashboard.',
                 guildsLoad: 'Intenta sincronizar otra vez o revisa la configuración de Supabase.',
                 snapshotLoad: 'Revisa tablas, políticas RLS y el bridge del bot.',
+            },
+            accessStage: {
+                progressLabel: 'Progreso de acceso',
+                steps: {
+                    validateSession: 'Validar sesion segura',
+                    resolveGuilds: 'Resolver acceso a servidores',
+                },
+                states: {
+                    authLoading: 'Revisando sesion, permisos y contexto base',
+                    authError: 'La validacion segura se detuvo antes de abrir el shell de control',
+                    guildsLoading: 'Resolviendo servidores administrables y contexto operativo inicial',
+                    guildsError: 'La sesion esta lista, pero no pudimos resolver el acceso a servidores',
+                    emptyGuilds: 'La cuenta esta autenticada, pero todavia no hay guilds administrables',
+                },
+                descriptions: {
+                    authLoading:
+                        'Estamos cerrando la capa de acceso seguro antes de mostrar el shell del dashboard. No se aplica ningun cambio de configuracion durante esta verificacion.',
+                    authError:
+                        'La entrada segura no pudo completarse. Puedes revalidar la sesion o reiniciar con Discord sin perder el contexto del dashboard.',
+                    guildsLoading:
+                        'La sesion ya es valida. Ahora resolvemos que servidores puedes administrar para que el dashboard abra con contexto real desde el primer frame.',
+                    guildsError:
+                        'La autenticacion existe, pero no pudimos resolver servidores administrables. Reintenta la carga o fuerza una nueva sincronizacion del acceso.',
+                    emptyGuilds:
+                        'La validacion termino, pero Discord no devolvio guilds administrables para esta cuenta. Re-sincroniza el acceso o cambia de cuenta para continuar.',
+                },
             },
             states: {
                 authLoading: {

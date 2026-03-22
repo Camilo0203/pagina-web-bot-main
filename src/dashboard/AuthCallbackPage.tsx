@@ -2,12 +2,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertOctagon, ArrowRight, CheckCircle2, Loader2, RotateCcw } from 'lucide-react';
+import { AlertOctagon, ArrowRight, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { config } from '../config';
-import Logo from '../components/Logo';
+import DashboardAccessStage, {
+  DashboardAccessStatusPill,
+  type DashboardAccessProgressStep,
+} from './components/DashboardAccessStage';
 import {
   CALLBACK_REDIRECT_DELAY_MS,
+  type CallbackPhase,
   type CallbackViewState,
   getOrCreateExecution,
   normalizeAuthError,
@@ -18,6 +22,61 @@ import {
   updateExecutionState,
 } from './authCallbackFlow';
 import { useDashboardDarkMode } from './hooks/useDashboardDarkMode';
+import { useMinimumDisplayState } from './hooks/useMinimumDisplayState';
+
+const CALLBACK_STAGE_MIN_MS = 450;
+
+function shouldDelayCallbackStage(phase: CallbackPhase) {
+  return phase !== 'error';
+}
+
+function getCallbackProgressSteps(
+  viewState: CallbackViewState,
+  t: ReturnType<typeof useTranslation>['t'],
+): DashboardAccessProgressStep[] {
+  if (viewState.phase === 'error') {
+    if (viewState.canRetrySync) {
+      return [
+        { label: t('dashboardAuth.accessStage.steps.secureSession'), state: 'complete' },
+        { label: t('dashboardAuth.accessStage.steps.exchangeOauth'), state: 'complete' },
+        { label: t('dashboardAuth.accessStage.steps.syncGuilds'), state: 'error' },
+        { label: t('dashboardAuth.accessStage.steps.redirect'), state: 'pending' },
+      ];
+    }
+
+    return [
+      { label: t('dashboardAuth.accessStage.steps.secureSession'), state: 'error' },
+      { label: t('dashboardAuth.accessStage.steps.exchangeOauth'), state: 'pending' },
+      { label: t('dashboardAuth.accessStage.steps.syncGuilds'), state: 'pending' },
+      { label: t('dashboardAuth.accessStage.steps.redirect'), state: 'pending' },
+    ];
+  }
+
+  if (viewState.phase === 'redirecting') {
+    return [
+      { label: t('dashboardAuth.accessStage.steps.secureSession'), state: 'complete' },
+      { label: t('dashboardAuth.accessStage.steps.exchangeOauth'), state: 'complete' },
+      { label: t('dashboardAuth.accessStage.steps.syncGuilds'), state: 'complete' },
+      { label: t('dashboardAuth.accessStage.steps.redirect'), state: 'active' },
+    ];
+  }
+
+  if (viewState.phase === 'syncing') {
+    return [
+      { label: t('dashboardAuth.accessStage.steps.secureSession'), state: 'complete' },
+      { label: t('dashboardAuth.accessStage.steps.exchangeOauth'), state: 'complete' },
+      { label: t('dashboardAuth.accessStage.steps.syncGuilds'), state: 'active' },
+      { label: t('dashboardAuth.accessStage.steps.redirect'), state: 'pending' },
+    ];
+  }
+
+  return [
+    { label: t('dashboardAuth.accessStage.steps.secureSession'), state: 'active' },
+    { label: t('dashboardAuth.accessStage.steps.exchangeOauth'), state: 'active' },
+    { label: t('dashboardAuth.accessStage.steps.syncGuilds'), state: 'pending' },
+    { label: t('dashboardAuth.accessStage.steps.redirect'), state: 'pending' },
+  ];
+}
 
 export default function AuthCallbackPage() {
   useDashboardDarkMode();
@@ -83,71 +142,81 @@ export default function AuthCallbackPage() {
     });
   }
 
+  const displayViewState = useMinimumDisplayState({
+    value: viewState,
+    getKey: (state) => state.phase,
+    minimumMs: CALLBACK_STAGE_MIN_MS,
+    shouldDelay: shouldDelayCallbackStage,
+  });
+  const isErrorState = Boolean(displayViewState.errorMessage);
+  const isRedirecting = displayViewState.phase === 'redirecting';
+  const stageVariant = isErrorState ? 'error' : displayViewState.isCompleted ? 'success' : 'loading';
+  const callbackProgressSteps = getCallbackProgressSteps(displayViewState, t);
+  const stageEyebrow = isErrorState
+    ? t('dashboardAuth.errorEyebrow')
+    : isRedirecting
+      ? t('dashboardAuth.successEyebrowRedirecting')
+      : t('dashboardAuth.successEyebrowLoading');
+  const stageStatusText = isErrorState
+    ? displayViewState.errorMessage
+    : displayViewState.statusText;
+  const stageDescription = isErrorState
+    ? t('dashboardAuth.accessStage.descriptions.error')
+    : isRedirecting
+      ? t('dashboardAuth.accessStage.descriptions.redirecting')
+      : displayViewState.phase === 'syncing'
+        ? t('dashboardAuth.accessStage.descriptions.syncing')
+        : t('dashboardAuth.accessStage.descriptions.exchanging');
+  const stageProgressDescription = isErrorState
+    ? t('dashboardAuth.accessStage.states.error')
+    : isRedirecting
+      ? t('dashboardAuth.accessStage.states.redirecting')
+      : displayViewState.phase === 'syncing'
+        ? t('dashboardAuth.accessStage.states.syncing')
+        : t('dashboardAuth.accessStage.states.exchanging');
+
   return (
     <main className="dashboard-shell flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6">
       <Helmet>
         <title>{dashboardBrandLabel} | {t('dashboardAuth.pageTitle')}</title>
       </Helmet>
-      <div className="dashboard-surface relative w-full max-w-xl overflow-hidden p-6 sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(88,101,242,0.12),transparent_28%)]" />
-        <div className="relative z-[1] flex flex-col gap-4 sm:flex-row sm:items-center">
-          <Logo size="lg" subtitle={config.botName} />
-          <div>
-            <p className="dashboard-panel-label">{t('dashboardAuth.oauthLabel')}</p>
-            <h1 className="text-3xl font-bold tracking-[-0.04em] text-white">{t('dashboardAuth.pageHeading', { name: dashboardBrandLabel })}</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              {t('dashboardAuth.pageDescription')}
-            </p>
-          </div>
-        </div>
-
-        {viewState.errorMessage ? (
-          <div className="dashboard-inline-notice-danger relative z-[1] mt-8 rounded-[1.75rem] p-5 sm:p-6">
-            <div className="flex items-start gap-3">
-              <AlertOctagon className="mt-0.5 h-5 w-5" />
-              <div className="w-full">
-                <p className="text-sm font-semibold uppercase tracking-[0.18em]">{t('dashboardAuth.errorEyebrow')}</p>
-                <p className="mt-2 text-lg font-semibold">{t('dashboardAuth.errorTitle')}</p>
-                <p className="mt-2 text-sm leading-relaxed text-current/80">{viewState.errorMessage}</p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  {viewState.canRetrySync ? (
-                    <button type="button" onClick={handleRetrySync} className="dashboard-primary-button">
-                      <RotateCcw className="h-4 w-4" />
-                      {t('dashboardAuth.retrySync')}
-                    </button>
-                  ) : null}
-                  {viewState.canRestartLogin ? (
-                    <button type="button" onClick={handleRestartLogin} className="dashboard-secondary-button">
-                      {t('dashboardAuth.restartLogin')}
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="dashboard-header-info-card relative z-[1] mt-8 rounded-[1.75rem] p-5 sm:p-6">
-            <div className="flex items-start gap-3">
-              {viewState.isCompleted ? (
-                <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-500" />
-              ) : (
-                <Loader2 className="mt-0.5 h-5 w-5 animate-spin text-brand-500" />
-              )}
-              <div className="w-full">
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  {viewState.phase === 'redirecting' ? t('dashboardAuth.successEyebrowRedirecting') : t('dashboardAuth.successEyebrowLoading')}
-                </p>
-                <p className="mt-2 text-lg font-semibold text-white">{viewState.statusText}</p>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  {viewState.phase === 'syncing'
-                    ? t('dashboardAuth.syncingDescription')
-                    : t('dashboardAuth.holdingContextDescription')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="mx-auto w-full max-w-[76rem]">
+        <DashboardAccessStage
+          key={`${displayViewState.phase}-${isErrorState ? 'error' : 'flow'}`}
+          variant={stageVariant}
+          eyebrow={stageEyebrow}
+          title={t('dashboardAuth.pageHeading', { name: dashboardBrandLabel })}
+          description={stageDescription}
+          statusText={stageStatusText}
+          progressLabel={t('dashboardAuth.accessStage.progressLabel')}
+          progressDescription={stageProgressDescription}
+          progressSteps={callbackProgressSteps}
+          statusPill={(
+            <DashboardAccessStatusPill
+              label={stageEyebrow}
+              tone={isErrorState ? 'danger' : isRedirecting ? 'success' : 'brand'}
+              icon={isErrorState ? AlertOctagon : undefined}
+            />
+          )}
+          actions={isErrorState ? (
+            <>
+              {displayViewState.canRetrySync ? (
+                <button type="button" onClick={handleRetrySync} className="dashboard-primary-button">
+                  <RotateCcw className="h-4 w-4" />
+                  {t('dashboardAuth.retrySync')}
+                </button>
+              ) : null}
+              {displayViewState.canRestartLogin ? (
+                <button type="button" onClick={handleRestartLogin} className="dashboard-secondary-button">
+                  {t('dashboardAuth.restartLogin')}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : null}
+            </>
+          ) : undefined}
+          icon={isErrorState ? AlertOctagon : undefined}
+          brandLabel={dashboardBrandLabel}
+        />
       </div>
     </main>
   );

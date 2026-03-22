@@ -1,15 +1,12 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, Zap, BookOpen, LifeBuoy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { config, getDashboardUrl, getDiscordInviteUrl } from '../config';
 import Logo from './Logo';
-import { useHeavyMedia } from '../hooks/useHeavyMedia';
 
 export default function FinalCTA() {
   const { t } = useTranslation();
-  const shouldReduceMotion = useReducedMotion();
-  const shouldLoadVideo = useHeavyMedia(Boolean(shouldReduceMotion));
   const inviteUrl = getDiscordInviteUrl();
   const dashboardUrl = getDashboardUrl();
   const canInvite = Boolean(inviteUrl);

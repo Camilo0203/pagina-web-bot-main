@@ -3,10 +3,10 @@ import { initReactI18next } from 'react-i18next';
 import { en } from './en';
 import { es } from './es';
 
-const resources = {
+export const resources = {
   en,
   es,
-};
+} as const;
 
 function normalizeLanguageCode(language?: string): string {
   return language?.toLowerCase().startsWith('es') ? 'es' : 'en';
@@ -64,6 +64,8 @@ const savedLanguage =
 
 i18n.use(initReactI18next).init({
   resources,
+  defaultNS: 'translation',
+  ns: ['translation'],
   lng: savedLanguage,
   fallbackLng: 'en',
   supportedLngs: ['en', 'es'],

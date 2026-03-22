@@ -1,13 +1,16 @@
 import { Helmet } from 'react-helmet-async';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AlertTriangle, RefreshCcw, ServerCrash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { config } from '../config';
 import AuthCard from './components/AuthCard';
+import DashboardAccessStage, {
+  DashboardAccessStatusPill,
+  type DashboardAccessProgressStep,
+} from './components/DashboardAccessStage';
 import DashboardModuleViewport from './components/DashboardModuleViewport';
 import DashboardShell from './components/DashboardShell';
-import StateCard from './components/StateCard';
 import ErrorBoundary from './components/ErrorBoundary';
 import {
   useDashboardAuth,
@@ -23,8 +26,24 @@ import {
 import { usePersistentDashboardSection } from './hooks/usePersistentDashboardSection';
 import { useGuildSelection } from './hooks/useGuildSelection';
 import { useDashboardDarkMode } from './hooks/useDashboardDarkMode';
+import { useMinimumDisplayState } from './hooks/useMinimumDisplayState';
 import { getDashboardSectionStates } from './utils';
 import type { ConfigMutationSectionId } from './types';
+
+type DashboardEntryStage =
+  | 'auth-loading'
+  | 'auth-error'
+  | 'login'
+  | 'guilds-loading'
+  | 'guilds-error'
+  | 'empty-guilds'
+  | 'shell';
+
+const DASHBOARD_ENTRY_STAGE_MIN_MS = 700;
+
+function shouldDelayDashboardEntryStage(stage: DashboardEntryStage) {
+  return stage === 'auth-loading' || stage === 'guilds-loading';
+}
 
 export default function DashboardPage() {
   useDashboardDarkMode();
@@ -105,234 +124,358 @@ export default function DashboardPage() {
     snapshotQuery.error instanceof Error
       ? snapshotQuery.error.message
       : t('dashboard.errors.snapshotLoad');
+  const dashboardBrandLabel = `${config.botName} Dashboard`;
+  const accessProgressLabel = t('dashboard.accessStage.progressLabel');
+  const authLoadingSteps: DashboardAccessProgressStep[] = [
+    { label: t('dashboard.accessStage.steps.validateSession'), state: 'active' },
+    { label: t('dashboard.accessStage.steps.resolveGuilds'), state: 'pending' },
+  ];
+  const authErrorSteps: DashboardAccessProgressStep[] = [
+    { label: t('dashboard.accessStage.steps.validateSession'), state: 'error' },
+    { label: t('dashboard.accessStage.steps.resolveGuilds'), state: 'pending' },
+  ];
+  const guildsLoadingSteps: DashboardAccessProgressStep[] = [
+    { label: t('dashboard.accessStage.steps.validateSession'), state: 'complete' },
+    { label: t('dashboard.accessStage.steps.resolveGuilds'), state: 'active' },
+  ];
+  const guildsErrorSteps: DashboardAccessProgressStep[] = [
+    { label: t('dashboard.accessStage.steps.validateSession'), state: 'complete' },
+    { label: t('dashboard.accessStage.steps.resolveGuilds'), state: 'error' },
+  ];
+  const emptyGuildsSteps: DashboardAccessProgressStep[] = [
+    { label: t('dashboard.accessStage.steps.validateSession'), state: 'complete' },
+    { label: t('dashboard.accessStage.steps.resolveGuilds'), state: 'error' },
+  ];
+  const actualEntryStage: DashboardEntryStage = authQuery.isLoading
+    ? 'auth-loading'
+    : authQuery.isError
+      ? 'auth-error'
+      : !isAuthenticated
+        ? 'login'
+        : guildsQuery.isLoading
+          ? 'guilds-loading'
+          : guildsQuery.isError
+            ? 'guilds-error'
+            : !guilds.length
+              ? 'empty-guilds'
+              : 'shell';
+  const displayEntryStage = useMinimumDisplayState({
+    value: actualEntryStage,
+    getKey: (stage) => stage,
+    minimumMs: DASHBOARD_ENTRY_STAGE_MIN_MS,
+    shouldDelay: shouldDelayDashboardEntryStage,
+  });
+  const resolvedEntryStage = (
+    actualEntryStage === 'auth-error'
+    || actualEntryStage === 'guilds-error'
+    || actualEntryStage === 'login'
+    || actualEntryStage === 'empty-guilds'
+  )
+    ? actualEntryStage
+    : displayEntryStage;
 
   useEffect(() => {
     setConfigSaveError(null);
   }, [selectedGuildId]);
 
+  const pageHelmet = (
+    <Helmet>
+      <title>{config.botName} | {t('dashboard.pageTitle')} | {titleGuildName}</title>
+      <meta
+        name="description"
+        content={t('dashboard.metaDescription')}
+      />
+    </Helmet>
+  );
+
+  function renderEntryStage(stage: ReactNode, maxWidthClass = 'max-w-[76rem]') {
+    return (
+      <>
+        {pageHelmet}
+        <div className="dashboard-shell flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6">
+          <div className={`mx-auto w-full ${maxWidthClass}`}>
+            {stage}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (resolvedEntryStage === 'auth-loading') {
+    return renderEntryStage(
+      <DashboardAccessStage
+        key="auth-loading"
+        variant="loading"
+        eyebrow={t('dashboard.states.authLoading.eyebrow')}
+        title={t('dashboard.states.authLoading.title')}
+        description={t('dashboard.accessStage.descriptions.authLoading')}
+        statusText={t('dashboard.accessStage.states.authLoading')}
+        progressLabel={accessProgressLabel}
+        progressDescription={t('dashboard.states.authLoading.description')}
+        progressSteps={authLoadingSteps}
+        statusPill={(
+          <DashboardAccessStatusPill
+            label={t('dashboard.states.authLoading.pill')}
+            tone="brand"
+            icon={RefreshCcw}
+            spin
+          />
+        )}
+        brandLabel={dashboardBrandLabel}
+      />,
+    );
+  }
+
+  if (resolvedEntryStage === 'auth-error') {
+    return renderEntryStage(
+      <DashboardAccessStage
+        key="auth-error"
+        variant="error"
+        eyebrow={t('dashboard.states.authError.eyebrow')}
+        title={t('dashboard.states.authError.title')}
+        description={t('dashboard.accessStage.descriptions.authError')}
+        statusText={authErrorMessage}
+        progressLabel={accessProgressLabel}
+        progressSteps={authErrorSteps}
+        statusPill={(
+          <DashboardAccessStatusPill
+            label={t('dashboard.states.authError.eyebrow')}
+            tone="danger"
+            icon={ServerCrash}
+          />
+        )}
+        actions={(
+          <>
+            <button
+              type="button"
+              onClick={() => authQuery.refetch()}
+              className="dashboard-primary-button"
+            >
+              <RefreshCcw className="h-4 w-4" />
+              {t('dashboard.actions.retryValidation')}
+            </button>
+            <button
+              type="button"
+              onClick={() => signIn.mutate(requestedGuildId)}
+              disabled={signIn.isPending || !canUseDashboard}
+              className="dashboard-secondary-button"
+            >
+              {t('dashboard.actions.restartDiscord')}
+            </button>
+          </>
+        )}
+        icon={ServerCrash}
+        brandLabel={dashboardBrandLabel}
+      />,
+    );
+  }
+
+  if (resolvedEntryStage === 'login') {
+    return renderEntryStage(
+      <AuthCard
+        canUseDashboard={canUseDashboard}
+        isLoading={signIn.isPending}
+        errorMessage={signIn.error instanceof Error ? signIn.error.message : undefined}
+        onLogin={() => signIn.mutate(selectedGuildId ?? requestedGuildId)}
+      />,
+      'max-w-[42rem]',
+    );
+  }
+
+  if (resolvedEntryStage === 'guilds-loading') {
+    return renderEntryStage(
+      <DashboardAccessStage
+        key="guilds-loading"
+        variant="loading"
+        eyebrow={t('dashboard.states.guildsLoading.eyebrow')}
+        title={t('dashboard.states.guildsLoading.title')}
+        description={t('dashboard.accessStage.descriptions.guildsLoading')}
+        statusText={t('dashboard.accessStage.states.guildsLoading')}
+        progressLabel={accessProgressLabel}
+        progressDescription={t('dashboard.states.guildsLoading.description')}
+        progressSteps={guildsLoadingSteps}
+        statusPill={(
+          <DashboardAccessStatusPill
+            label={t('dashboard.states.guildsLoading.pill')}
+            tone="brand"
+            icon={RefreshCcw}
+            spin
+          />
+        )}
+        icon={RefreshCcw}
+        brandLabel={dashboardBrandLabel}
+      />,
+    );
+  }
+
+  if (resolvedEntryStage === 'guilds-error') {
+    return renderEntryStage(
+      <DashboardAccessStage
+        key="guilds-error"
+        variant="error"
+        eyebrow={t('dashboard.states.guildsError.eyebrow')}
+        title={t('dashboard.states.guildsError.title')}
+        description={t('dashboard.accessStage.descriptions.guildsError')}
+        statusText={guildsErrorMessage}
+        progressLabel={accessProgressLabel}
+        progressSteps={guildsErrorSteps}
+        statusPill={(
+          <DashboardAccessStatusPill
+            label={t('dashboard.states.guildsError.eyebrow')}
+            tone="danger"
+            icon={ServerCrash}
+          />
+        )}
+        actions={(
+          <>
+            <button
+              type="button"
+              onClick={() => guildsQuery.refetch()}
+              className="dashboard-primary-button"
+            >
+              <RefreshCcw className="h-4 w-4" />
+              {t('dashboard.actions.retryLoad')}
+            </button>
+            <button
+              type="button"
+              onClick={syncGuildAccess}
+              disabled={syncGuilds.isPending}
+              className="dashboard-secondary-button"
+            >
+              <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
+              {t('dashboard.actions.resyncAccess')}
+            </button>
+          </>
+        )}
+        icon={ServerCrash}
+        brandLabel={dashboardBrandLabel}
+      />,
+    );
+  }
+
+  if (resolvedEntryStage === 'empty-guilds') {
+    return renderEntryStage(
+      <DashboardAccessStage
+        key="empty-guilds"
+        variant="warning"
+        eyebrow={t('dashboard.states.emptyGuilds.eyebrow')}
+        title={t('dashboard.states.emptyGuilds.title')}
+        description={t('dashboard.accessStage.descriptions.emptyGuilds')}
+        statusText={t('dashboard.accessStage.states.emptyGuilds')}
+        progressLabel={accessProgressLabel}
+        progressDescription={t('dashboard.states.emptyGuilds.description')}
+        progressSteps={emptyGuildsSteps}
+        statusPill={(
+          <DashboardAccessStatusPill
+            label={t('dashboard.states.emptyGuilds.eyebrow')}
+            tone="warning"
+            icon={AlertTriangle}
+          />
+        )}
+        actions={(
+          <>
+            <button
+              type="button"
+              onClick={syncGuildAccess}
+              disabled={syncGuilds.isPending}
+              className="dashboard-primary-button"
+            >
+              <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
+              {t('dashboard.actions.resyncAccess')}
+            </button>
+            <button
+              type="button"
+              onClick={() => signOut.mutate()}
+              disabled={signOut.isPending}
+              className="dashboard-secondary-button"
+            >
+              {t('dashboard.actions.switchAccount')}
+            </button>
+          </>
+        )}
+        icon={AlertTriangle}
+        brandLabel={dashboardBrandLabel}
+      />,
+    );
+  }
+
   return (
     <>
-      <Helmet>
-        <title>{config.botName} | {t('dashboard.pageTitle')} | {titleGuildName}</title>
-        <meta
-          name="description"
-          content={t('dashboard.metaDescription')}
-        />
-      </Helmet>
-
-      {authQuery.isLoading ? (
-        <div className="dashboard-shell flex min-h-screen items-center justify-center px-4 text-white">
-          <div className="mx-auto w-full max-w-[42rem]">
-            <StateCard
-              eyebrow={t('dashboard.states.authLoading.eyebrow')}
-              title={t('dashboard.states.authLoading.title')}
-              description={t('dashboard.states.authLoading.description')}
-              icon={RefreshCcw}
-              actions={(
-                <span className="dashboard-status-pill-compact dashboard-neutral-pill">
-                  <RefreshCcw className="h-4 w-4 animate-spin" />
-                  {t('dashboard.states.authLoading.pill')}
-                </span>
-              )}
-            />
-          </div>
-        </div>
-      ) : authQuery.isError ? (
-        <div className="dashboard-shell px-4 py-10">
-          <div className="mx-auto max-w-5xl">
-            <StateCard
-              eyebrow={t('dashboard.states.authError.eyebrow')}
-              title={t('dashboard.states.authError.title')}
-              description={authErrorMessage}
-              icon={ServerCrash}
-              tone="danger"
-              actions={(
-                <>
-                  <button
-                    type="button"
-                    onClick={() => authQuery.refetch()}
-                    className="dashboard-primary-button"
-                  >
-                    <RefreshCcw className="h-4 w-4" />
-                    {t('dashboard.actions.retryValidation')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => signIn.mutate(requestedGuildId)}
-                    disabled={signIn.isPending || !canUseDashboard}
-                    className="dashboard-secondary-button"
-                  >
-                    {t('dashboard.actions.restartDiscord')}
-                  </button>
-                </>
-              )}
-            />
-          </div>
-        </div>
-      ) : !isAuthenticated ? (
-        <div className="dashboard-shell flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6">
-          <div className="mx-auto w-full max-w-[42rem]">
-            <AuthCard
-              canUseDashboard={canUseDashboard}
-              isLoading={signIn.isPending}
-              errorMessage={signIn.error instanceof Error ? signIn.error.message : undefined}
-              onLogin={() => signIn.mutate(selectedGuildId ?? requestedGuildId)}
-            />
-          </div>
-        </div>
-      ) : guildsQuery.isLoading ? (
-        <div className="dashboard-shell px-4 py-10 text-white">
-          <div className="mx-auto max-w-5xl">
-            <StateCard
-              eyebrow={t('dashboard.states.guildsLoading.eyebrow')}
-              title={t('dashboard.states.guildsLoading.title')}
-              description={t('dashboard.states.guildsLoading.description')}
-              icon={RefreshCcw}
-              actions={(
-                <span className="dashboard-status-pill-compact dashboard-neutral-pill">
-                  <RefreshCcw className="h-4 w-4 animate-spin" />
-                  {t('dashboard.states.guildsLoading.pill')}
-                </span>
-              )}
-            />
-          </div>
-        </div>
-      ) : guildsQuery.isError ? (
-        <div className="dashboard-shell px-4 py-10">
-          <div className="mx-auto max-w-5xl">
-            <StateCard
-              eyebrow={t('dashboard.states.guildsError.eyebrow')}
-              title={t('dashboard.states.guildsError.title')}
-              description={guildsErrorMessage}
-              icon={ServerCrash}
-              tone="danger"
-              actions={(
-                <>
-                  <button
-                    type="button"
-                    onClick={() => guildsQuery.refetch()}
-                    className="dashboard-primary-button"
-                  >
-                    <RefreshCcw className="h-4 w-4" />
-                    {t('dashboard.actions.retryLoad')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={syncGuildAccess}
-                    disabled={syncGuilds.isPending}
-                    className="dashboard-secondary-button"
-                  >
-                    <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
-                    {t('dashboard.actions.resyncAccess')}
-                  </button>
-                </>
-              )}
-            />
-          </div>
-        </div>
-      ) : !guilds.length ? (
-        <div className="dashboard-shell px-4 py-10">
-          <div className="mx-auto max-w-5xl">
-            <StateCard
-              eyebrow={t('dashboard.states.emptyGuilds.eyebrow')}
-              title={t('dashboard.states.emptyGuilds.title')}
-              description={t('dashboard.states.emptyGuilds.description')}
-              icon={AlertTriangle}
-              tone="warning"
-              actions={(
-                <>
-                  <button
-                    type="button"
-                    onClick={syncGuildAccess}
-                    disabled={syncGuilds.isPending}
-                    className="dashboard-primary-button"
-                  >
-                    <RefreshCcw className={`h-4 w-4 ${syncGuilds.isPending ? 'animate-spin' : ''}`} />
-                    {t('dashboard.actions.resyncAccess')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => signOut.mutate()}
-                    disabled={signOut.isPending}
-                    className="dashboard-secondary-button"
-                  >
-                    {t('dashboard.actions.switchAccount')}
-                  </button>
-                </>
-              )}
-            />
-          </div>
-        </div>
-      ) : (
-        <DashboardShell
-          user={authState.user!}
-          guilds={guilds}
-          selectedGuild={selectedGuild}
-          activeSection={activeSection}
-          onSectionChange={setActiveSection}
-          onGuildChange={setSelectedGuildId}
-          onSync={syncGuildAccess}
-          onLogout={() => signOut.mutate()}
-          isSyncing={syncGuilds.isPending}
-          syncError={syncErrorMessage}
-          syncStatus={syncStatus}
-          pendingMutations={pendingMutations}
-          failedMutations={failedMutations}
-          sectionStates={sectionStates}
+      {pageHelmet}
+      <DashboardShell
+        user={authState.user!}
+        guilds={guilds}
+        selectedGuild={selectedGuild}
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        onGuildChange={setSelectedGuildId}
+        onSync={syncGuildAccess}
+        onLogout={() => signOut.mutate()}
+        isSyncing={syncGuilds.isPending}
+        syncError={syncErrorMessage}
+        syncStatus={syncStatus}
+        pendingMutations={pendingMutations}
+        failedMutations={failedMutations}
+        sectionStates={sectionStates}
+      >
+        <ErrorBoundary
+          fallbackEyebrow={t('dashboard.shell.errorBoundary.eyebrow')}
+          fallbackTitle={t('dashboard.shell.errorBoundary.title')}
+          moduleLabel={t(`dashboard.sections.${activeSection}.label`)}
+          guildId={selectedGuildId}
+          onRetry={() => void snapshotQuery.refetch()}
         >
-          <ErrorBoundary fallbackEyebrow={t('dashboard.shell.errorBoundary.eyebrow')} fallbackTitle={t('dashboard.shell.errorBoundary.title')}>
-            <DashboardModuleViewport
-              activeSection={activeSection}
-              selectedGuild={selectedGuild}
-              invalidRequestedGuildId={invalidRequestedGuildId}
-              fallbackGuildId={fallbackGuildId}
-              setSelectedGuildId={setSelectedGuildId}
-              syncGuildAccess={syncGuildAccess}
-              isSyncing={syncGuilds.isPending}
-              snapshot={snapshot}
-              snapshotErrorMessage={snapshotErrorMessage}
-              isSnapshotLoading={snapshotQuery.isLoading}
-              isSnapshotError={snapshotQuery.isError}
-              refetchSnapshot={() => void snapshotQuery.refetch()}
-              requestConfigChangePending={requestConfigChange.isPending}
-              requestConfigChangeErrorMessage={configSaveError?.message ?? ''}
-              requestConfigChangeErrorSection={configSaveError?.section ?? null}
-              requestBackupActionPending={requestBackupAction.isPending}
-              requestTicketActionPending={requestTicketAction.isPending}
-              onSectionChange={setActiveSection}
-              onConfigSave={async (section, payload) => {
-                try {
-                  await requestConfigChange.mutateAsync({ section, payload });
-                  setConfigSaveError(null);
-                } catch (error) {
-                  setConfigSaveError({
-                    section,
-                    message: error instanceof Error
-                      ? error.message
-                      : t('dashboard.shell.configSaveError'),
-                  });
-                  throw error;
-                }
-              }}
-              onCreateBackup={async () => {
-                await requestBackupAction.mutateAsync({
-                  action: 'create_backup',
-                  payload: {},
+          <DashboardModuleViewport
+            activeSection={activeSection}
+            selectedGuild={selectedGuild}
+            invalidRequestedGuildId={invalidRequestedGuildId}
+            fallbackGuildId={fallbackGuildId}
+            setSelectedGuildId={setSelectedGuildId}
+            syncGuildAccess={syncGuildAccess}
+            isSyncing={syncGuilds.isPending}
+            snapshot={snapshot}
+            snapshotErrorMessage={snapshotErrorMessage}
+            isSnapshotLoading={snapshotQuery.isLoading}
+            isSnapshotError={snapshotQuery.isError}
+            refetchSnapshot={() => void snapshotQuery.refetch()}
+            requestConfigChangePending={requestConfigChange.isPending}
+            requestConfigChangeErrorMessage={configSaveError?.message ?? ''}
+            requestConfigChangeErrorSection={configSaveError?.section ?? null}
+            requestBackupActionPending={requestBackupAction.isPending}
+            requestTicketActionPending={requestTicketAction.isPending}
+            onSectionChange={setActiveSection}
+            onConfigSave={async (section, payload) => {
+              try {
+                await requestConfigChange.mutateAsync({ section, payload });
+                setConfigSaveError(null);
+              } catch (error) {
+                setConfigSaveError({
+                  section,
+                  message: error instanceof Error
+                    ? error.message
+                    : t('dashboard.shell.configSaveError'),
                 });
-              }}
-              onRestoreBackup={async (backupId) => {
-                await requestBackupAction.mutateAsync({
-                  action: 'restore_backup',
-                  payload: { backupId },
-                });
-              }}
-              onTicketAction={async (action, payload) => {
-                await requestTicketAction.mutateAsync({ action, payload });
-              }}
-            />
-          </ErrorBoundary>
-        </DashboardShell>
-      )}
+                throw error;
+              }
+            }}
+            onCreateBackup={async () => {
+              await requestBackupAction.mutateAsync({
+                action: 'create_backup',
+                payload: {},
+              });
+            }}
+            onRestoreBackup={async (backupId) => {
+              await requestBackupAction.mutateAsync({
+                action: 'restore_backup',
+                payload: { backupId },
+              });
+            }}
+            onTicketAction={async (action, payload) => {
+              await requestTicketAction.mutateAsync({ action, payload });
+            }}
+          />
+        </ErrorBoundary>
+      </DashboardShell>
     </>
   );
 }

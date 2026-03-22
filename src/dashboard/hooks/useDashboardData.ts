@@ -13,7 +13,92 @@ import {
   syncDiscordGuilds,
 } from '../api';
 import { dashboardQueryKeys } from '../constants';
-import type { ConfigMutationSectionId, TicketDashboardActionId } from '../types';
+import type {
+  ConfigMutationSectionId,
+  GuildDashboardSnapshot,
+  TicketDashboardActionId,
+} from '../types';
+
+function mergeOptimisticConfig(
+  snapshot: GuildDashboardSnapshot | undefined,
+  section: ConfigMutationSectionId,
+  payload: unknown,
+): GuildDashboardSnapshot | undefined {
+  if (!snapshot) {
+    return snapshot;
+  }
+
+  const config = snapshot.config;
+  let nextConfig = config;
+
+  switch (section) {
+    case 'general': {
+      const data = payload as {
+        generalSettings?: typeof config.generalSettings;
+        dashboardPreferences?: typeof config.dashboardPreferences;
+      };
+      nextConfig = {
+        ...config,
+        generalSettings: data.generalSettings ?? config.generalSettings,
+        dashboardPreferences: data.dashboardPreferences ?? config.dashboardPreferences,
+      };
+      break;
+    }
+    case 'server_roles_channels':
+      nextConfig = {
+        ...config,
+        serverRolesChannelsSettings: payload as typeof config.serverRolesChannelsSettings,
+      };
+      break;
+    case 'tickets':
+      nextConfig = {
+        ...config,
+        ticketsSettings: payload as typeof config.ticketsSettings,
+      };
+      break;
+    case 'verification':
+      nextConfig = {
+        ...config,
+        verificationSettings: payload as typeof config.verificationSettings,
+      };
+      break;
+    case 'welcome':
+      nextConfig = {
+        ...config,
+        welcomeSettings: payload as typeof config.welcomeSettings,
+      };
+      break;
+    case 'suggestions':
+      nextConfig = {
+        ...config,
+        suggestionSettings: payload as typeof config.suggestionSettings,
+      };
+      break;
+    case 'modlogs':
+      nextConfig = {
+        ...config,
+        modlogSettings: payload as typeof config.modlogSettings,
+      };
+      break;
+    case 'commands':
+      nextConfig = {
+        ...config,
+        commandSettings: payload as typeof config.commandSettings,
+      };
+      break;
+    case 'system':
+      nextConfig = {
+        ...config,
+        systemSettings: payload as typeof config.systemSettings,
+      };
+      break;
+  }
+
+  return {
+    ...snapshot,
+    config: nextConfig,
+  };
+}
 
 function shouldRetryDashboardRequest(failureCount: number, error: unknown) {
   if (failureCount >= 2) {
@@ -76,6 +161,45 @@ export function useDashboardGuilds(enabled: boolean) {
 }
 
 export function useGuildDashboardSnapshot(guildId: string | null, enabled: boolean) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!enabled || !guildId || !supabase) {
+      return undefined;
+    }
+
+    const client = supabase;
+    const channel = client.channel(`dashboard-realtime:${guildId}`);
+    const realtimeTables = [
+      'guild_config_mutations',
+      'guild_sync_status',
+      'guild_ticket_inbox',
+      'guild_ticket_events',
+      'guild_ticket_macros',
+    ];
+
+    realtimeTables.forEach((table) => {
+      channel.on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table,
+          filter: `guild_id=eq.${guildId}`,
+        },
+        () => {
+          void queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.snapshot(guildId) });
+        },
+      );
+    });
+
+    channel.subscribe();
+
+    return () => {
+      void client.removeChannel(channel);
+    };
+  }, [enabled, guildId, queryClient]);
+
   return useQuery({
     queryKey: dashboardQueryKeys.snapshot(guildId ?? 'idle'),
     queryFn: () => fetchGuildDashboardSnapshot(guildId ?? ''),
@@ -145,7 +269,37 @@ export function useRequestGuildConfigChange(guildId: string | null) {
   return useMutation({
     mutationFn: (payload: { section: ConfigMutationSectionId; payload: unknown }) =>
       requestGuildConfigChange(guildId ?? '', payload.section, payload.payload),
+    onMutate: async (variables) => {
+      if (!guildId) {
+        return { previousSnapshot: undefined };
+      }
+
+      const queryKey = dashboardQueryKeys.snapshot(guildId);
+      await queryClient.cancelQueries({ queryKey });
+      const previousSnapshot = queryClient.getQueryData<GuildDashboardSnapshot>(queryKey);
+
+      queryClient.setQueryData<GuildDashboardSnapshot | undefined>(
+        queryKey,
+        (current) => mergeOptimisticConfig(current, variables.section, variables.payload),
+      );
+
+      return { previousSnapshot };
+    },
+    onError: (_error, _variables, context) => {
+      if (!guildId) {
+        return;
+      }
+
+      queryClient.setQueryData(dashboardQueryKeys.snapshot(guildId), context?.previousSnapshot);
+    },
     onSuccess: async () => {
+      if (!guildId) {
+        return;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.snapshot(guildId) });
+    },
+    onSettled: async () => {
       if (!guildId) {
         return;
       }

@@ -4,34 +4,14 @@ import { Monitor } from 'lucide-react';
 import { useState } from 'react';
 import DashboardScreenshot from './gallery/DashboardScreenshot';
 import ScreenshotModal from './gallery/ScreenshotModal';
+import { buildScreenshotEntries } from './gallery/screenshotData';
 
 export default function ScreenshotGallery() {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const screenshots = [
-    {
-      type: 'overview' as const,
-      title: t('gallery.screenshots.overview.title'),
-      description: t('gallery.screenshots.overview.desc'),
-    },
-    {
-      type: 'moderation' as const,
-      title: t('gallery.screenshots.moderation.title'),
-      description: t('gallery.screenshots.moderation.desc'),
-    },
-    {
-      type: 'automation' as const,
-      title: t('gallery.screenshots.automation.title'),
-      description: t('gallery.screenshots.automation.desc'),
-    },
-    {
-      type: 'analytics' as const,
-      title: t('gallery.screenshots.analytics.title'),
-      description: t('gallery.screenshots.analytics.desc'),
-    },
-  ];
+  const screenshots = buildScreenshotEntries(t);
 
   const handleOpenModal = (index: number) => {
     setActiveIndex(index);
@@ -85,6 +65,7 @@ export default function ScreenshotGallery() {
               type={screenshot.type}
               title={screenshot.title}
               description={screenshot.description}
+              image={screenshot.image}
               delay={index * 0.1}
               onClick={() => handleOpenModal(index)}
             />

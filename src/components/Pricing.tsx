@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { CreditCard, Check, X, Sparkles } from 'lucide-react';
+import { CreditCard, Check, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { getDiscordInviteUrl } from '../config';
 

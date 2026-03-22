@@ -1,9 +1,8 @@
 import { Shield, Zap, Cpu, BarChart3, Lock, Globe, Layers, Radio } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
-import { staggerContainer, staggerItem, instantReveal } from '../lib/animations';
 
 interface Feature {
   icon: LucideIcon;
@@ -12,18 +11,13 @@ interface Feature {
   status: string;
 }
 
-interface FeatureCardProps {
-  feature: Feature;
-  variants: Variants;
-}
-
-const FeatureCard = memo(({ feature, variants }: FeatureCardProps) => {
+const FeatureCard = memo(({ feature }: { feature: Feature }) => {
   const Icon = feature.icon;
   return (
-    <motion.article variants={variants} className="tech-card group flex h-full flex-col overflow-hidden">
+    <article className="feature-tech-card group flex h-full flex-col overflow-hidden">
       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent opacity-60"></div>
 
-      <div className="premium-icon-tile relative mb-7 h-14 w-14">
+      <div className="feature-icon-tile relative mb-7 h-14 w-14">
         <Icon className="h-6 w-6 text-slate-300/85 transition-colors duration-500 group-hover:text-white" />
       </div>
 
@@ -38,7 +32,7 @@ const FeatureCard = memo(({ feature, variants }: FeatureCardProps) => {
         </span>
         <div className="h-1.5 w-1.5 rounded-full bg-white/20 transition-colors duration-500 group-hover:bg-cyan-300"></div>
       </div>
-    </motion.article>
+    </article>
   );
 });
 
@@ -64,9 +58,6 @@ export default function Features() {
     t('features.useCases.onboarding'),
     t('features.useCases.support'),
   ];
-
-  const containerVariants = shouldReduceMotion ? instantReveal : staggerContainer;
-  const itemVariants = shouldReduceMotion ? instantReveal : staggerItem;
 
   return (
     <section id="features" aria-labelledby="features-heading" className="relative overflow-hidden bg-black/50 pb-28 pt-12 md:pt-16">
@@ -118,14 +109,14 @@ export default function Features() {
         </motion.div>
 
         <motion.div
-          variants={containerVariants}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, margin: '-50px' }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
         >
           {features.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} variants={itemVariants} />
+            <FeatureCard key={feature.title} feature={feature} />
           ))}
         </motion.div>
       </div>

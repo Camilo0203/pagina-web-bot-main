@@ -1,12 +1,10 @@
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHeavyMedia } from '../hooks/useHeavyMedia';
 
 export default function VisualExperience() {
   const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
-  const shouldLoadVideo = useHeavyMedia(Boolean(shouldReduceMotion));
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,

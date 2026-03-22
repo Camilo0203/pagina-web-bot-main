@@ -566,6 +566,31 @@ export const en = {
                 syncTimeout:
                     'The initial server sync took too long ({{seconds}}s). Check the sync-discord-guilds function, the network and Supabase status.',
             },
+            accessStage: {
+                progressLabel: 'Callback progress',
+                steps: {
+                    secureSession: 'Secure session',
+                    exchangeOauth: 'OAuth exchange',
+                    syncGuilds: 'Guild sync',
+                    redirect: 'Redirect to dashboard',
+                },
+                states: {
+                    exchanging: 'Closing the secure handoff with Discord and Supabase',
+                    syncing: 'Resolving manageable servers before opening the panel',
+                    redirecting: 'Holding context before entering the dashboard',
+                    error: 'One action is required to finish secure access',
+                },
+                descriptions: {
+                    exchanging:
+                        'We are closing the Discord OAuth return and establishing the secure dashboard session before any panel data is shown.',
+                    syncing:
+                        'The session is already valid. Now we are resolving manageable servers so the dashboard opens with real context instead of asking again.',
+                    redirecting:
+                        'Access is ready. We are preserving the requested server context before handing you into the dashboard shell.',
+                    error:
+                        'This callback kept its execution state so you can retry without starting the whole access flow from zero.',
+                },
+            },
         },
         dashboard: {
             pageTitle: 'Dashboard',
@@ -955,6 +980,32 @@ export const en = {
                 authValidation: 'The dashboard session could not be validated.',
                 guildsLoad: 'Try syncing again or review the Supabase configuration.',
                 snapshotLoad: 'Review tables, RLS policies and the bot bridge.',
+            },
+            accessStage: {
+                progressLabel: 'Access progress',
+                steps: {
+                    validateSession: 'Validate secure session',
+                    resolveGuilds: 'Resolve server access',
+                },
+                states: {
+                    authLoading: 'Reviewing session, permissions, and base context',
+                    authError: 'Secure validation stopped before the control shell opened',
+                    guildsLoading: 'Resolving manageable servers and initial operating context',
+                    guildsError: 'The session is ready, but server access could not be resolved',
+                    emptyGuilds: 'The account is authenticated, but there are no manageable guilds yet',
+                },
+                descriptions: {
+                    authLoading:
+                        'We are closing the secure access layer before showing the dashboard shell. No server configuration changes are applied during this verification.',
+                    authError:
+                        'The secure entry could not be completed. You can revalidate the session or restart with Discord without losing dashboard context.',
+                    guildsLoading:
+                        'The session is already valid. Now we are resolving which servers you can manage so the dashboard opens with real context from the first frame.',
+                    guildsError:
+                        'Authentication exists, but we could not resolve manageable servers. Retry the load or force a fresh access sync.',
+                    emptyGuilds:
+                        'Validation finished, but Discord did not return manageable guilds for this account. Re-sync access or switch accounts to continue.',
+                },
             },
             states: {
                 authLoading: {

@@ -38,22 +38,69 @@ const SystemModule = lazy(() => import('../modules/SystemModule'));
 const ActivityModule = lazy(() => import('../modules/ActivityModule'));
 const AnalyticsModule = lazy(() => import('../modules/AnalyticsModule'));
 
-function ModuleFallback() {
+function ConfigModuleFallback() {
   return (
     <div className="space-y-6">
-      <div className="dashboard-skeleton h-72 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+      <div className="dashboard-skeleton h-52 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+      <div className="grid gap-6 xl:grid-cols-2">
+        <div className="dashboard-skeleton h-80 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+        <div className="dashboard-skeleton h-80 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+      </div>
+    </div>
+  );
+}
+
+function OverviewModuleFallback() {
+  return (
+    <div className="space-y-6">
+      <div className="dashboard-skeleton h-48 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="dashboard-skeleton h-36 rounded-[1.6rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+        ))}
+      </div>
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-6">
-          <div className="dashboard-skeleton h-64 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+          <div className="dashboard-skeleton h-72 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
           <div className="dashboard-skeleton h-80 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
         </div>
         <div className="space-y-6">
-          <div className="dashboard-skeleton h-56 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+          <div className="dashboard-skeleton h-64 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
           <div className="dashboard-skeleton h-56 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
         </div>
       </div>
     </div>
   );
+}
+
+function InboxModuleFallback() {
+  return (
+    <div className="space-y-6">
+      <div className="dashboard-skeleton h-40 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(340px,420px)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <div className="dashboard-skeleton h-52 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+          <div className="dashboard-skeleton h-[32rem] rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+        </div>
+        <div className="space-y-6">
+          <div className="dashboard-skeleton h-24 rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+          <div className="dashboard-skeleton h-[48rem] rounded-[2rem] border border-white/10 bg-white/70 dark:bg-surface-800/75" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModuleFallback({ activeSection }: { activeSection: DashboardSectionId }) {
+  if (activeSection === 'overview') {
+    return <OverviewModuleFallback />;
+  }
+
+  if (activeSection === 'inbox') {
+    return <InboxModuleFallback />;
+  }
+
+  return <ConfigModuleFallback />;
 }
 
 interface DashboardModuleViewportProps {
@@ -228,7 +275,7 @@ export default function DashboardModuleViewport({
   }
 
   if (isSnapshotLoading || !snapshot) {
-    return <ModuleFallback />;
+    return <ModuleFallback activeSection={activeSection} />;
   }
 
   const activityFailure = partialFailures.find((failure) => failure.id === 'activity') ?? null;
@@ -266,7 +313,7 @@ export default function DashboardModuleViewport({
     && requestConfigChangeErrorSection === activeConfigSection;
 
   return (
-    <Suspense fallback={<ModuleFallback />}>
+    <Suspense fallback={<ModuleFallback activeSection={activeSection} />}>
       <div className="space-y-6">
         <DashboardDegradationNotice failures={partialFailures} />
         {showConfigError ? (

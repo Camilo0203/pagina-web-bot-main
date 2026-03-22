@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import LegalModal from '../components/LegalModal';
 import ScrollProgress from '../components/ScrollProgress';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import LazyViewportSection from '../components/LazyViewportSection';
 import { config, getAbsoluteAssetUrl, getCanonicalUrl } from '../config';
 
 const Features = lazy(() => import('../components/Features'));
@@ -41,11 +42,51 @@ export default function LandingPage() {
   const canonicalUrl = getCanonicalUrl(location.pathname);
   const socialImageUrl = getAbsoluteAssetUrl(config.socialImagePath);
   const locale = i18n.language.startsWith('es') ? 'es_ES' : 'en_US';
-  const languageAlternates = [
-    { hrefLang: 'en', href: canonicalUrl },
-    { hrefLang: 'es', href: canonicalUrl },
-    { hrefLang: 'x-default', href: canonicalUrl },
-  ];
+  const faqItems = useMemo(
+    () =>
+      ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'].map((id) => ({
+        '@type': 'Question',
+        name: t(`faq.items.${id}.question`),
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: t(`faq.items.${id}.answer`),
+        },
+      })),
+    [t],
+  );
+  const structuredData = useMemo(
+    () => [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: config.botName,
+        applicationCategory: 'UtilitiesApplication',
+        operatingSystem: 'Web',
+        url: canonicalUrl,
+        image: socialImageUrl,
+        description,
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: config.botName,
+        url: canonicalUrl,
+        logo: getAbsoluteAssetUrl(config.brandMarkPath),
+        image: socialImageUrl,
+      },
+    ],
+    [canonicalUrl, description, faqItems, socialImageUrl],
+  );
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-black text-white selection:bg-indigo-500/30">
@@ -61,14 +102,6 @@ export default function LandingPage() {
         <meta name="theme-color" content="#05060f" />
         <meta name="color-scheme" content="dark" />
         <link rel="canonical" href={canonicalUrl} />
-        {languageAlternates.map((alternate) => (
-          <link
-            key={alternate.hrefLang}
-            rel="alternate"
-            hrefLang={alternate.hrefLang}
-            href={alternate.href}
-          />
-        ))}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={config.botName} />
         <meta property="og:title" content={title} />
@@ -83,6 +116,11 @@ export default function LandingPage() {
         <link rel="icon" type="image/png" href={config.faviconPath} />
         <link rel="apple-touch-icon" href={config.appleTouchIconPath} />
         <link rel="manifest" href={config.manifestPath} />
+        {structuredData.map((entry, index) => (
+          <script key={index} type="application/ld+json">
+            {JSON.stringify(entry)}
+          </script>
+        ))}
       </Helmet>
 
       <a
@@ -112,27 +150,48 @@ export default function LandingPage() {
           <Suspense fallback={<LoadingSkeleton />}>
             <Features />
             <VisualExperience />
-            <ScreenshotGallery />
           </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
-            <InteractiveDemo />
-            <WhyTon />
-            <ComparisonTable />
-            <Testimonials />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
-            <DocsSection />
-            <Integrations />
-            <LiveStats />
-            <CommandPreview />
-            <FAQ />
-          </Suspense>
-          <Suspense fallback={<LoadingSkeleton />}>
-            <Pricing />
-            <Changelog />
-            <Roadmap />
-            <FinalCTA />
-          </Suspense>
+          <LazyViewportSection
+            fallback={<LoadingSkeleton />}
+            loader={async () => ({
+              default: () => (
+                <>
+                  <ScreenshotGallery />
+                  <InteractiveDemo />
+                  <WhyTon />
+                  <ComparisonTable />
+                </>
+              ),
+            })}
+          />
+          <LazyViewportSection
+            fallback={<LoadingSkeleton />}
+            loader={async () => ({
+              default: () => (
+                <>
+                  <Testimonials />
+                  <DocsSection />
+                  <Integrations />
+                  <LiveStats />
+                  <CommandPreview />
+                </>
+              ),
+            })}
+          />
+          <LazyViewportSection
+            fallback={<LoadingSkeleton />}
+            loader={async () => ({
+              default: () => (
+                <>
+                  <FAQ />
+                  <Pricing />
+                  <Changelog />
+                  <Roadmap />
+                  <FinalCTA />
+                </>
+              ),
+            })}
+          />
         </main>
 
         <Suspense fallback={null}>

@@ -37,25 +37,15 @@ export default function Changelog() {
           </motion.h2>
         </div>
 
-        <div className="relative">
-          <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-500/40 via-white/10 to-transparent sm:left-1/2 sm:-translate-x-px" />
+        <div className="relative space-y-8">
+          <div className="absolute bottom-0 left-4 top-0 w-px bg-gradient-to-b from-indigo-500/40 via-white/10 to-transparent md:left-1/2 md:-translate-x-px" />
 
           {entryIds.map((id, i) => {
             const isLeft = i % 2 === 0;
-
-            return (
-              <motion.div
-                key={id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: shouldReduceMotion ? 0 : i * 0.08 }}
-                className={`relative mb-12 flex flex-col pl-12 sm:w-1/2 sm:pl-0 ${isLeft ? 'sm:pr-12 sm:text-right' : 'sm:ml-auto sm:pl-12 sm:text-left'}`}
-              >
-                <div className={`absolute left-2.5 top-1.5 h-3 w-3 rounded-full border-2 border-indigo-500 bg-slate-950 sm:left-auto ${isLeft ? 'sm:right-[-6.5px]' : 'sm:left-[-6.5px]'}`} />
-
-                <div className="flex items-center gap-2 mb-2">
-                  <Tag className="h-3 w-3 text-indigo-400 sm:hidden" />
+            const renderContent = (alignmentClass = '') => (
+              <div className="rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-5 backdrop-blur-xl">
+                <div className={`mb-3 flex flex-wrap items-center gap-2 ${alignmentClass}`}>
+                  <Tag className="h-3 w-3 text-indigo-400 md:hidden" />
                   <span className="rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-indigo-300">
                     {t(`changelog.entries.${id}.version`)}
                   </span>
@@ -64,12 +54,46 @@ export default function Changelog() {
                   </span>
                 </div>
 
-                <h3 className="mb-1 text-base font-bold text-white">
+                <h3 className="mb-2 text-base font-bold text-white">
                   {t(`changelog.entries.${id}.title`)}
                 </h3>
-                <p className="text-sm font-medium text-slate-400">
+                <p className="text-sm font-medium leading-relaxed text-slate-400">
                   {t(`changelog.entries.${id}.desc`)}
                 </p>
+              </div>
+            );
+
+            return (
+              <motion.div
+                key={id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: shouldReduceMotion ? 0 : i * 0.08 }}
+                className="relative grid grid-cols-[2rem_minmax(0,1fr)] gap-4 md:grid-cols-[minmax(0,1fr)_2.5rem_minmax(0,1fr)] md:items-start"
+              >
+                {isLeft ? (
+                  <>
+                    <div className="hidden md:block md:text-right">{renderContent('md:justify-end')}</div>
+                    <div className="relative flex justify-center">
+                      <div className="mt-5 h-3 w-3 rounded-full border-2 border-indigo-500 bg-slate-950" />
+                    </div>
+                    <div className="hidden md:block" />
+                  </>
+                ) : (
+                  <>
+                    <div className="hidden md:block" />
+                    <div className="relative flex justify-center">
+                      <div className="mt-5 h-3 w-3 rounded-full border-2 border-indigo-500 bg-slate-950" />
+                    </div>
+                    <div className="hidden md:block">{renderContent()}</div>
+                  </>
+                )}
+
+                <div className="relative md:hidden">
+                  <div className="absolute left-[-1.45rem] top-5 h-3 w-3 rounded-full border-2 border-indigo-500 bg-slate-950" />
+                  {renderContent()}
+                </div>
               </motion.div>
             );
           })}
