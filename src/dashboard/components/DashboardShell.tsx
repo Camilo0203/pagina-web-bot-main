@@ -4,26 +4,19 @@ import type { User } from '@supabase/supabase-js';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  AlertTriangle,
   ChevronRight,
   LogOut,
   Menu,
   RefreshCcw,
-  ShieldCheck,
   Sparkles,
-  Users,
   X,
 } from 'lucide-react';
 import { dashboardSections, dashboardTaskGroups } from '../constants';
 import { drawerVariants, fadeInVariants, fadeUpVariants, staggerContainerVariants } from '../motion';
 import type { DashboardGuild, DashboardSectionId, GuildSyncStatus } from '../types';
 import {
-  formatDateTime,
-  formatRelativeTime,
   type DashboardSectionState,
-  getHealthLabel,
   resolveGuildIconUrl,
-  resolveUserAvatarUrl,
 } from '../utils';
 import { config, getDiscordInviteUrl } from '../../config';
 import Logo from '../../components/Logo';
@@ -53,36 +46,7 @@ interface SidebarProps {
   onSectionChange: (section: DashboardSectionId) => void;
   onGuildChange: (guildId: string) => void;
   onLogout: () => void;
-  isSyncing: boolean;
-  syncStatus: GuildSyncStatus | null;
-  sectionStates: DashboardSectionState[];
   closeOnNavigate?: () => void;
-}
-
-function getSectionStatusLabel(status: DashboardSectionState['status'], t: ReturnType<typeof useTranslation>['t']) {
-  switch (status) {
-    case 'active':
-      return t('dashboard.shell.sectionStatus.active');
-    case 'basic':
-      return t('dashboard.shell.sectionStatus.basic');
-    case 'needs_attention':
-      return t('dashboard.shell.sectionStatus.needsAttention');
-    default:
-      return t('dashboard.shell.sectionStatus.notConfigured');
-  }
-}
-
-function getSectionStatusClasses(status: DashboardSectionState['status']) {
-  switch (status) {
-    case 'active':
-      return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
-    case 'basic':
-      return 'border-sky-400/25 bg-sky-400/10 text-sky-100';
-    case 'needs_attention':
-      return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
-    default:
-      return 'border-white/10 bg-white/5 text-white/68';
-  }
 }
 
 function SidebarContent({
@@ -92,14 +56,10 @@ function SidebarContent({
   onSectionChange,
   onGuildChange,
   onLogout,
-  isSyncing,
-  syncStatus,
-  sectionStates,
   closeOnNavigate,
 }: SidebarProps) {
   const { t } = useTranslation();
   const dashboardBrandLabel = `${config.botName} Dashboard`;
-  const sectionStateMap = new Map(sectionStates.map((section) => [section.sectionId, section]));
   const sectionMetaMap = new Map(dashboardSections.map((section) => [section.id, section]));
 
   return (
@@ -183,7 +143,6 @@ function SidebarContent({
                       const section = sectionMetaMap.get(sectionId);
                       if (!section) return null;
 
-                      const state = sectionStateMap.get(section.id);
                       const Icon = section.icon;
                       const active = activeSection === section.id;
 
@@ -246,16 +205,10 @@ export default function DashboardShell({
   onSync,
   onLogout,
   isSyncing,
-  syncError,
-  syncStatus,
-  pendingMutations,
-  failedMutations,
-  sectionStates,
   children,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { t } = useTranslation();
-  const userAvatarUrl = resolveUserAvatarUrl(user);
   const guildIconUrl = selectedGuild ? resolveGuildIconUrl(selectedGuild) : null;
   const inviteUrl = selectedGuild && !selectedGuild.botInstalled ? getDiscordInviteUrl(selectedGuild.guildId) : '';
   const showInviteCta = Boolean(selectedGuild && !selectedGuild.botInstalled && inviteUrl);
@@ -282,9 +235,6 @@ export default function DashboardShell({
               onSectionChange={onSectionChange}
               onGuildChange={onGuildChange}
               onLogout={onLogout}
-              isSyncing={isSyncing}
-              syncStatus={syncStatus}
-              sectionStates={sectionStates}
             />
           </div>
         </aside>
@@ -384,7 +334,6 @@ export default function DashboardShell({
               <SidebarContent
                 guilds={guilds} selectedGuild={selectedGuild} activeSection={activeSection}
                 onSectionChange={onSectionChange} onGuildChange={onGuildChange} onLogout={onLogout}
-                isSyncing={isSyncing} syncStatus={syncStatus} sectionStates={sectionStates}
                 closeOnNavigate={() => setMobileOpen(false)}
               />
               <button
