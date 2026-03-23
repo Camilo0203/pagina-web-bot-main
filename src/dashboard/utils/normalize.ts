@@ -334,7 +334,13 @@ export function normalizeGuildConfig(
 
   const parsed = guildConfigSchema.safeParse({
     guildId: row.guild_id ?? guildId,
-    generalSettings: row.general_settings ?? defaultGeneralSettings,
+    generalSettings:
+      row.general_settings && typeof row.general_settings === 'object' && !Array.isArray(row.general_settings)
+        ? {
+          ...defaultGeneralSettings,
+          ...(row.general_settings as Record<string, unknown>),
+        }
+        : defaultGeneralSettings,
     serverRolesChannelsSettings:
       row.server_roles_channels_settings ?? defaultServerRolesChannelsSettings,
     ticketsSettings: row.tickets_settings ?? defaultTicketsSettings,

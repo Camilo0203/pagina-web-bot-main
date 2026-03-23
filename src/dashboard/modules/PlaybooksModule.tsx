@@ -45,6 +45,7 @@ export default function PlaybooksModule({
   const { i18n } = useTranslation();
   const isEnglish = i18n.language.startsWith('en');
   const activeDefinitions = playbooks.definitions.filter((definition) => definition.isEnabled);
+  const lockedDefinitions = playbooks.definitions.filter((definition) => !definition.isEnabled);
   const pendingRecommendations = playbooks.recommendations.filter((recommendation) => recommendation.status === 'pending');
   const appliedRuns = playbooks.runs.filter((run) => run.status === 'applied');
   const watchCustomers = playbooks.customerMemory.filter((memory) => memory.riskLevel === 'watch');
@@ -139,6 +140,18 @@ export default function PlaybooksModule({
                 <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-500">{definition.triggerSummary}</p>
               </article>
             ))}
+            {lockedDefinitions.length ? (
+              <div className="rounded-[1.35rem] border border-dashed border-slate-300/70 p-4 text-sm text-slate-600 dark:border-surface-600 dark:text-slate-300">
+                {isEnglish ? 'Locked or disabled playbooks' : 'Playbooks bloqueados o deshabilitados'}:
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {lockedDefinitions.map((definition) => (
+                    <span key={definition.playbookId} className="dashboard-status-pill-compact dashboard-neutral-pill">
+                      {definition.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </PanelCard>
 

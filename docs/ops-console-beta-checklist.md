@@ -1,61 +1,69 @@
 # TON618 Ops Console Beta Checklist
 
-## Goal
+## Objetivo
 
-Validate TON618 as an ops console for Discord staff instead of a generic bot.
+Validar TON618 como consola operativa para staffs de Discord antes de abrir acceso masivo.
 
-## Entry criteria
+## Servidores ideales para la beta
 
-- The server has active staff and real support load.
-- The bot is installed and visible in the dashboard.
-- Discord OAuth and Supabase auth complete without manual fixes.
-- The guild snapshot loads with config, inbox, sync status and playbooks.
+- 3 a 5 comunidades medianas con staff activo
+- ya usan tickets o soporte frecuente
+- tienen al menos un owner o admin dispuesto a dar feedback semanal
+- aceptan probar inbox web, SLA y playbooks durante 2 semanas
 
-## Beta setup per server
+## Preparacion de staging
 
-1. Install the bot and confirm `/health` responds.
-2. Sync the guild into the dashboard and confirm `guild_sync_status` is healthy or degraded but readable.
-3. Configure:
-   - support role
-   - ticket panel channel
-   - logs channel
-   - base SLA
-   - escalation role or channel
-4. Open the inbox and verify:
-   - tickets appear
-   - macros appear
-   - customer history appears
-   - playbook recommendations appear
-5. Confirm at least these playbooks are active:
-   - support triage
-   - SLA escalation
-   - incident mode
-   - customer recovery
+1. Aplicar migraciones de Supabase, incluyendo tablas de playbooks.
+2. Desplegar `ton618-web` con `.env.staging`.
+3. Desplegar `ton618-bot` con `.env.staging`.
+4. Verificar `npm run env:check -- --file=.env.staging.example` en web y bot.
+5. Confirmar que el bot responde `/health` y devuelve fingerprint.
+6. Confirmar que `dashboard?demo=ops-console` carga y que `npm run test:e2e:smoke` pasa.
 
-## Weekly metrics
+## Onboarding white-glove
 
-- First response time
-- Tickets in warning
-- Tickets breached
-- Pending playbook recommendations
-- Confirmed vs dismissed recommendations
-- Active inbox sessions per week
-- Incident mode activations
+1. Invitar el bot al servidor.
+2. Ejecutar `/setup wizard` con dashboard, staff, admin, `plan_ops`, `sla_alerta` y `sla_escalado`.
+3. Abrir el dashboard y revisar:
+   - `General`
+   - `Tickets`
+   - `Playbooks`
+   - `Inbox`
+4. Activar 2 o 3 playbooks recomendados para el tipo de comunidad.
+5. Confirmar que existe al menos un ticket real o de prueba en el inbox.
+6. Confirmar una recomendacion desde dashboard o desde `/ticket playbook`.
 
-## QA path before admitting a server
+## QA manual minimo
 
-- Login with Discord
-- Guild switch
-- Snapshot refresh
-- Ticket action from dashboard
-- Recommendation confirm/dismiss
-- Macro post from recommendation
-- Build fingerprint visible from bot health
+- OAuth Discord y callback real
+- sync de guilds
+- overview con datos
+- inbox con claim, macro y cierre
+- recomendacion visible y confirmable
+- backup manual
+- bridge sano despues de mutaciones
 
-## Exit criteria for beta
+## Metricas semanales
 
-- 3+ servers use the inbox weekly.
-- 3+ servers generate playbook recommendations from real ticket flow.
-- No auth regressions across Discord OAuth and Supabase sessions.
-- No config loss during syncs or restarts.
-- Staff reports that the dashboard reduces response friction versus previous tooling.
+- tiempo de primera respuesta
+- tickets sin atender
+- tickets en `warning` o `breached`
+- recomendaciones pendientes
+- recomendaciones aplicadas vs descartadas
+- tickets resueltos por semana
+- sesiones del dashboard por staff
+
+## Criterios de salida de beta
+
+- al menos 3 servidores usando inbox y SLA cada semana
+- reduccion medible en tickets vencidos o en tiempo de primera respuesta
+- cero fallos graves de auth, sync o perdida de configuracion
+- tasa de confirmacion de playbooks suficiente para justificar mantenerlos visibles por defecto
+
+## Comandos utiles
+
+- `npm run typecheck`
+- `npm run lint`
+- `npm test`
+- `npm run build`
+- `npm run test:e2e:smoke`

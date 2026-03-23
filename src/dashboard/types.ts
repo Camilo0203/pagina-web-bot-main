@@ -67,6 +67,7 @@ export interface GeneralSettings {
   prefix: string;
   timezone: string;
   moderationPreset: 'relaxed' | 'balanced' | 'strict';
+  opsPlan: 'free' | 'pro' | 'enterprise';
 }
 
 export interface LegacyProtectionSettings {

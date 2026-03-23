@@ -20,6 +20,7 @@ import {
 import { flattenFormErrors } from '../validation';
 import type {
   DashboardGuild,
+  DashboardSectionId,
   DashboardPreferences,
   GeneralSettings,
   GuildConfig,
@@ -40,6 +41,7 @@ interface GeneralModuleProps {
   mutation: GuildConfigMutation | null;
   syncStatus: GuildSyncStatus | null;
   isSaving: boolean;
+  onSectionChange: (section: DashboardSectionId) => void;
   onSave: (values: {
     generalSettings: GeneralSettings;
     dashboardPreferences: DashboardPreferences;
@@ -52,6 +54,7 @@ export default function GeneralModule({
   mutation,
   syncStatus,
   isSaving,
+  onSectionChange,
   onSave,
 }: GeneralModuleProps) {
   const { t } = useTranslation();
@@ -79,6 +82,32 @@ export default function GeneralModule({
 
   const commandMode = watch('generalSettings.commandMode');
   const validationErrors = flattenFormErrors(errors);
+  const launchpadSteps = [
+    {
+      id: 'roles',
+      label: 'Roles y canales base',
+      done: Boolean(config.serverRolesChannelsSettings.supportRoleId && config.serverRolesChannelsSettings.ticketPanelChannelId),
+      section: 'server_roles' as const,
+    },
+    {
+      id: 'sla',
+      label: 'SLA operativo',
+      done: config.ticketsSettings.slaMinutes > 0,
+      section: 'tickets' as const,
+    },
+    {
+      id: 'playbooks',
+      label: 'Playbooks vivos',
+      done: config.generalSettings.opsPlan !== 'free',
+      section: 'playbooks' as const,
+    },
+    {
+      id: 'inbox',
+      label: 'Inbox web',
+      done: guild.botInstalled,
+      section: 'inbox' as const,
+    },
+  ];
 
   if (!guild.botInstalled) {
     return (
@@ -169,6 +198,20 @@ export default function GeneralModule({
               </FieldShell>
 
               <FieldShell
+                label={t('dashboard.general.locale.opsPlan.label')}
+                hint={t('dashboard.general.locale.opsPlan.hint')}
+              >
+                <select
+                  {...register('generalSettings.opsPlan')}
+                  className="dashboard-form-field"
+                >
+                  <option value="free">{t('dashboard.general.locale.opsPlan.free')}</option>
+                  <option value="pro">{t('dashboard.general.locale.opsPlan.pro')}</option>
+                  <option value="enterprise">{t('dashboard.general.locale.opsPlan.enterprise')}</option>
+                </select>
+              </FieldShell>
+
+              <FieldShell
                 label={t('dashboard.general.locale.prefix.label')}
                 hint={t('dashboard.general.locale.prefix.hint')}
                 error={errors.generalSettings?.prefix?.message}
@@ -216,75 +259,107 @@ export default function GeneralModule({
         </div>
       </PanelCard>
 
-      <PanelCard
-        eyebrow={t('dashboard.general.prefs.eyebrow')}
-        title={t('dashboard.general.prefs.title')}
-        description={t('dashboard.general.prefs.desc')}
-        variant="soft"
-      >
-        <div className="space-y-5">
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-              {t('dashboard.general.prefs.defaultSection')}
-            </span>
-            <select
-              {...register('dashboardPreferences.defaultSection')}
-              className="dashboard-form-field"
-            >
-              <option value="overview">{t('dashboard.general.sections.overview')}</option>
-              <option value="inbox">{t('dashboard.general.sections.inbox')}</option>
-              <option value="playbooks">{t('dashboard.general.sections.playbooks')}</option>
-              <option value="general">{t('dashboard.general.sections.general')}</option>
-              <option value="server_roles">{t('dashboard.general.sections.server_roles')}</option>
-              <option value="tickets">{t('dashboard.general.sections.tickets')}</option>
-              <option value="verification">{t('dashboard.general.sections.verification')}</option>
-              <option value="welcome">{t('dashboard.general.sections.welcome')}</option>
-              <option value="suggestions">{t('dashboard.general.sections.suggestions')}</option>
-              <option value="modlogs">{t('dashboard.general.sections.modlogs')}</option>
-              <option value="commands">{t('dashboard.general.sections.commands')}</option>
-              <option value="system">{t('dashboard.general.sections.system')}</option>
-              <option value="activity">{t('dashboard.general.sections.activity')}</option>
-              <option value="analytics">{t('dashboard.general.sections.analytics')}</option>
-            </select>
-          </label>
+      <div className="space-y-6">
+        <PanelCard
+          eyebrow={t('dashboard.general.prefs.eyebrow')}
+          title={t('dashboard.general.prefs.title')}
+          description={t('dashboard.general.prefs.desc')}
+          variant="soft"
+        >
+          <div className="space-y-5">
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                {t('dashboard.general.prefs.defaultSection')}
+              </span>
+              <select
+                {...register('dashboardPreferences.defaultSection')}
+                className="dashboard-form-field"
+              >
+                <option value="overview">{t('dashboard.general.sections.overview')}</option>
+                <option value="inbox">{t('dashboard.general.sections.inbox')}</option>
+                <option value="playbooks">{t('dashboard.general.sections.playbooks')}</option>
+                <option value="general">{t('dashboard.general.sections.general')}</option>
+                <option value="server_roles">{t('dashboard.general.sections.server_roles')}</option>
+                <option value="tickets">{t('dashboard.general.sections.tickets')}</option>
+                <option value="verification">{t('dashboard.general.sections.verification')}</option>
+                <option value="welcome">{t('dashboard.general.sections.welcome')}</option>
+                <option value="suggestions">{t('dashboard.general.sections.suggestions')}</option>
+                <option value="modlogs">{t('dashboard.general.sections.modlogs')}</option>
+                <option value="commands">{t('dashboard.general.sections.commands')}</option>
+                <option value="system">{t('dashboard.general.sections.system')}</option>
+                <option value="activity">{t('dashboard.general.sections.activity')}</option>
+                <option value="analytics">{t('dashboard.general.sections.analytics')}</option>
+              </select>
+            </label>
 
-          <label className="dashboard-toggle-card flex items-start gap-3">
-            <input
-              type="checkbox"
-              {...register('dashboardPreferences.compactMode')}
-              className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
-            />
-            <span>
-              <span className="block font-semibold text-slate-950 dark:text-white">
-                {t('dashboard.general.prefs.compactMode.label')}
+            <label className="dashboard-toggle-card flex items-start gap-3">
+              <input
+                type="checkbox"
+                {...register('dashboardPreferences.compactMode')}
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+              />
+              <span>
+                <span className="block font-semibold text-slate-950 dark:text-white">
+                  {t('dashboard.general.prefs.compactMode.label')}
+                </span>
+                <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
+                  {t('dashboard.general.prefs.compactMode.desc')}
+                </span>
               </span>
-              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
-                {t('dashboard.general.prefs.compactMode.desc')}
-              </span>
-            </span>
-          </label>
+            </label>
 
-          <label className="dashboard-toggle-card flex items-start gap-3">
-            <input
-              type="checkbox"
-              {...register('dashboardPreferences.showAdvancedCards')}
-              className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
-            />
-            <span>
-              <span className="block font-semibold text-slate-950 dark:text-white">
-                {t('dashboard.general.prefs.advancedCards.label')}
+            <label className="dashboard-toggle-card flex items-start gap-3">
+              <input
+                type="checkbox"
+                {...register('dashboardPreferences.showAdvancedCards')}
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+              />
+              <span>
+                <span className="block font-semibold text-slate-950 dark:text-white">
+                  {t('dashboard.general.prefs.advancedCards.label')}
+                </span>
+                <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
+                  {t('dashboard.general.prefs.advancedCards.desc')}
+                </span>
               </span>
-              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
-                {t('dashboard.general.prefs.advancedCards.desc')}
-              </span>
-            </span>
-          </label>
+            </label>
 
-          <div className="rounded-[1.5rem] border border-brand-200/70 bg-brand-50/75 p-4 text-sm text-brand-800 dark:border-brand-900/50 dark:bg-brand-950/20 dark:text-brand-200">
-            {t('dashboard.general.prefs.notice')}
+            <div className="rounded-[1.5rem] border border-brand-200/70 bg-brand-50/75 p-4 text-sm text-brand-800 dark:border-brand-900/50 dark:bg-brand-950/20 dark:text-brand-200">
+              {t('dashboard.general.prefs.notice')}
+            </div>
           </div>
-        </div>
-      </PanelCard>
+        </PanelCard>
+
+        <PanelCard
+          eyebrow={t('dashboard.general.launchpad.eyebrow')}
+          title={t('dashboard.general.launchpad.title')}
+          description={t('dashboard.general.launchpad.desc')}
+          variant="soft"
+        >
+          <div className="space-y-3">
+            {launchpadSteps.map((step) => (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => onSectionChange(step.section)}
+                className="dashboard-checklist-item w-full text-left"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-slate-950 dark:text-white">{step.label}</p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      {step.done ? t('dashboard.general.launchpad.ready') : t('dashboard.general.launchpad.pending')}
+                    </p>
+                  </div>
+                  <span className={`dashboard-status-pill-compact ${step.done ? 'dashboard-success-pill' : 'dashboard-neutral-pill'}`}>
+                    {step.done ? t('dashboard.general.launchpad.done') : t('dashboard.general.launchpad.cta')}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </PanelCard>
+      </div>
     </form>
   );
 }

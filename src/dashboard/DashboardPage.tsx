@@ -9,6 +9,7 @@ import DashboardAccessStage, {
   DashboardAccessStatusPill,
   type DashboardAccessProgressStep,
 } from './components/DashboardAccessStage';
+import DashboardDemoPage from './DashboardDemoPage';
 import DashboardModuleViewport from './components/DashboardModuleViewport';
 import DashboardShell from './components/DashboardShell';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -54,9 +55,19 @@ function shouldDelayDashboardEntryStage(stage: DashboardEntryStage) {
 
 export default function DashboardPage() {
   useDashboardDarkMode();
-  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const demoVariant = searchParams.get('demo');
   const requestedGuildId = searchParams.get('guild');
+
+  if (demoVariant === 'ops-console') {
+    return <DashboardDemoPage />;
+  }
+
+  return <DashboardLivePage requestedGuildId={requestedGuildId} />;
+}
+
+function DashboardLivePage({ requestedGuildId }: { requestedGuildId: string | null }) {
+  const { t } = useTranslation();
 
   const authQuery = useDashboardAuth();
   const signIn = useSignInWithDiscord();

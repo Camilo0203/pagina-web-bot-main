@@ -24,6 +24,7 @@ export const defaultGeneralSettings: GeneralSettings = {
   prefix: '!',
   timezone: systemTimezone,
   moderationPreset: 'balanced',
+  opsPlan: 'free',
 };
 
 export const defaultLegacyProtectionSettings: LegacyProtectionSettings = {

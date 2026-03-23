@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import PanelCard from '../components/PanelCard';
 import StateCard from '../components/StateCard';
 import ModuleEmptyState from '../components/ModuleEmptyState';
-import type { DashboardGuild, DashboardPartialFailure, GuildMetricsDaily } from '../types';
+import type { DashboardGuild, DashboardPartialFailure, GeneralSettings, GuildMetricsDaily, PlaybookWorkspaceSnapshot } from '../types';
 import {
   formatCompactNumber,
   formatMinutes,
@@ -19,6 +19,8 @@ import { formatMetricDate, getMetricsSummary } from '../utils';
 interface AnalyticsModuleProps {
   guild: DashboardGuild;
   metrics: GuildMetricsDaily[];
+  playbooks: PlaybookWorkspaceSnapshot;
+  config: { generalSettings: GeneralSettings };
   partialFailure: DashboardPartialFailure | null;
 }
 
@@ -72,6 +74,8 @@ function buildSparkline(points: Array<{ value: number | null }>) {
 export default function AnalyticsModule({
   guild,
   metrics,
+  playbooks,
+  config,
   partialFailure,
 }: AnalyticsModuleProps) {
   const { t } = useTranslation();
@@ -131,6 +135,13 @@ export default function AnalyticsModule({
   const last14 = getLast14Metrics(metrics);
   const summary = getMetricsSummary(last14);
   const cards = getAnalyticsCards(last14);
+  const pendingRecommendations = playbooks.recommendations.filter((recommendation) => recommendation.status === 'pending').length;
+  const appliedRecommendations = playbooks.recommendations.filter((recommendation) => recommendation.status === 'applied').length;
+  const dismissedRecommendations = playbooks.recommendations.filter((recommendation) => recommendation.status === 'dismissed').length;
+  const resolvedRecommendations = appliedRecommendations + dismissedRecommendations;
+  const acceptanceRate = resolvedRecommendations > 0
+    ? Math.round((appliedRecommendations / resolvedRecommendations) * 100)
+    : 0;
   const maxCommands = Math.max(...last14.map((metric) => metric.commandsExecuted), 1);
   const maxTickets = Math.max(...last14.map((metric) => Math.max(metric.ticketsOpened, metric.ticketsClosed, metric.openTickets)), 1);
 
@@ -252,6 +263,27 @@ export default function AnalyticsModule({
           </div>
         </PanelCard>
       </div>
+
+      <PanelCard
+        eyebrow={t('dashboard.analytics.playbooks.eyebrow')}
+        title={t('dashboard.analytics.playbooks.title')}
+        description={t('dashboard.analytics.playbooks.desc', { plan: config.generalSettings.opsPlan })}
+        variant="soft"
+      >
+        <div className="dashboard-grid-fit-compact">
+          {[
+            [t('dashboard.analytics.playbooks.pending'), String(pendingRecommendations)],
+            [t('dashboard.analytics.playbooks.applied'), String(appliedRecommendations)],
+            [t('dashboard.analytics.playbooks.dismissed'), String(dismissedRecommendations)],
+            [t('dashboard.analytics.playbooks.acceptance'), `${acceptanceRate}%`],
+          ].map(([label, value]) => (
+            <article key={label} className="dashboard-kpi-card">
+              <p className="dashboard-data-label">{label}</p>
+              <p className="mt-2 text-[1.45rem] font-bold tracking-[-0.05em] text-slate-950 dark:text-white">{value}</p>
+            </article>
+          ))}
+        </div>
+      </PanelCard>
 
       <PanelCard
         eyebrow={t('dashboard.analytics.daily.eyebrow')}

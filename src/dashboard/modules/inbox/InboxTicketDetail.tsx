@@ -154,6 +154,10 @@ export default function InboxTicketDetail(props: InboxTicketDetailProps) {
                 runId: run?.runId ?? null,
               };
               const macro = recommendation.suggestedMacroId ? macrosById.get(recommendation.suggestedMacroId) ?? null : null;
+              const metadata = recommendation.metadata as Record<string, unknown> | null;
+              const assistant = metadata?.assistant as Record<string, unknown> | undefined;
+              const assistantReplyDraft = typeof assistant?.replyDraft === 'string' ? assistant.replyDraft : null;
+              const assistantNextAction = typeof assistant?.nextAction === 'string' ? assistant.nextAction : null;
 
               const applyPrimaryAction = () => {
                 if (recommendation.suggestedAction === 'post_macro' && recommendation.suggestedMacroId) {
@@ -226,6 +230,17 @@ export default function InboxTicketDetail(props: InboxTicketDetailProps) {
                       {isEnglish ? 'Dismiss' : 'Descartar'}
                     </button>
                   </div>
+                  {assistantReplyDraft ? (
+                    <div className="mt-4 rounded-[1rem] border border-white/30 bg-white/20 p-3 text-sm">
+                      <p className="font-semibold">{isEnglish ? 'Assistive draft reply' : 'Borrador asistido'}</p>
+                      <p className="mt-2 leading-6 text-current/85">{assistantReplyDraft}</p>
+                      {assistantNextAction ? (
+                        <p className="mt-2 text-xs uppercase tracking-[0.16em] text-current/65">
+                          {assistantNextAction}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </article>
               );
             })}

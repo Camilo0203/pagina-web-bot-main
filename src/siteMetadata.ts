@@ -1,6 +1,6 @@
-export const defaultMetaTitle = 'TON618 | Premium Discord Bot for Moderation, Automations and Ops';
+export const defaultMetaTitle = 'TON618 | Discord Ops Console for Tickets, SLA and Playbooks';
 export const defaultMetaDescription =
-  'TON618 centralizes Discord moderation, automations, support flows and live operational visibility from one premium dashboard.';
+  'TON618 gives Discord staff teams a live ops console with support inbox, SLA visibility, incident mode and guided playbooks.';
 
 export const socialImagePath = '/social-preview.png';
 export const faviconPath = '/favicon.png';

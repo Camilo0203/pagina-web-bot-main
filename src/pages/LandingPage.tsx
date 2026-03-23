@@ -96,7 +96,7 @@ export default function LandingPage() {
         <meta name="description" content={description} />
         <meta
           name="keywords"
-          content="Discord bot, Discord dashboard, Discord moderation bot, Discord automation, Discord verification bot, Discord tickets"
+          content="Discord ops console, Discord dashboard, Discord support inbox, Discord ticket SLA, Discord playbooks, Discord incident mode"
         />
         <meta name="robots" content="index,follow" />
         <meta name="theme-color" content="#05060f" />

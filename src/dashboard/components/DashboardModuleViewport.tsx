@@ -518,6 +518,7 @@ export default function DashboardModuleViewport({
               mutation={getLatestMutationForSection(snapshot.mutations, 'general')}
               syncStatus={snapshot.syncStatus}
               isSaving={requestConfigChangePending}
+              onSectionChange={onSectionChange}
               onSave={(values) =>
                 onConfigSave('general', {
                   generalSettings: values.generalSettings,
@@ -650,6 +651,8 @@ export default function DashboardModuleViewport({
             <AnalyticsModule
               guild={selectedGuild}
               metrics={snapshot.metrics}
+              playbooks={snapshot.playbooks}
+              config={snapshot.config}
               partialFailure={metricsFailure}
             />
           </ErrorBoundary>

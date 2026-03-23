@@ -187,6 +187,25 @@ export default function InboxModule({
         : [],
     [playbooks.recommendations, selectedTicket],
   );
+
+  useEffect(() => {
+    if (!selectedTicket || replyDraft.trim()) {
+      return;
+    }
+
+    const assistantReplyDraft = selectedRecommendations
+      .map((recommendation) => {
+        const metadata = recommendation.metadata as Record<string, unknown> | null;
+        const assistant = metadata?.assistant as Record<string, unknown> | undefined;
+        return typeof assistant?.replyDraft === 'string' ? assistant.replyDraft : null;
+      })
+      .find(Boolean);
+
+    if (assistantReplyDraft) {
+      setReplyDraft(assistantReplyDraft);
+    }
+  }, [replyDraft, selectedRecommendations, selectedTicket]);
+
   const selectedPlaybookRuns = useMemo<PlaybookRun[]>(
     () =>
       selectedTicket

@@ -20,6 +20,7 @@ export const generalSettingsSchema = z
     prefix: z.string().trim().min(1, 'El prefijo es obligatorio').max(5, 'Usa un prefijo corto'),
     timezone: z.string().trim().min(1, 'Selecciona una zona horaria').max(80),
     moderationPreset: z.enum(['relaxed', 'balanced', 'strict']),
+    opsPlan: z.enum(['free', 'pro', 'enterprise']),
   })
   .superRefine((value, context) => {
     if (value.commandMode === 'prefix' && !value.prefix.trim()) {
