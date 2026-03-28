@@ -1,22 +1,20 @@
 export const en = {
     translation: {
         meta: {
-            title: 'TON618 | Premium Discord Bot for Moderation, Automations and Ops',
+            title: 'TON618 | Discord bot for moderation, tickets, verification and staff workflows',
             description:
-                'TON618 helps serious Discord communities automate moderation, run workflows, monitor live activity and manage everything from one premium dashboard.',
+                'TON618 helps Discord servers handle moderation, tickets, verification, setup, logs and staff workflows with real slash commands.',
         },
         nav: {
             features: 'Capabilities',
-            architecture: 'Experience',
-            whyTon: 'Reliability',
-            network: 'Live stats',
+            setup: 'Setup',
+            commands: 'Commands',
+            stats: 'Live stats',
             docs: 'Docs',
             status: 'Status',
             support: 'Support',
             primaryCta: 'Invite bot',
-            secondaryCta: 'Open dashboard',
             mobilePrimaryCta: 'Invite to Discord',
-            mobileSecondaryCta: 'Open dashboard',
             openMenu: 'Open navigation menu',
             closeMenu: 'Close navigation menu',
             homeAria: 'Go to home',
@@ -28,131 +26,132 @@ export const en = {
         },
         app: {
             loadingTitle: 'Loading experience',
-            loadingDescription: 'Preparing the dashboard and navigation.',
+            loadingDescription: 'Preparing TON618 and navigation.',
         },
         landing: {
             skipToContent: 'Skip to content',
         },
         hero: {
-            badge: 'Discord operations platform for serious servers',
+            badge: 'Discord bot for moderation, tickets and verification',
             titleMain: 'Run Your Server',
-            titleAccent: 'With Precision',
+            titleAccent: 'With Real Workflows',
             description:
-                'Moderation, automations, tickets, verification and analytics in one Discord bot built to stay fast as your community grows.',
+                'TON618 gives Discord communities one bot for moderation, tickets, verification, setup commands, logging and staff coordination.',
             descriptionSub:
-                'Invite TON618 in minutes, configure flows from the dashboard and keep staff aligned with live operational visibility.',
+                'Invite it, publish the ticket and verification panels, and keep daily operations inside Discord with commands your team can actually use.',
             ctaPrimary: 'Invite TON618',
-            ctaSecondary: 'Open dashboard',
-            ctaTertiary: 'Read docs',
+            ctaSecondary: 'Read docs',
+            ctaTertiary: 'Get support',
             inviteUnavailable: 'Set VITE_DISCORD_CLIENT_ID to enable the invite flow.',
+            logoSubtitle: 'Discord Bot',
             proof: {
-                one: 'Automations for moderation, roles and support',
-                two: 'Live metrics with graceful fallback',
-                three: 'Premium dashboard for operators and staff',
+                one: 'Ticket workflows with claims, notes, transcripts and staff handoff',
+                two: 'Verification, welcome flows and setup commands for safer onboarding',
+                three: 'Warnings, mod logs, stats and audit exports for operational visibility',
             },
-            panelLabel: 'Why teams move fast with TON618',
+            panelLabel: 'What ships in the bot today',
             scroll: 'Scroll to explore',
             highlightsAria: 'Product highlights',
         },
         docsSection: {
-            eyebrow: 'Operational resources',
+            eyebrow: 'Resources',
             title: 'Everything Needed',
-            titleAccent: 'To Evaluate And Launch',
+            titleAccent: 'To Launch Confidently',
             description:
-                'TON618 does not stop at a polished landing page: it exposes value, opens the dashboard and keeps the resources a serious team expects before adopting the product.',
+                'The public site stays focused on practical next steps: setup, commands, support, status and legal routes.',
             cards: {
-                docs: {
-                    title: 'Operational documentation',
+                setup: {
+                    title: 'Setup guide',
                     description:
-                        'Setup guidance, module coverage and operating notes so teams can move from installation to real usage without tribal knowledge.',
-                    ctaExternal: 'Open docs',
-                    ctaFallback: 'Review launch path',
+                        'Start with /setup wizard, publish tickets and verification, and connect staff roles without guesswork.',
+                    ctaExternal: 'Open setup guide',
+                    ctaFallback: 'Read the setup path',
                 },
-                dashboard: {
-                    title: 'Dashboard for staff',
+                commands: {
+                    title: 'Command reference',
                     description:
-                        'Open configuration, tickets and operational follow-up from a panel that already degrades gracefully when a secondary source fails.',
-                    cta: 'Open dashboard',
+                        'Browse the real slash commands available to members, staff and admins in TON618.',
+                    cta: 'View commands',
                 },
                 support: {
-                    title: 'Support and trust path',
+                    title: 'Support and status',
                     description:
-                        'Support, contact and launch guidance stay visible to reduce friction during evaluation, onboarding and incident handling.',
+                        'Use support, status and public legal pages when you need rollout help or trust checks.',
                     ctaExternal: 'Open support',
-                    ctaFallback: 'Go to launch CTA',
+                    ctaFallback: 'Jump to support',
                 },
             },
         },
         features: {
-            tag: 'What You Can Run',
+            tag: 'Core Capabilities',
             title: 'Built For',
-            titleAccent: 'Real Operations',
+            titleAccent: 'Discord Operations',
             description:
-                'TON618 is not a novelty bot. It is a Discord control layer for communities that need repeatable workflows, fast moderation and cleaner operations as volume increases.',
+                'TON618 is grounded in the bot that actually ships: moderation, ticket handling, verification, setup, logs, staff workflows and utility commands.',
             useCases: {
-                moderation: 'Moderate faster with rules, logs and safer defaults.',
-                onboarding: 'Automate onboarding, verification and role assignment.',
-                support: 'Keep tickets, support and staff actions organized.',
+                moderation: 'Moderate faster with warnings, logs and safer defaults.',
+                onboarding: 'Publish verification and onboarding flows from real setup commands.',
+                support: 'Keep tickets, staff workload and follow-up organized.',
             },
             items: {
                 moderation: {
-                    title: 'Moderation That Scales',
-                    desc: 'Handle enforcement, role logic and moderation events without turning staff work into manual busywork.',
-                    status: 'STAFF READY',
+                    title: 'Moderation and warnings',
+                    desc: 'Use warning workflows and moderation logs to keep enforcement consistent.',
+                    status: '/warn + /modlogs',
                 },
                 autonomy: {
-                    title: 'Automation Flows',
-                    desc: 'Run welcome journeys, verification steps and recurring workflows from configurable modules instead of ad hoc commands.',
-                    status: 'WORKFLOWS ACTIVE',
+                    title: 'Ticket workflows',
+                    desc: 'Handle claims, notes, transcripts, priorities and staff handoff inside the ticket flow.',
+                    status: '/ticket',
                 },
                 latency: {
-                    title: 'Fast Response',
-                    desc: 'Keep commands and operational actions feeling instant with an architecture designed for high-traffic Discord environments.',
-                    status: 'LOW LATENCY',
+                    title: 'Verification and onboarding',
+                    desc: 'Set up verification modes, welcome messages and safer onboarding for new members.',
+                    status: '/verify',
                 },
                 security: {
-                    title: 'Safer By Default',
-                    desc: 'Protect core interactions with stable permissions, controlled surfaces and a product experience built for administrators.',
-                    status: 'HARDENED',
+                    title: 'Server setup',
+                    desc: 'Get a new server ready with guided setup, role mapping and configuration status checks.',
+                    status: '/setup',
                 },
                 analytics: {
-                    title: 'Operational Visibility',
-                    desc: 'Read live activity, usage and uptime signals so staff can trust what is happening across the bot at a glance.',
-                    status: 'INSIGHT LIVE',
+                    title: 'Logs and reporting',
+                    desc: 'Review ticket metrics, SLA performance and exportable audit data when staff needs visibility.',
+                    status: '/stats + /audit',
                 },
                 network: {
-                    title: 'Growth-Ready',
-                    desc: 'Designed for communities that move beyond hobby scale and need consistency across multiple staff workflows.',
-                    status: 'READY TO EXPAND',
+                    title: 'Staff coordination',
+                    desc: 'Track workload, away status and open tickets without relying on scattered staff habits.',
+                    status: '/staff',
                 },
                 modular: {
-                    title: 'Modular Setup',
-                    desc: 'Enable only the systems your server actually needs and configure them from the dashboard without losing clarity.',
-                    status: 'CONFIGURABLE',
+                    title: 'Community feedback',
+                    desc: 'Collect suggestions and run polls with the same bot your team already uses daily.',
+                    status: '/suggest + /poll',
                 },
                 comms: {
-                    title: 'Discord-Native UX',
-                    desc: 'Every interaction feels grounded in how serious Discord teams already work, from support to moderation to member onboarding.',
-                    status: 'PLATFORM FIT',
+                    title: 'Discord-native utility',
+                    desc: 'Help members find commands and check profiles without leaving the server.',
+                    status: '/help + /perfil',
                 },
             },
         },
         experience: {
-            title: 'See The',
-            titleAccent: 'Control Layer',
+            title: 'From Invite',
+            titleAccent: 'To Live Server',
             subtitle:
-                'A cleaner operator experience for teams that need to move quickly without losing context.',
-            card1Eyebrow: 'Setup clarity',
-            card1Title: 'From command chaos to guided setup',
+                'TON618 stays command-first: invite the bot, run the setup steps, publish panels, and keep moderation and support workflows inside Discord.',
+            card1Eyebrow: 'Setup path',
+            card1Title: 'Use real commands to go live',
             card1Desc:
-                'Replace scattered staff knowledge with a dashboard that exposes key modules, actions and states in a way new moderators can understand quickly.',
-            card2Eyebrow: 'Operator workflow',
-            card2Title: 'Built for Discord product workflows',
+                'Start with /setup wizard, /setup tickets panel, /verify panel and /config status to make the server usable quickly.',
+            card2Eyebrow: 'Daily workflow',
+            card2Title: 'Give staff tools they will actually use',
             card2Desc:
-                'Move from invite to configuration to daily operations with a single system, rather than stitching together multiple niche bots and panels.',
+                'Staff can claim tickets, add notes, review workload, issue warnings and inspect stats without relying on extra web tooling.',
         },
         gallery: {
-            tag: 'Dashboard In Action',
+            tag: 'Server Workflows',
             title: 'See The System',
             titleAccent: 'In Operation',
             description:
@@ -177,7 +176,7 @@ export const en = {
             },
             ctas: {
                 overview: {
-                    primary: 'View Dashboard',
+                    primary: 'Open Setup Guide',
                     secondary: 'Read Docs',
                 },
                 moderation: {
@@ -203,8 +202,8 @@ export const en = {
         demo: {
             tag: 'Try It Now',
             title: 'Experience The',
-            titleAccent: 'Live Dashboard',
-            description: 'Browse the views your team will use daily to operate, moderate and automate your server.',
+            titleAccent: 'Daily Workflow',
+            description: 'Browse the moderation, ticket and verification workflow your team will use every day.',
             tabs: { moderation: 'Moderation', automation: 'Automation', tickets: 'Tickets', analytics: 'Analytics' },
             moderation: {
                 action1: 'AutoMod blocked spam in #general',
@@ -236,7 +235,7 @@ export const en = {
             features: {
                 moderation: 'Advanced moderation',
                 automation: 'Automation flows',
-                dashboard: 'Web dashboard',
+                setupGuide: 'Setup guidance',
                 analytics: 'Live analytics',
                 verification: 'Member verification',
                 tickets: 'Ticket system',
@@ -252,7 +251,7 @@ export const en = {
             titleAccent: 'Are Saying',
             description: 'Servers that already trust TON618 for their daily operations.',
             items: {
-                t1: { name: 'Alex R.', role: 'Owner', server: 'Horizon Gaming', members: '12K members', quote: 'Since migrating to TON618 we cut moderation time by 60%. The dashboard makes everything clearer for staff.' },
+                t1: { name: 'Alex R.', role: 'Owner', server: 'Horizon Gaming', members: '12K members', quote: 'Since migrating to TON618 it has been much easier for our moderators to keep tickets, warnings and verification in one flow.' },
                 t2: { name: 'María S.', role: 'Admin', server: 'Código Latam', members: '8K members', quote: 'Automation flows saved us. Onboarding, verification and support run on their own now.' },
                 t3: { name: 'Jake T.', role: 'Head Mod', server: 'Creative Hub', members: '25K members', quote: 'Live analytics and moderation logs give us full visibility. Would never go back to another bot.' },
             },
@@ -267,7 +266,7 @@ export const en = {
                 supabase: { name: 'Supabase', desc: 'Real-time database and authentication' },
                 nodejs: { name: 'Node.js', desc: 'High-performance runtime' },
                 typescript: { name: 'TypeScript', desc: 'Strict typing for stability' },
-                react: { name: 'React', desc: 'Interactive modern dashboard' },
+                react: { name: 'React', desc: 'Public site and support surfaces' },
                 tailwind: { name: 'Tailwind CSS', desc: 'Premium and consistent UI' },
             },
         },
@@ -276,12 +275,12 @@ export const en = {
             title: 'We Answer',
             titleAccent: 'Your Questions',
             items: {
-                q1: { question: 'How do I invite TON618 to my server?', answer: 'Click "Invite bot" on this page, authorize the permissions and TON618 will be ready. Then open the dashboard to configure modules.' },
-                q2: { question: 'Is TON618 free?', answer: 'TON618 offers a free plan with essential features. Premium plans unlock advanced automations, detailed analytics and priority support.' },
+                q1: { question: 'How do I invite TON618 to my server?', answer: 'Click "Invite bot" on this page, approve the permissions and TON618 will be ready to use in your server.' },
+                q2: { question: 'Is TON618 free?', answer: 'The invite flow and base setup are available so teams can get started. Some advanced reporting or commercial features can depend on the server plan configured by the bot owner.' },
                 q3: { question: 'Can I migrate from another bot?', answer: 'Yes. TON618 works alongside other bots during the transition. Configure the modules you need and disable the old bot when ready.' },
                 q4: { question: 'How fast does the bot respond?', answer: 'TON618 is optimized for low latency. Commands and moderation actions execute in milliseconds, even on high-activity servers.' },
-                q5: { question: 'Is the dashboard secure?', answer: 'The dashboard uses Discord OAuth and Supabase authentication. Only server administrators can access the configuration.' },
-                q6: { question: 'Is there support if I have issues?', answer: 'Yes. We have an active support server, detailed documentation and a team that responds quickly to incidents and questions.' },
+                q5: { question: 'Which commands should I start with?', answer: 'Use /setup wizard, /config status and /verify panel or /setup tickets panel depending on what your server needs first.' },
+                q6: { question: 'Is there support if I have issues?', answer: 'Yes. The public site keeps support, docs, status and legal pages visible so teams know where to go when they need help.' },
             },
         },
         notifications: {
@@ -320,7 +319,7 @@ export const en = {
                     desc: 'For teams that need more.',
                     cta: 'Upgrade to Pro',
                     popular: 'Most popular',
-                    features: ['Everything in Free', 'Unlimited flows', 'Live analytics', 'Ticket system', 'Full dashboard', 'Priority support'],
+                    features: ['Everything in Free', 'Unlimited flows', 'Live analytics', 'Ticket system', 'Expanded setup tooling', 'Priority support'],
                 },
                 enterprise: {
                     name: 'Enterprise',
@@ -340,7 +339,7 @@ export const en = {
                 e1: { version: 'v2.4.0', date: 'Mar 2026', title: 'Redesigned ticket system', desc: 'New ticket panel with SLA, auto-escalation and transcripts.' },
                 e2: { version: 'v2.3.0', date: 'Feb 2026', title: 'Real-time analytics', desc: 'Activity metrics, usage charts and automatic reports.' },
                 e3: { version: 'v2.2.0', date: 'Jan 2026', title: 'Automation flows v2', desc: 'Visual flow editor with conditional triggers and chained actions.' },
-                e4: { version: 'v2.1.0', date: 'Dec 2025', title: 'Premium dashboard', desc: 'Complete dashboard redesign with configurable modules.' },
+                e4: { version: 'v2.1.0', date: 'Dec 2025', title: 'Verification refresh', desc: 'Updated verification publishing flow with cleaner panel rollout guidance.' },
             },
         },
         roadmap: {
@@ -351,59 +350,123 @@ export const en = {
             items: {
                 r1: { quarter: 'Q2 2026', title: 'AI Moderation', desc: 'Intelligent spam, toxicity and raid detection with language models.', status: 'In development' },
                 r2: { quarter: 'Q2 2026', title: 'Custom webhooks', desc: 'Connect TON618 to external services via configurable webhooks.', status: 'In development' },
-                r3: { quarter: 'Q3 2026', title: 'Mobile app', desc: 'Native dashboard for iOS and Android with push notifications.', status: 'Planned' },
+                r3: { quarter: 'Q3 2026', title: 'Expanded setup guides', desc: 'More public rollout guidance for moderation, verification and ticket flows.', status: 'Planned' },
                 r4: { quarter: 'Q4 2026', title: 'Plugin marketplace', desc: 'Install community-created modules from a marketplace.', status: 'Coming soon' },
             },
         },
         commandPreview: {
-            tag: 'Popular Commands',
-            title: 'Power At',
-            titleAccent: 'A Slash Away',
-            description: 'The most used commands by staff teams on active servers.',
-            commands: {
-                c1: { name: '/mod warn', desc: 'Apply a warning to a user with reason and evidence.', example: '/mod warn @user Spam in #general' },
-                c2: { name: '/ticket create', desc: 'Open a support ticket with category and priority.', example: '/ticket create "Can\'t verify" --priority high' },
-                c3: { name: '/flow run', desc: 'Manually execute an automation flow.', example: '/flow run welcome-sequence' },
-                c4: { name: '/analytics report', desc: 'Generate a server activity report.', example: '/analytics report --period 7d' },
-                c5: { name: '/config module', desc: 'Enable or disable a bot module.', example: '/config module tickets --enable' },
+            tag: 'Real Commands',
+            title: 'Slash Commands',
+            titleAccent: 'That Actually Ship',
+            description: 'TON618 uses real Discord command groups for members, staff and admins. The examples below come from the bot repo.',
+            groups: {
+                public: {
+                    label: 'Members',
+                    title: 'Public utility commands',
+                    description: 'Commands members use for help, profiles, polls and suggestions.',
+                    commands: {
+                        help: {
+                            path: '/help',
+                            description: 'Open the interactive help view and only show the commands available in that server.',
+                        },
+                        perfil: {
+                            path: '/perfil ver',
+                            description: 'Show a member profile with level and economy progress.',
+                        },
+                        poll: {
+                            path: '/poll crear',
+                            description: 'Create an interactive poll with options and a duration.',
+                        },
+                        suggest: {
+                            path: '/suggest',
+                            description: 'Open the suggestion flow so members can submit ideas for the server.',
+                        },
+                    },
+                },
+                staff: {
+                    label: 'Staff',
+                    title: 'Moderation and support workflows',
+                    description: 'Commands moderators and support staff use during daily operations.',
+                    commands: {
+                        ticketClaim: {
+                            path: '/ticket claim',
+                            description: 'Claim the current ticket so the team knows who owns the case.',
+                        },
+                        ticketNote: {
+                            path: '/ticket note add',
+                            description: 'Leave an internal note for handoff, follow-up or context.',
+                        },
+                        staffTickets: {
+                            path: '/staff my-tickets',
+                            description: 'Review the open tickets currently assigned to you.',
+                        },
+                        warnAdd: {
+                            path: '/warn add',
+                            description: 'Apply a warning with a reason and keep the moderation record consistent.',
+                        },
+                    },
+                },
+                admin: {
+                    label: 'Admins',
+                    title: 'Setup, verification and reporting',
+                    description: 'Commands owners and administrators use to launch and maintain the server.',
+                    commands: {
+                        setupWizard: {
+                            path: '/setup wizard',
+                            description: 'Apply a guided baseline setup for a new server.',
+                        },
+                        verifyPanel: {
+                            path: '/verify panel',
+                            description: 'Send or refresh the verification panel for new members.',
+                        },
+                        configStatus: {
+                            path: '/config status',
+                            description: 'Review the current live configuration at a glance.',
+                        },
+                        statsSla: {
+                            path: '/stats sla',
+                            description: 'Check SLA compliance and escalation pressure for ticket operations.',
+                        },
+                    },
+                },
             },
         },
         stickyInvite: { cta: 'Invite TON618' },
         scrollToTop: { label: 'Back to top' },
         verifiedBadge: { label: 'Verified bot' },
-        heroTyping: { phrases: ['Moderate with precision', 'Automate flows', 'Analyze in real-time', 'Scale without limits', 'Operate with confidence'] },
+        heroTyping: { phrases: ['Claim faster with /ticket claim', 'Refresh access with /verify panel', 'Check health with /config status', 'Track SLA with /stats sla'] },
         faqSearch: { placeholder: 'Search questions...', noResults: 'No questions found matching that term.' },
         footerShare: { label: 'Share', twitter: 'Share on X', discord: 'Join server' },
         why: {
             tag: 'Why Teams Choose TON618',
-            title: 'Reliable Where',
-            titleAccent: 'It Matters',
+            title: 'Grounded In',
+            titleAccent: 'The Real Bot',
             description:
-                'Serious communities need more than flashy commands. TON618 focuses on operational trust: stable behavior, visible metrics, configurable modules and a cleaner experience for owners, moderators and support staff.',
+                'TON618 is easier to trust when the public site matches the product: real commands, real workflows, public legal pages and direct support paths.',
             stats: {
-                uptime: 'Reliability',
-                uptimeValue: 'Live-backed',
-                uptimeSub: 'Status shown on the landing',
-                speed: 'Operational fit',
-                speedValue: 'Built for staff teams',
-                speedSub: 'From invite to daily usage',
+                uptime: 'Command surface',
+                uptimeValue: 'Real slash commands',
+                uptimeSub: 'Grounded in the bot repo',
+                speed: 'Public surface',
+                speedValue: 'Static and legal-ready',
+                speedSub: 'Invite, docs, status and policy routes',
             },
             reasons: {
                 precision: {
-                    title: 'Clear product value',
-                    desc: 'The landing and dashboard now explain what TON618 actually does: moderation, automations, verification, support and live visibility.',
+                    title: 'Real command inventory',
+                    desc: 'The site now references commands such as /help, /ticket claim, /setup wizard and /stats sla instead of invented command trees.',
                 },
                 performance: {
-                    title: 'Faster team execution',
-                    desc: 'Reusable flows reduce moderator busywork and help staff respond with more consistency during growth or high activity windows.',
+                    title: 'Support-ready workflows',
+                    desc: 'Tickets, staff workload, warnings, verification and suggestions are described because they are already part of TON618.',
                 },
                 security: {
-                    title: 'Trust-oriented experience',
-                    desc: 'Live telemetry, graceful fallback states and product framing focused on stability improve confidence for administrators evaluating the bot.',
+                    title: 'Credible public presence',
+                    desc: 'Invite, docs, support, status and legal pages remain visible while internal tools stay private.',
                 },
                 integration: {
-                    title: 'One system, fewer gaps',
-                    desc: 'Dashboard access, docs, support and status all sit in a clear path so users can move from interest to setup without friction.',
+                    title: 'Safe for static deploys',
+                    desc: 'The public site keeps the existing Vite build and Square Cloud static deployment flow intact.',
                 },
             },
         },
@@ -437,36 +500,34 @@ export const en = {
             },
         },
         final: {
-            tag: 'Ready To Launch',
+            tag: 'Ready To Add',
             title: 'Invite TON618',
-            titleAccent: 'And Configure Fast',
+            titleAccent: 'And Start With Real Commands',
             description:
-                'Bring the bot into your server, open the dashboard and give your staff a cleaner way to moderate, automate and support your community.',
-            cta: 'Invite the bot',
-            secondaryCta: 'Open dashboard',
-            docsCta: 'View docs',
-            supportCta: 'Join support',
+                'Bring the bot into your server, publish tickets and verification, then use docs or support if your team needs help with rollout.',
+            cta: 'Invite TON618',
+            docsCta: 'Read docs',
+            supportCta: 'Get support',
             unavailable: 'The invite URL is disabled until VITE_DISCORD_CLIENT_ID is configured.',
             nodes: {
-                active: 'DISCORD-FIRST PRODUCT',
-                encryption: 'LIVE METRICS READY',
-                stabilized: 'GRACEFUL FALLBACKS',
+                active: 'TICKETS AND STAFF TOOLS',
+                encryption: 'SETUP AND VERIFICATION',
+                stabilized: 'LEGAL AND STATUS ROUTES',
             },
         },
         footer: {
             tagline:
-                'Premium Discord automation for teams that care about moderation quality, operational clarity and a cleaner setup experience.',
+                'Discord bot for moderation, tickets, verification, setup commands and staff workflows.',
             productTitle: 'Product',
             resourcesTitle: 'Resources',
             supportTitle: 'Support',
             govTitle: 'Legal',
             nav: {
                 features: 'Capabilities',
-                experience: 'Experience',
-                why: 'Reliability',
+                setup: 'Setup',
+                commands: 'Commands',
                 stats: 'Live stats',
                 invite: 'Invite bot',
-                dashboard: 'Open dashboard',
                 docs: 'Documentation',
                 status: 'Status page',
                 support: 'Support server',
@@ -478,7 +539,7 @@ export const en = {
                 cookies: 'cookies policy',
             },
             copyright: '© {{year}} TON618',
-            stabilized: 'Discord operations product',
+            stabilized: 'Discord bot product',
             commanded: 'Built by milo0dev',
             inviteCta: 'Invite TON618',
         },
@@ -514,7 +575,7 @@ export const en = {
                     {
                         heading: 'Service changes and availability',
                         body:
-                            'Features, quotas, dashboards and operational flows may change as TON618 evolves. We may improve, limit or discontinue parts of the product when needed for security, reliability, compliance or product direction.',
+                            'Features, quotas, account tools and operational flows may change as TON618 evolves. We may improve, limit or discontinue parts of the product when needed for security, reliability, compliance or product direction.',
                     },
                     {
                         heading: 'Support and policy updates',
@@ -526,14 +587,14 @@ export const en = {
             privacy: {
                 title: 'Privacy Policy',
                 metaDescription:
-                    'Review how TON618 processes operational, account and support data for the bot, website and dashboard.',
+                    'Review how TON618 processes operational, account and support data for the bot, website and authenticated services.',
                 content:
-                    'TON618 only processes the data required to operate bot features, moderation flows, analytics and dashboard access. We do not sell personal data. Server owners can contact support to request data review or removal where applicable.',
+                    'TON618 only processes the data required to operate bot features, moderation flows, analytics and authenticated account access. We do not sell personal data. Server owners can contact support to request data review or removal where applicable.',
                 sections: [
                     {
                         heading: 'Data we process',
                         body:
-                            'TON618 processes the data needed to operate the bot, website and support workflows. This can include Discord account identifiers, server configuration data, moderation or ticket events, analytics signals and authentication details required for dashboard access.',
+                            'TON618 processes the data needed to operate the bot, website and support workflows. This can include Discord account identifiers, server configuration data, moderation or ticket events, analytics signals and authentication details required for secure account access.',
                     },
                     {
                         heading: 'How data is used',
@@ -552,7 +613,7 @@ export const en = {
                 metaDescription:
                     'Review how TON618 uses essential and analytics cookies on the public website.',
                 content:
-                    'This site may use essential and analytics cookies to maintain performance, understand product usage and improve the landing and dashboard experience. Cookie behavior can be controlled from your browser settings.',
+                    'This site may use essential and analytics cookies to maintain performance, understand product usage and improve the public site and support experience. Cookie behavior can be controlled from your browser settings.',
                 sections: [
                     {
                         heading: 'Essential cookies',
@@ -1172,11 +1233,11 @@ export const en = {
         },
         notFound: {
             title: 'This route does not exist',
-            description: 'The landing page is still available and the dashboard can be found at its internal route.',
-            descriptionNoDashboard: 'The landing page is still available and the public legal pages remain online.',
+            description: 'This page is not available. The main site, docs and public legal pages are still online.',
             pageTitle: 'Page not found',
             goHome: 'Back to site',
-            goDashboard: 'Go to dashboard',
+            goDocs: 'Open docs',
+            goSupport: 'Get support',
             errorCode: 'Error 404',
             subtitle: 'Navigation Recovery',
         },

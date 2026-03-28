@@ -26,7 +26,7 @@ export default function Pricing() {
             desc: 'Install the base layer and prove the workflow.',
             cta: 'Start free',
             popular: null,
-            features: ['Basic setup and dashboard', 'Simple tickets', 'Verification', 'Basic operational metrics'],
+            features: ['Basic setup essentials', 'Simple tickets', 'Verification', 'Basic operational metrics'],
           },
           pro: {
             name: 'Pro operativo',
@@ -56,7 +56,7 @@ export default function Pricing() {
             desc: 'Instala la base y valida el flujo.',
             cta: 'Empezar gratis',
             popular: null,
-            features: ['Setup base y dashboard', 'Tickets simples', 'Verificacion', 'Metricas operativas basicas'],
+            features: ['Setup base esencial', 'Tickets simples', 'Verificacion', 'Metricas operativas basicas'],
           },
           pro: {
             name: 'Pro operativo',

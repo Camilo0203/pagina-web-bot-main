@@ -1,33 +1,30 @@
-import { BookOpen, ExternalLink, LifeBuoy, ShieldCheck } from 'lucide-react';
+import { BookOpen, ExternalLink, LifeBuoy, Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { config, getPublicDashboardUrl } from '../config';
+import { config } from '../config';
 
 export default function DocsSection() {
   const { t } = useTranslation();
   const supportHref = config.supportServerUrl || (config.contactEmail ? `mailto:${config.contactEmail}` : '#join');
-  const publicDashboardUrl = getPublicDashboardUrl();
   const resourceCards = [
     {
-      id: 'docs',
-      title: t('docsSection.cards.docs.title'),
-      description: t('docsSection.cards.docs.description'),
+      id: 'setup',
+      title: t('docsSection.cards.setup.title'),
+      description: t('docsSection.cards.setup.description'),
       icon: BookOpen,
-      href: config.docsUrl || '#join',
+      href: config.docsUrl || '#experience',
       external: Boolean(config.docsUrl),
-      cta: config.docsUrl ? t('docsSection.cards.docs.ctaExternal') : t('docsSection.cards.docs.ctaFallback'),
+      cta: config.docsUrl ? t('docsSection.cards.setup.ctaExternal') : t('docsSection.cards.setup.ctaFallback'),
     },
-    publicDashboardUrl
-      ? {
-          id: 'dashboard',
-          title: t('docsSection.cards.dashboard.title'),
-          description: t('docsSection.cards.dashboard.description'),
-          icon: ShieldCheck,
-          href: publicDashboardUrl,
-          external: publicDashboardUrl.startsWith('http'),
-          cta: t('docsSection.cards.dashboard.cta'),
-        }
-      : null,
+    {
+      id: 'commands',
+      title: t('docsSection.cards.commands.title'),
+      description: t('docsSection.cards.commands.description'),
+      icon: Terminal,
+      href: '#commands',
+      external: false,
+      cta: t('docsSection.cards.commands.cta'),
+    },
     {
       id: 'support',
       title: t('docsSection.cards.support.title'),

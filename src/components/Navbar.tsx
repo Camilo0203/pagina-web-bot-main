@@ -3,49 +3,14 @@ import { Menu, X, ChevronRight, ExternalLink, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { config, getDiscordInviteUrl, getPublicDashboardUrl } from '../config';
+import { config, getDiscordInviteUrl } from '../config';
 import LanguageSelector from './LanguageSelector';
 import Logo from './Logo';
-
-const NavAction = memo(({
-  href,
-  label,
-  onClick,
-}: {
-  href: string;
-  label: string;
-  onClick?: () => void;
-}) => {
-  const isInternal = href.startsWith('/');
-
-  if (isInternal) {
-    return (
-      <Link to={href} onClick={onClick} className="text-sm font-semibold text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
-        {label}
-      </Link>
-    );
-  }
-
-  return (
-    <a
-      href={href}
-      onClick={onClick}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-sm font-semibold text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-    >
-      {label}
-    </a>
-  );
-});
-
-NavAction.displayName = 'NavAction';
 
 function Navbar() {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const publicDashboardUrl = getPublicDashboardUrl();
   const inviteUrl = getDiscordInviteUrl();
   const canInvite = Boolean(inviteUrl);
 
@@ -91,9 +56,9 @@ function Navbar() {
 
   const navLinks = [
     { name: t('nav.features'), href: '#features' },
-    { name: t('nav.architecture'), href: '#experience' },
-    { name: t('nav.whyTon'), href: '#why' },
-    { name: t('nav.network'), href: '#stats' },
+    { name: t('nav.setup'), href: '#experience' },
+    { name: t('nav.commands'), href: '#commands' },
+    { name: t('nav.stats'), href: '#stats' },
   ];
 
   const utilityLinks = [
@@ -157,10 +122,6 @@ function Navbar() {
             ) : null}
 
             <LanguageSelector mode="desktop" />
-
-            {publicDashboardUrl ? (
-              <NavAction href={publicDashboardUrl} label={t('nav.secondaryCta')} />
-            ) : null}
 
             {canInvite ? (
               <a href={inviteUrl} className="btn-premium-primary !px-5 !py-3 !text-[10px] !rounded-xl">
@@ -240,14 +201,6 @@ function Navbar() {
                 ) : null}
 
                 <div className="grid gap-3 border-t border-white/8 pt-4">
-                  {publicDashboardUrl ? (
-                    <NavAction
-                      href={publicDashboardUrl}
-                      label={t('nav.mobileSecondaryCta')}
-                      onClick={() => setMobileMenuOpen(false)}
-                    />
-                  ) : null}
-
                   {canInvite ? (
                     <a
                       href={inviteUrl}

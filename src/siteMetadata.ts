@@ -1,6 +1,6 @@
-export const defaultMetaTitle = 'TON618 | Discord Ops Console for Tickets, SLA and Playbooks';
+export const defaultMetaTitle = 'TON618 | Discord bot for moderation, tickets, verification and staff workflows';
 export const defaultMetaDescription =
-  'TON618 gives Discord staff teams a live ops console with support inbox, SLA visibility, incident mode and guided playbooks.';
+  'TON618 helps Discord servers handle moderation, tickets, verification, setup, logs and staff workflows with real slash commands.';
 
 export const socialImagePath = '/social-preview.png';
 export const faviconPath = '/favicon.png';

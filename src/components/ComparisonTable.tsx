@@ -95,9 +95,9 @@ export default function ComparisonTable() {
         tag: 'Operational differentiation',
         title: 'Built To Replace',
         titleAccent: 'Bot Glue',
-        description: 'TON618 competes on operations, not on who has the longest feature checklist. The difference is a real support console with guided decisions.',
+        description: 'TON618 competes on practical server operations, not on who has the longest feature checklist. The difference is command-first support, moderation and rollout guidance.',
         features: {
-          opsConsole: 'Web ops console for staff',
+          opsConsole: 'Command-first staff workflows',
           livePlaybooks: 'Live playbooks with guided actions',
           slaOps: 'SLA visibility and escalation workflows',
           incidentControl: 'Incident mode and reduced operating posture',
@@ -112,9 +112,9 @@ export default function ComparisonTable() {
         tag: 'Diferenciacion operativa',
         title: 'Hecho Para Reemplazar',
         titleAccent: 'El Pegante De Bots',
-        description: 'TON618 compite por operacion, no por checklists infinitos. La diferencia es una consola real de soporte con decisiones guiadas.',
+        description: 'TON618 compite por operacion real del servidor, no por checklists infinitos. La diferencia es soporte, moderacion y rollout command-first con decisiones guiadas.',
         features: {
-          opsConsole: 'Ops console web para staff',
+          opsConsole: 'Workflows command-first para staff',
           livePlaybooks: 'Playbooks vivos con acciones guiadas',
           slaOps: 'Visibilidad SLA y flujos de escalado',
           incidentControl: 'Incident mode y postura operativa reducida',

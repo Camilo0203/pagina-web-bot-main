@@ -2,7 +2,11 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Terminal } from 'lucide-react';
 
-const commandIds = ['c1', 'c2', 'c3', 'c4', 'c5'] as const;
+const commandGroups = [
+  { id: 'public', commands: ['help', 'perfil', 'poll', 'suggest'] },
+  { id: 'staff', commands: ['ticketClaim', 'ticketNote', 'staffTickets', 'warnAdd'] },
+  { id: 'admin', commands: ['setupWizard', 'verifyPanel', 'configStatus', 'statsSla'] },
+] as const;
 
 export default function CommandPreview() {
   const { t } = useTranslation();
@@ -13,7 +17,7 @@ export default function CommandPreview() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute right-1/4 top-0 h-80 w-80 rounded-full bg-indigo-500/5 blur-[120px]" />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
         <div className="mb-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -48,32 +52,48 @@ export default function CommandPreview() {
           </motion.p>
         </div>
 
-        <div className="space-y-4">
-          {commandIds.map((id, i) => (
-            <motion.div
-              key={id}
-              initial={{ opacity: 0, x: -15 }}
-              whileInView={{ opacity: 1, x: 0 }}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {commandGroups.map((group, groupIndex) => (
+            <motion.article
+              key={group.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: shouldReduceMotion ? 0 : i * 0.06 }}
-              className="group overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] backdrop-blur-xl transition-all duration-300 hover:border-white/20"
+              transition={{ duration: 0.45, delay: shouldReduceMotion ? 0 : groupIndex * 0.08 }}
+              className="tech-card flex h-full flex-col overflow-hidden"
             >
-              <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:gap-6">
-                <div className="flex-1 min-w-0">
-                  <code className="mb-2 block font-mono text-base font-bold text-indigo-300">
-                    {t(`commandPreview.commands.${id}.name`)}
-                  </code>
-                  <p className="text-sm font-medium text-slate-400">
-                    {t(`commandPreview.commands.${id}.desc`)}
-                  </p>
-                </div>
-                <div className="flex-shrink-0 rounded-xl border border-white/5 bg-black/40 px-4 py-2.5">
-                  <code className="font-mono text-xs text-slate-500">
-                    {t(`commandPreview.commands.${id}.example`)}
-                  </code>
-                </div>
+              <div className="mb-8">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">
+                  {t(`commandPreview.groups.${group.id}.label`)}
+                </p>
+                <h3 className="text-2xl font-bold tracking-tight text-white">
+                  {t(`commandPreview.groups.${group.id}.title`)}
+                </h3>
+                <p className="mt-4 text-sm font-medium leading-relaxed text-slate-400">
+                  {t(`commandPreview.groups.${group.id}.description`)}
+                </p>
               </div>
-            </motion.div>
+
+              <div className="space-y-3">
+                {group.commands.map((commandId, commandIndex) => (
+                  <motion.div
+                    key={commandId}
+                    initial={{ opacity: 0, x: -12 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: shouldReduceMotion ? 0 : groupIndex * 0.08 + commandIndex * 0.04 }}
+                    className="rounded-2xl border border-white/8 bg-white/[0.03] p-4"
+                  >
+                    <code className="block font-mono text-sm font-bold text-cyan-200">
+                      {t(`commandPreview.groups.${group.id}.commands.${commandId}.path`)}
+                    </code>
+                    <p className="mt-3 text-sm font-medium leading-relaxed text-slate-300">
+                      {t(`commandPreview.groups.${group.id}.commands.${commandId}.description`)}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.article>
           ))}
         </div>
       </div>

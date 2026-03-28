@@ -1,7 +1,7 @@
 import { Twitter, Github, MessageCircle, Mail, Map, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { config, getDiscordInviteUrl, getPublicDashboardUrl } from '../config';
+import { config, getDiscordInviteUrl } from '../config';
 import Logo from './Logo';
 
 function FooterLink({
@@ -42,18 +42,16 @@ export default function Footer() {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const inviteUrl = getDiscordInviteUrl();
-  const publicDashboardUrl = getPublicDashboardUrl();
 
   const productLinks = [
     { href: '#features', label: t('footer.nav.features') },
-    { href: '#experience', label: t('footer.nav.experience') },
-    { href: '#why', label: t('footer.nav.why') },
+    { href: '#experience', label: t('footer.nav.setup') },
+    { href: '#commands', label: t('footer.nav.commands') },
     { href: '#stats', label: t('footer.nav.stats') },
   ];
 
   const resourceLinks = [
     inviteUrl ? { href: inviteUrl, label: t('footer.nav.invite') } : null,
-    publicDashboardUrl ? { href: publicDashboardUrl, label: t('footer.nav.dashboard') } : null,
     config.docsUrl ? { href: config.docsUrl, label: t('footer.nav.docs') } : null,
     config.statusUrl ? { href: config.statusUrl, label: t('footer.nav.status') } : null,
     config.githubUrl ? { href: config.githubUrl, label: t('footer.nav.github') } : null,
@@ -151,7 +149,7 @@ export default function Footer() {
         <div className="flex items-center justify-center gap-4 border-t border-white/5 pt-8 pb-6">
           <span className="text-[10px] font-bold uppercase tracking-tight-readable text-slate-500">{t('footerShare.label')}</span>
           <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out TON618 — premium Discord bot for moderation, automations and ops')}&url=${encodeURIComponent(config.siteUrl || '')}`}
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out TON618, a Discord bot for moderation, tickets and verification')}&url=${encodeURIComponent(config.siteUrl || '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 transition hover:border-white/20 hover:text-white"

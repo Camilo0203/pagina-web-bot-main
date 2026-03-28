@@ -12,21 +12,12 @@ import { config, getAbsoluteAssetUrl, getCanonicalUrl } from '../config';
 
 const Features = lazy(() => import('../components/Features'));
 const VisualExperience = lazy(() => import('../components/VisualExperience'));
-const ScreenshotGallery = lazy(() => import('../components/ScreenshotGallery'));
-const InteractiveDemo = lazy(() => import('../components/InteractiveDemo'));
 const WhyTon = lazy(() => import('../components/WhyTon'));
-const ComparisonTable = lazy(() => import('../components/ComparisonTable'));
-const Testimonials = lazy(() => import('../components/Testimonials'));
 const DocsSection = lazy(() => import('../components/DocsSection'));
-const Integrations = lazy(() => import('../components/Integrations'));
 const LiveStats = lazy(() => import('../components/LiveStats'));
 const FAQ = lazy(() => import('../components/FAQ'));
 const FinalCTA = lazy(() => import('../components/FinalCTA'));
-const LiveNotifications = lazy(() => import('../components/LiveNotifications'));
 const CommandPreview = lazy(() => import('../components/CommandPreview'));
-const Pricing = lazy(() => import('../components/Pricing'));
-const Changelog = lazy(() => import('../components/Changelog'));
-const Roadmap = lazy(() => import('../components/Roadmap'));
 const ScrollToTop = lazy(() => import('../components/ScrollToTop'));
 const StickyInviteCTA = lazy(() => import('../components/StickyInviteCTA'));
 
@@ -92,7 +83,7 @@ export default function LandingPage() {
         <meta name="description" content={description} />
         <meta
           name="keywords"
-          content="Discord ops console, Discord dashboard, Discord support inbox, Discord ticket SLA, Discord playbooks, Discord incident mode"
+          content="Discord bot, Discord moderation bot, Discord ticket bot, Discord verification bot, Discord slash commands, Discord server setup"
         />
         <meta name="robots" content="index,follow" />
         <meta name="theme-color" content="#05060f" />
@@ -152,23 +143,8 @@ export default function LandingPage() {
             loader={async () => ({
               default: () => (
                 <>
-                  <ScreenshotGallery />
-                  <InteractiveDemo />
                   <WhyTon />
-                  <ComparisonTable />
-                </>
-              ),
-            })}
-          />
-          <LazyViewportSection
-            fallback={<LoadingSkeleton />}
-            loader={async () => ({
-              default: () => (
-                <>
-                  <Testimonials />
                   <DocsSection />
-                  <Integrations />
-                  <LiveStats />
                   <CommandPreview />
                 </>
               ),
@@ -179,10 +155,8 @@ export default function LandingPage() {
             loader={async () => ({
               default: () => (
                 <>
+                  <LiveStats />
                   <FAQ />
-                  <Pricing />
-                  <Changelog />
-                  <Roadmap />
                   <FinalCTA />
                 </>
               ),
@@ -191,7 +165,6 @@ export default function LandingPage() {
         </main>
 
         <Suspense fallback={null}>
-          <LiveNotifications />
           <ScrollToTop />
           <StickyInviteCTA />
         </Suspense>
