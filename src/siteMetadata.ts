@@ -1,6 +1,6 @@
-export const defaultMetaTitle = 'TON618 | Discord bot for moderation, tickets, verification and staff workflows';
+export const defaultMetaTitle = 'TON618 | Bilingual Discord bot for tickets, verification and staff operations';
 export const defaultMetaDescription =
-  'TON618 helps Discord servers handle moderation, tickets, verification, setup, logs and staff workflows with real slash commands.';
+  'TON618 is a bilingual staff operations bot for Discord communities, with tickets, verification, setup, stats and control commands inside Discord.';
 
 export const socialImagePath = '/social-preview.png';
 export const faviconPath = '/favicon.png';

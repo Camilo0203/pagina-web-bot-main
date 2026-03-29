@@ -8,6 +8,8 @@ export const resources = {
   es,
 } as const;
 
+let manifestObjectUrl: string | null = null;
+
 function normalizeLanguageCode(language?: string): string {
   return language?.toLowerCase().startsWith('es') ? 'es' : 'en';
 }
@@ -32,15 +34,20 @@ function updateManifestLanguage(language: string) {
       const isEs = language === 'es';
 
       manifest.name = isEs
-        ? 'TON618 | Bot premium de Discord'
-        : 'TON618 | Premium Discord Bot';
-      manifest.short_name = isEs ? 'TON618 Panel' : 'TON618 Dashboard';
+        ? 'TON618 | Bot bilingüe de Discord'
+        : 'TON618 | Bilingual Discord Bot';
+      manifest.short_name = 'TON618';
       manifest.description = isEs
-        ? 'Bot premium de Discord para moderación, automatización y operaciones.'
-        : 'Premium Discord Bot for Moderation, Automations and Ops.';
+        ? 'Bot bilingüe de Discord para tickets, verificación y operación de staff.'
+        : 'Bilingual Discord bot for tickets, verification and staff operations.';
+
+      if (manifestObjectUrl) {
+        URL.revokeObjectURL(manifestObjectUrl);
+      }
 
       const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-      link.href = URL.createObjectURL(blob);
+      manifestObjectUrl = URL.createObjectURL(blob);
+      link.href = manifestObjectUrl;
     })
     .catch(() => { });
 }
@@ -59,7 +66,7 @@ function applyDocumentLanguage(language?: string) {
 
 const savedLanguage =
   typeof window !== 'undefined'
-    ? normalizeLanguageCode(localStorage.getItem('i18nextLng') || 'en')
+    ? normalizeLanguageCode(localStorage.getItem('i18nextLng') || window.navigator.language || 'en')
     : 'en';
 
 i18n.use(initReactI18next).init({

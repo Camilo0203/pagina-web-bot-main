@@ -94,7 +94,7 @@ export default function FinalCTA() {
                 href={supportHref}
                 target={supportHref.startsWith('mailto:') ? undefined : '_blank'}
                 rel={supportHref.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+                className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 <LifeBuoy className="h-4 w-4" />
                 <span>{t('final.supportCta')}</span>

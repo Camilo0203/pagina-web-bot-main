@@ -83,7 +83,7 @@ export default function LandingPage() {
         <meta name="description" content={description} />
         <meta
           name="keywords"
-          content="Discord bot, Discord moderation bot, Discord ticket bot, Discord verification bot, Discord slash commands, Discord server setup"
+          content="Discord bot, bilingual Discord bot, Discord ticket bot, Discord verification bot, English Spanish Discord bot, Discord staff operations, bot bilingue Discord"
         />
         <meta name="robots" content="index,follow" />
         <meta name="theme-color" content="#05060f" />

@@ -6,7 +6,7 @@ import { instantTransition, motionDurations, motionEase } from '../lib/motion';
 
 const languages = [
   { code: 'en', name: 'English', short: 'EN' },
-  { code: 'es', name: 'Espanol', short: 'ES' },
+  { code: 'es', name: 'Español', short: 'ES' },
 ];
 
 const normalizeLanguageCode = (language?: string) =>
@@ -166,7 +166,11 @@ export default function LanguageSelector({
   return (
     <div ref={containerRef} className="relative shrink-0">
       {showMobileSelector ? (
-        <div className={`cinematic-glass items-center rounded-xl border border-white/5 ${mode === 'mobile' ? 'flex' : 'flex sm:hidden'}`}>
+        <div
+          role="group"
+          aria-label={t('languageSelector.menuLabel')}
+          className={`cinematic-glass items-center rounded-xl border border-white/5 ${mode === 'mobile' ? 'flex' : 'flex sm:hidden'}`}
+        >
           {languages.map((language) => {
             const isActive = getIsActiveLanguage(language.code);
 
@@ -177,6 +181,7 @@ export default function LanguageSelector({
                 onClick={() => toggleLanguage(language.code)}
                 aria-pressed={isActive}
                 aria-label={language.name}
+                title={language.name}
                 className={`flex min-w-[3.25rem] items-center justify-center px-3 py-2 text-[10px] font-black uppercase tracking-tight-readable transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 ${
                   isActive ? 'bg-indigo-500/20 text-white' : 'text-slate-400 hover:text-white'
                 }`}

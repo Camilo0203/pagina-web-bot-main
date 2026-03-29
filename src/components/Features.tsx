@@ -1,4 +1,13 @@
-import { Shield, Zap, Cpu, BarChart3, Lock, Globe, Layers, Radio } from 'lucide-react';
+import {
+  BarChart3,
+  Bug,
+  Globe2,
+  LifeBuoy,
+  Settings2,
+  ShieldCheck,
+  SlidersHorizontal,
+  Users,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -51,20 +60,20 @@ export default function Features() {
   const gridReveal = shouldReduceMotion ? instantReveal : cardStagger;
 
   const features: Feature[] = [
-    { icon: Shield, title: t('features.items.moderation.title'), description: t('features.items.moderation.desc'), status: t('features.items.moderation.status') },
-    { icon: Cpu, title: t('features.items.autonomy.title'), description: t('features.items.autonomy.desc'), status: t('features.items.autonomy.status') },
-    { icon: Zap, title: t('features.items.latency.title'), description: t('features.items.latency.desc'), status: t('features.items.latency.status') },
-    { icon: Lock, title: t('features.items.security.title'), description: t('features.items.security.desc'), status: t('features.items.security.status') },
-    { icon: BarChart3, title: t('features.items.analytics.title'), description: t('features.items.analytics.desc'), status: t('features.items.analytics.status') },
-    { icon: Globe, title: t('features.items.network.title'), description: t('features.items.network.desc'), status: t('features.items.network.status') },
-    { icon: Layers, title: t('features.items.modular.title'), description: t('features.items.modular.desc'), status: t('features.items.modular.status') },
-    { icon: Radio, title: t('features.items.comms.title'), description: t('features.items.comms.desc'), status: t('features.items.comms.status') },
+    { icon: Globe2, title: t('features.items.bilingual.title'), description: t('features.items.bilingual.desc'), status: t('features.items.bilingual.status') },
+    { icon: Settings2, title: t('features.items.setup.title'), description: t('features.items.setup.desc'), status: t('features.items.setup.status') },
+    { icon: LifeBuoy, title: t('features.items.tickets.title'), description: t('features.items.tickets.desc'), status: t('features.items.tickets.status') },
+    { icon: ShieldCheck, title: t('features.items.verification.title'), description: t('features.items.verification.desc'), status: t('features.items.verification.status') },
+    { icon: Users, title: t('features.items.staff.title'), description: t('features.items.staff.desc'), status: t('features.items.staff.status') },
+    { icon: BarChart3, title: t('features.items.stats.title'), description: t('features.items.stats.desc'), status: t('features.items.stats.status') },
+    { icon: SlidersHorizontal, title: t('features.items.config.title'), description: t('features.items.config.desc'), status: t('features.items.config.status') },
+    { icon: Bug, title: t('features.items.audit.title'), description: t('features.items.audit.desc'), status: t('features.items.audit.status') },
   ];
 
   const useCases = [
-    t('features.useCases.moderation'),
-    t('features.useCases.onboarding'),
-    t('features.useCases.support'),
+    t('features.useCases.language'),
+    t('features.useCases.rollout'),
+    t('features.useCases.operations'),
   ];
 
   return (

@@ -22,7 +22,7 @@ test('El cambio de idioma actualiza los textos correctamente', async ({ page }) 
     // Simulamos que el usuario tiene preferencia de inglés guardada
     await page.evaluate(() => localStorage.setItem('i18nextLng', 'en'));
     await page.reload();
-    await expect(page.getByText('Run Your Server')).toBeVisible();
+    await expect(page.getByText('Run Server Ops')).toBeVisible();
 
     // Simulamos el cambio a español y recargamos
     await page.evaluate(() => localStorage.setItem('i18nextLng', 'es'));

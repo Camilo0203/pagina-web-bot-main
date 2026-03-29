@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('TON618 Web Final Validation', () => {
-  const baseUrl = 'http://localhost:5173';
-
   test('black screen check at 768px', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
     
     // Check if critical elements are visible (e.g. Hero, Features)
@@ -21,10 +19,12 @@ test.describe('TON618 Web Final Validation', () => {
 
   test('navbar and hamburger at 390px', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     
     // Check hamburger is visible
-    const menuButton = page.locator('button[aria-label="Abir menú"], button[aria-label="Cerrar menú"], button[aria-controls="mobile-navigation"]');
+    const menuButton = page.getByRole('button', {
+      name: /open navigation menu|close navigation menu|abrir menú de navegación|cerrar menú de navegación/i,
+    });
     await expect(menuButton).toBeVisible();
     await page.screenshot({ path: 'navbar_390_closed.png' });
 
@@ -41,9 +41,9 @@ test.describe('TON618 Web Final Validation', () => {
 
   test('language selector at 1440px', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     
-    const langButton = page.locator('button[aria-label="Seleccionar idioma"]');
+    const langButton = page.getByRole('button', { name: /change language|cambiar idioma/i });
     await expect(langButton).toBeVisible();
     await page.screenshot({ path: 'landing_1440.png' });
 

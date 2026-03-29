@@ -294,9 +294,9 @@ export default function Hero() {
                   href={supportHref}
                   target={supportHref.startsWith('mailto:') ? undefined : '_blank'}
                   rel={supportHref.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                 >
-                  <span>{t(hasDocs ? 'hero.ctaTertiary' : 'hero.ctaSecondary')}</span>
+                  <span>{t('hero.ctaTertiary')}</span>
                 </a>
               ) : null}
             </motion.div>

@@ -1,28 +1,32 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowUpRight, BarChart3, BookOpen, Bug, LifeBuoy, Settings2, ShieldCheck, SlidersHorizontal, Terminal, Users } from 'lucide-react';
+import {
+  ArrowUpRight,
+  BarChart3,
+  BookOpen,
+  Bot,
+  Globe2,
+  Settings2,
+  ShieldCheck,
+  Terminal,
+  Users,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { config, getDiscordInviteUrl } from '../config';
 import { cardStagger, instantReveal, motionStagger, motionViewport, revealUp, sectionIntro, withDelay, withDuration } from '../lib/motion';
 
-const capabilityCards = [
-  { id: 'launch', icon: Settings2, commands: ['/setup', '/ticket', '/verify'] },
-  { id: 'operate', icon: Users, commands: ['/staff', '/stats'] },
-  { id: 'control', icon: SlidersHorizontal, commands: ['/config center', '/audit', '/debug'] },
-] as const;
+const coreCommands = ['/setup', '/ticket', '/verify', '/staff', '/stats', '/config center', '/audit', '/debug'] as const;
 
 const workflowSteps = [
-  { id: 'setup', index: '01', icon: Settings2, commands: ['/setup'] },
-  { id: 'tickets', index: '02', icon: LifeBuoy, commands: ['/ticket'] },
-  { id: 'verify', index: '03', icon: ShieldCheck, commands: ['/verify'] },
-  { id: 'staff', index: '04', icon: Users, commands: ['/staff'] },
-  { id: 'measure', index: '05', icon: BarChart3, commands: ['/stats', '/config center'] },
-  { id: 'audit', index: '06', icon: Bug, commands: ['/audit', '/debug'] },
+  { id: 'invite', index: '01', icon: Bot, commands: [] },
+  { id: 'language', index: '02', icon: Globe2, commands: [] },
+  { id: 'setup', index: '03', icon: Settings2, commands: ['/setup'] },
+  { id: 'launch', index: '04', icon: ShieldCheck, commands: ['/ticket', '/verify'] },
+  { id: 'operate', index: '05', icon: Users, commands: [] },
 ] as const;
 
-const roleCards = [
-  { id: 'admin', icon: Settings2, commands: ['/setup', '/ticket', '/verify'] },
+const operationsLanes = [
   { id: 'staff', icon: Users, commands: ['/staff'] },
-  { id: 'owner', icon: SlidersHorizontal, commands: ['/stats', '/config center', '/audit', '/debug'] },
+  { id: 'admin', icon: BarChart3, commands: ['/stats', '/config center', '/audit', '/debug'] },
 ] as const;
 
 interface CommandChipListProps {
@@ -53,9 +57,7 @@ export default function CommandPreview() {
   const introReveal = shouldReduceMotion ? instantReveal : sectionIntro;
   const secondaryIntroReveal = shouldReduceMotion ? instantReveal : withDelay(sectionIntro, motionStagger.tight);
   const gridReveal = shouldReduceMotion ? instantReveal : cardStagger;
-  const summaryReveal = shouldReduceMotion ? instantReveal : withDuration(revealUp, 0.24);
   const stepReveal = shouldReduceMotion ? instantReveal : withDuration(revealUp, 0.28);
-  const roleReveal = shouldReduceMotion ? instantReveal : withDuration(revealUp, 0.24);
   const noteReveal = shouldReduceMotion ? instantReveal : withDelay(sectionIntro, motionStagger.base);
   const sectionReveal = shouldReduceMotion ? instantReveal : withDelay(sectionIntro, motionStagger.base);
   const actions = [
@@ -69,9 +71,10 @@ export default function CommandPreview() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute left-0 top-20 h-72 w-72 rounded-full bg-cyan-500/5 blur-[120px]" />
       <div className="absolute right-1/4 top-0 h-80 w-80 rounded-full bg-indigo-500/5 blur-[120px]" />
+      <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-sky-500/5 blur-[140px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6">
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-end">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
           <div className="max-w-3xl">
             <motion.div
               variants={introReveal}
@@ -105,27 +108,9 @@ export default function CommandPreview() {
             >
               {t('commandPreview.description')}
             </motion.p>
-          </div>
-
-          <motion.aside variants={noteReveal} initial="hidden" whileInView="show" viewport={motionViewport} className="cinematic-glass rounded-[2rem] p-6 md:p-8">
-            <div className="premium-icon-tile mb-6 h-12 w-12">
-              <Terminal className="h-5 w-5 text-slate-100" />
-            </div>
-            <p className="text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">{t('commandPreview.note.eyebrow')}</p>
-            <h3 className="mt-4 text-2xl font-bold tracking-tight text-white md:text-3xl">{t('commandPreview.note.title')}</h3>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-slate-300 md:text-base">{t('commandPreview.note.description')}</p>
-
-            <ul className="mt-6 space-y-3">
-              {['point1', 'point2', 'point3'].map((pointId) => (
-                <li key={pointId} className="flex items-start gap-3 text-sm font-medium leading-relaxed text-slate-400">
-                  <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 rounded-full bg-cyan-300" />
-                  <span>{t(`commandPreview.note.points.${pointId}`)}</span>
-                </li>
-              ))}
-            </ul>
 
             {actions.length > 0 ? (
-              <div className="mt-7 flex flex-wrap gap-3">
+              <motion.div variants={secondaryIntroReveal} initial="hidden" whileInView="show" viewport={motionViewport} className="mt-8 flex flex-wrap gap-3">
                 {actions.map((action) => {
                   const isMailto = action.href.startsWith('mailto:');
 
@@ -147,41 +132,56 @@ export default function CommandPreview() {
                     </a>
                   );
                 })}
-              </div>
+              </motion.div>
             ) : null}
+          </div>
+
+          <motion.aside
+            variants={noteReveal}
+            initial="hidden"
+            whileInView="show"
+            viewport={motionViewport}
+            className="cinematic-glass border-white/10 p-6 md:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">{t('commandPreview.note.eyebrow')}</p>
+                <h3 className="mt-4 text-2xl font-bold tracking-tight text-white md:text-3xl">{t('commandPreview.note.title')}</h3>
+              </div>
+              <div className="premium-icon-tile h-12 w-12 shrink-0">
+                <Terminal className="h-5 w-5 text-slate-100" />
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm font-medium leading-relaxed text-slate-300 md:text-base">{t('commandPreview.note.description')}</p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100">
+                {t('commandPreview.note.languages.english')}
+              </span>
+              <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100">
+                {t('commandPreview.note.languages.spanish')}
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-slate-300">
+                {t('commandPreview.note.languages.timing')}
+              </span>
+            </div>
+
+            <ul className="mt-6 space-y-3">
+              {['point1', 'point2', 'point3'].map((pointId) => (
+                <li key={pointId} className="flex items-start gap-3 text-sm font-medium leading-relaxed text-slate-400">
+                  <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 rounded-full bg-cyan-300" />
+                  <span>{t(`commandPreview.note.points.${pointId}`)}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 border-t border-white/8 pt-5">
+              <p className="text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
+              <CommandChipList commands={coreCommands} label={t('commandPreview.commandsAria', { context: t('commandPreview.note.title') })} className="mt-3" />
+            </div>
           </motion.aside>
         </div>
-
-        <motion.ul
-          variants={gridReveal}
-          initial="hidden"
-          whileInView="show"
-          viewport={motionViewport}
-          className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
-        >
-          {capabilityCards.map((card) => {
-            const Icon = card.icon;
-
-            return (
-              <motion.li key={card.id} variants={summaryReveal} className="list-none">
-                <article className="cinematic-glass h-full rounded-[1.75rem] p-6 md:p-7">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="premium-icon-tile h-12 w-12 shrink-0">
-                      <Icon className="h-5 w-5 text-slate-100" />
-                    </div>
-                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10px] font-bold uppercase tracking-tight-readable text-slate-300">
-                      {t(`commandPreview.summary.items.${card.id}.label`)}
-                    </span>
-                  </div>
-
-                  <h3 className="mt-6 text-xl font-bold tracking-tight text-white">{t(`commandPreview.summary.items.${card.id}.title`)}</h3>
-                  <p className="mt-4 text-sm font-medium leading-relaxed text-slate-400">{t(`commandPreview.summary.items.${card.id}.description`)}</p>
-                  <CommandChipList commands={card.commands} label={t('commandPreview.commandsAria', { context: t(`commandPreview.summary.items.${card.id}.title`) })} />
-                </article>
-              </motion.li>
-            );
-          })}
-        </motion.ul>
 
         <div className="mt-16 grid gap-6 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-end">
           <motion.div variants={sectionReveal} initial="hidden" whileInView="show" viewport={motionViewport}>
@@ -203,70 +203,76 @@ export default function CommandPreview() {
         >
           {workflowSteps.map((step) => {
             const Icon = step.icon;
+            const isOperateStep = step.id === 'operate';
 
             return (
-              <motion.li key={step.id} variants={stepReveal} className="list-none">
-              <article className="tech-card flex h-full flex-col overflow-hidden">
-                <div className="mb-6 flex items-start justify-between gap-4">
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-mono text-sm font-bold text-white">
-                    {step.index}
-                  </span>
-                  <div className="premium-icon-tile h-11 w-11 shrink-0">
-                    <Icon className="h-5 w-5 text-slate-100" />
+              <motion.li key={step.id} variants={stepReveal} className={`list-none ${isOperateStep ? 'md:col-span-2 xl:col-span-3' : ''}`}>
+                <article className="tech-card flex h-full flex-col overflow-hidden">
+                  <div className="mb-6 flex items-start justify-between gap-4">
+                    <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-mono text-sm font-bold text-white">
+                      {step.index}
+                    </span>
+                    <div className="premium-icon-tile h-11 w-11 shrink-0">
+                      <Icon className="h-5 w-5 text-slate-100" />
+                    </div>
                   </div>
-                </div>
 
-                <p className="text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">{t(`commandPreview.steps.${step.id}.role`)}</p>
-                <h3 className="text-xl font-bold tracking-tight text-white">{t(`commandPreview.steps.${step.id}.title`)}</h3>
-                <p className="mt-4 flex-1 text-sm font-medium leading-relaxed text-slate-400">{t(`commandPreview.steps.${step.id}.description`)}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">{t(`commandPreview.steps.${step.id}.role`)}</p>
+                  <h3 className="text-xl font-bold tracking-tight text-white">{t(`commandPreview.steps.${step.id}.title`)}</h3>
+                  <p className="mt-4 flex-1 text-sm font-medium leading-relaxed text-slate-400">{t(`commandPreview.steps.${step.id}.description`)}</p>
 
-                <div className="mt-6 border-t border-white/8 pt-5">
-                  <p className="text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
-                  <CommandChipList
-                    commands={step.commands}
-                    label={t('commandPreview.commandsAria', { context: t(`commandPreview.steps.${step.id}.title`) })}
-                    className="mt-3"
-                  />
-                </div>
-              </article>
+                  {step.commands.length > 0 ? (
+                    <div className="mt-6 border-t border-white/8 pt-5">
+                      <p className="text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
+                      <CommandChipList
+                        commands={step.commands}
+                        label={t('commandPreview.commandsAria', { context: t(`commandPreview.steps.${step.id}.title`) })}
+                        className="mt-3"
+                      />
+                    </div>
+                  ) : null}
+
+                  {isOperateStep ? (
+                    <div className="mt-6 grid gap-4 border-t border-white/8 pt-5 md:grid-cols-2">
+                      {operationsLanes.map((lane) => {
+                        const LaneIcon = lane.icon;
+
+                        return (
+                          <div key={lane.id} className="rounded-[1.5rem] border border-white/8 bg-white/[0.02] p-5">
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wide-readable text-cyan-200">
+                                  {t(`commandPreview.steps.operate.lanes.${lane.id}.label`)}
+                                </p>
+                                <h4 className="mt-2 text-base font-bold tracking-tight text-white">
+                                  {t(`commandPreview.steps.operate.lanes.${lane.id}.title`)}
+                                </h4>
+                              </div>
+                              <div className="premium-icon-tile h-10 w-10 shrink-0">
+                                <LaneIcon className="h-4 w-4 text-slate-100" />
+                              </div>
+                            </div>
+
+                            <p className="mt-3 text-sm font-medium leading-relaxed text-slate-400">
+                              {t(`commandPreview.steps.operate.lanes.${lane.id}.description`)}
+                            </p>
+
+                            <p className="mt-4 text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
+                            <CommandChipList
+                              commands={lane.commands}
+                              label={t('commandPreview.commandsAria', { context: t(`commandPreview.steps.operate.lanes.${lane.id}.title`) })}
+                              className="mt-3"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </article>
               </motion.li>
             );
           })}
         </motion.ol>
-
-        <div className="mt-16 grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
-          <motion.div variants={secondaryIntroReveal} initial="hidden" whileInView="show" viewport={motionViewport} className="max-w-2xl">
-            <p className="text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">{t('commandPreview.roles.eyebrow')}</p>
-            <h3 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-4xl">{t('commandPreview.roles.title')}</h3>
-            <p className="mt-4 text-base font-medium leading-relaxed text-slate-400 md:text-lg">{t('commandPreview.roles.description')}</p>
-          </motion.div>
-
-          <motion.ul variants={gridReveal} initial="hidden" whileInView="show" viewport={motionViewport} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {roleCards.map((role) => {
-              const Icon = role.icon;
-
-              return (
-                <motion.li key={role.id} variants={roleReveal} className="list-none">
-                <article className="cinematic-glass h-full rounded-[1.75rem] p-6">
-                  <div className="premium-icon-tile mb-6 h-11 w-11">
-                    <Icon className="h-5 w-5 text-slate-100" />
-                  </div>
-                  <p className="text-[10px] font-bold uppercase tracking-wide-readable text-cyan-200">{t(`commandPreview.roles.items.${role.id}.eyebrow`)}</p>
-                  <h4 className="mt-3 text-lg font-bold tracking-tight text-white">{t(`commandPreview.roles.items.${role.id}.title`)}</h4>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-slate-400">{t(`commandPreview.roles.items.${role.id}.description`)}</p>
-
-                  <p className="mt-5 text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
-                  <CommandChipList
-                    commands={role.commands}
-                    label={t('commandPreview.commandsAria', { context: t(`commandPreview.roles.items.${role.id}.eyebrow`) })}
-                    className="mt-3"
-                  />
-                </article>
-              </motion.li>
-              );
-            })}
-          </motion.ul>
-        </div>
       </div>
     </section>
   );

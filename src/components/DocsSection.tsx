@@ -96,7 +96,7 @@ export default function DocsSection() {
                     href={card.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:text-white"
+                    className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
                     <span>{card.cta}</span>
                     <ExternalLink className="h-4 w-4" />
@@ -104,12 +104,15 @@ export default function DocsSection() {
                 ) : card.href.startsWith('/') ? (
                   <Link
                     to={card.href}
-                    className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:text-white"
+                    className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
                     <span>{card.cta}</span>
                   </Link>
                 ) : (
-                  <a href={card.href} className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:text-white">
+                  <a
+                    href={card.href}
+                    className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  >
                     <span>{card.cta}</span>
                   </a>
                 )}

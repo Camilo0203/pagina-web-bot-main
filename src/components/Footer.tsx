@@ -43,6 +43,7 @@ export default function Footer() {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const inviteUrl = getDiscordInviteUrl();
+  const shareMessage = t('footerShare.message');
 
   const productLinks = [
     { href: '#features', label: t('footer.nav.features') },
@@ -99,7 +100,7 @@ export default function Footer() {
                   href={url!}
                   target={label !== 'Email' ? '_blank' : undefined}
                   rel={label !== 'Email' ? 'noopener noreferrer' : undefined}
-                  className="cinematic-glass flex h-12 w-12 items-center justify-center rounded-xl text-slate-400 transition-[color,transform,border-color,background-color] duration-200 hover:scale-[1.02] hover:text-white motion-reduce:hover:scale-100"
+                  className="cinematic-glass flex h-12 w-12 items-center justify-center rounded-xl text-slate-400 transition-[color,transform,border-color,background-color] duration-200 hover:scale-[1.02] hover:text-white motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   aria-label={label}
                 >
                   <Icon className="h-5 w-5" />
@@ -150,10 +151,10 @@ export default function Footer() {
         <div className="flex items-center justify-center gap-4 border-t border-white/5 pt-8 pb-6">
           <span className="text-[10px] font-bold uppercase tracking-tight-readable text-slate-500">{t('footerShare.label')}</span>
           <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out TON618, a Discord bot for moderation, tickets and verification')}&url=${encodeURIComponent(config.siteUrl || '')}`}
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMessage)}&url=${encodeURIComponent(config.siteUrl || '')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 transition-colors duration-200 hover:border-white/20 hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 transition-colors duration-200 hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <Twitter className="h-3 w-3" />
             {t('footerShare.twitter')}
@@ -163,7 +164,7 @@ export default function Footer() {
               href={config.supportServerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 transition-colors duration-200 hover:border-white/20 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 transition-colors duration-200 hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               <MessageCircle className="h-3 w-3" />
               {t('footerShare.discord')}

@@ -1,7 +1,7 @@
 {
-  "name": "TON618",
+  "name": "TON618 | Bilingual Discord Bot",
   "short_name": "TON618",
-  "description": "TON618 centraliza moderación, automatizaciones, soporte y visibilidad operativa para Discord desde un dashboard premium.",
+  "description": "TON618 is a bilingual Discord bot for tickets, verification and staff workflows.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

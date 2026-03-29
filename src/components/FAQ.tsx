@@ -24,6 +24,8 @@ interface FAQItemProps {
 const FAQItem = memo(({ question, answer, isOpen, onToggle, index }: FAQItemProps) => {
   const shouldReduceMotion = useReducedMotion();
   const itemReveal = shouldReduceMotion ? instantReveal : withDelay(revealUp, index * motionStagger.tight);
+  const buttonId = `faq-button-${index}`;
+  const panelId = `faq-panel-${index}`;
 
   return (
     <motion.div
@@ -34,9 +36,11 @@ const FAQItem = memo(({ question, answer, isOpen, onToggle, index }: FAQItemProp
       className="group"
     >
       <button
+        id={buttonId}
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] px-6 py-5 text-left backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-200 hover:border-white/20 hover:shadow-[0_8px_28px_rgba(99,102,241,0.08)]"
+        className="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] px-6 py-5 text-left backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-200 hover:border-white/20 hover:shadow-[0_8px_28px_rgba(99,102,241,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         aria-expanded={isOpen}
+        aria-controls={panelId}
       >
         <span className="text-base font-semibold text-white">{question}</span>
         <motion.div
@@ -51,6 +55,9 @@ const FAQItem = memo(({ question, answer, isOpen, onToggle, index }: FAQItemProp
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
+            id={panelId}
+            role="region"
+            aria-labelledby={buttonId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -133,11 +140,16 @@ export default function FAQ() {
           viewport={motionViewport}
           className="relative mb-8"
         >
+          <label htmlFor="faq-search" className="sr-only">
+            {t('faqSearch.label')}
+          </label>
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
-            type="text"
+            id="faq-search"
+            type="search"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setOpenIndex(null); }}
+            aria-label={t('faqSearch.label')}
             placeholder={t('faqSearch.placeholder')}
             className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm font-medium text-white placeholder-slate-500 outline-none backdrop-blur-xl transition-colors focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20"
           />

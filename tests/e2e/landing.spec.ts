@@ -1,108 +1,97 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function progressiveScroll(page: Page, steps: number, distance = 1200) {
+  for (let index = 0; index < steps; index += 1) {
+    await page.mouse.wheel(0, distance);
+    await page.waitForTimeout(300);
+  }
+}
 
 test.describe('Landing Page', () => {
+  test.describe.configure({ timeout: 60_000 });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('should load and display hero section', async ({ page }) => {
-    // Verificar que el título principal esté visible
+  test('loads the hero with honest launch CTAs', async ({ page }) => {
+    const inviteCta = page
+      .getByRole('link', { name: /invite ton618/i })
+      .first()
+      .or(page.getByRole('button', { name: /invite ton618/i }).first());
+
     await expect(page.locator('h1')).toBeVisible();
-    
-    // Verificar que el logo esté presente
-    await expect(page.locator('img[alt*="TON618"], img[alt*="Logo"]').first()).toBeVisible();
-    
-    // Verificar que los CTAs principales estén presentes
-    const primaryCTA = page.getByRole('link', { name: /add to server|añadir al servidor/i }).first();
-    const secondaryCTA = page.getByRole('link', { name: /dashboard|panel/i }).first();
-    
-    await expect(primaryCTA.or(page.getByRole('button', { name: /add to server|añadir al servidor/i }).first())).toBeVisible();
-    await expect(secondaryCTA).toBeVisible();
+    await expect(inviteCta).toBeVisible();
+    await expect(page.getByText(/bilingual discord bot|bot bilingüe de discord/i).first()).toBeVisible();
   });
 
-  test('should navigate to features section', async ({ page }) => {
-    // Click en el enlace de features en el navbar
-    const featuresLink = page.getByRole('link', { name: /features|características/i }).first();
-    
-    if (await featuresLink.isVisible()) {
-      await featuresLink.click();
-      
-      // Esperar a que la sección de features esté visible
-      await expect(page.locator('#features')).toBeInViewport();
-    }
+  test('navigates to the product section from the navbar', async ({ page }) => {
+    const productLink = page.getByRole('link', { name: /product|producto/i }).first();
+
+    await productLink.click();
+    await expect(page.locator('#features')).toBeInViewport();
   });
 
-  test('should display feature cards', async ({ page }) => {
-    // Scroll a la sección de features
-    await page.locator('#features').scrollIntoViewIfNeeded();
-    
-    // Verificar que haya al menos 4 feature cards
-    const featureCards = page.locator('.tech-card, article').filter({ hasText: /.+/ });
-    await expect(featureCards.first()).toBeVisible();
-    
-    const count = await featureCards.count();
-    expect(count).toBeGreaterThanOrEqual(4);
+  test('shows the bilingual workflow section', async ({ page }) => {
+    await progressiveScroll(page, 5);
+    await expect(page.locator('#commands')).toBeVisible({ timeout: 15000 });
+
+    await page.locator('#commands').scrollIntoViewIfNeeded();
+    await expect(page.locator('#commands-heading')).toBeVisible();
+    await expect(page.getByText(/english and spanish are chosen during onboarding|english y español se eligen en el onboarding/i)).toBeVisible();
+    await expect(
+      page.locator('#commands').getByRole('heading', { name: /choose the server language|elige el idioma del servidor/i }),
+    ).toBeVisible();
   });
 
-  test('should display live stats section', async ({ page }) => {
-    // Scroll a la sección de stats
+  test('shows the live metrics section', async ({ page }) => {
+    await progressiveScroll(page, 7);
+    await expect(page.locator('#stats')).toBeVisible({ timeout: 15000 });
+
     await page.locator('#stats').scrollIntoViewIfNeeded();
-    
-    // Verificar que el heading de stats esté visible
     await expect(page.locator('#stats-heading')).toBeVisible();
-    
-    // Verificar que haya stat cards
-    const statCards = page.locator('#stats').locator('article, .tech-card');
-    await expect(statCards.first()).toBeVisible();
+    await expect(page.locator('#stats article').first()).toBeVisible();
   });
 
-  test('should have working language selector', async ({ page }) => {
-    // Buscar el selector de idioma
-    const languageButton = page.getByRole('button', { name: /language|idioma|en|es/i }).first();
-    
-    if (await languageButton.isVisible()) {
-      await languageButton.click();
-      
-      // Verificar que aparezca un menú o cambio de idioma
-      await page.waitForTimeout(500);
-    }
+  test('opens the language selector on desktop', async ({ page }) => {
+    const languageButton = page.getByRole('button', { name: /change language|cambiar idioma/i }).first();
+
+    await languageButton.click();
+    await expect(page.locator('#language-selector-menu')).toBeVisible();
   });
 
-  test('should have accessible navigation', async ({ page }) => {
-    // Verificar que el navbar tenga el atributo aria-label
-    const nav = page.locator('nav').first();
-    await expect(nav).toHaveAttribute('aria-label', /.+/);
-    
-    // Verificar que el skip link esté presente
-    const skipLink = page.getByRole('link', { name: /skip to content|saltar al contenido/i });
-    await expect(skipLink).toBeInViewport({ ratio: 0 }); // Puede estar oculto visualmente
+  test('has accessible navigation landmarks and skip link', async ({ page }) => {
+    await expect(page.locator('nav').first()).toHaveAttribute('aria-label', /.+/);
+    await expect(page.getByRole('link', { name: /skip to content|saltar al contenido/i })).toBeAttached();
   });
 
-  test('should have responsive navbar on mobile', async ({ page }) => {
-    // Cambiar a viewport móvil
+  test('opens the mobile navigation', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    
-    // Verificar que el botón de menú móvil esté visible
-    const mobileMenuButton = page.getByRole('button', { name: /menu|menú|open menu|close menu/i });
+    await page.reload();
+
+    const mobileMenuButton = page.getByRole('button', {
+      name: /open navigation menu|close navigation menu|abrir menú de navegación|cerrar menú de navegación/i,
+    });
+
     await expect(mobileMenuButton).toBeVisible();
-    
-    // Abrir el menú móvil
     await mobileMenuButton.click();
-    
-    // Verificar que el menú se abra
-    await page.waitForTimeout(500);
+    await expect(page.locator('#mobile-navigation')).toBeVisible();
+    await expect(
+      page
+        .getByRole('link', { name: /invite ton618/i })
+        .last()
+        .or(page.getByRole('button', { name: /invite ton618/i }).last()),
+    ).toBeVisible();
   });
 
-  test('should load footer with links', async ({ page }) => {
-    // Scroll al footer
-    await page.locator('footer').scrollIntoViewIfNeeded();
-    
-    // Verificar que el footer esté visible
-    await expect(page.locator('footer')).toBeVisible();
-    
-    // Verificar que haya enlaces en el footer
-    const footerLinks = page.locator('footer a');
-    const count = await footerLinks.count();
-    expect(count).toBeGreaterThan(0);
+  test('renders the footer with support links', async ({ page }) => {
+    const footer = page.locator('footer');
+
+    await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' }));
+    await page.waitForTimeout(1000);
+
+    await expect(footer).toBeVisible();
+    expect(await footer.locator('a').count()).toBeGreaterThan(0);
+    await expect(footer.getByText(/bilingual discord bot|bot bilingüe de discord/i).first()).toBeVisible();
   });
 });

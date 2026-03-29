@@ -1,20 +1,20 @@
 export const es = {
     translation: {
         meta: {
-            title: 'TON618 | Bot de Discord para moderacion, tickets, verificacion y flujos de staff',
+            title: 'TON618 | Bot bilingüe de Discord para tickets, verificación y operación de staff',
             description:
-                'TON618 ayuda a servidores de Discord con moderacion, tickets, verificacion, setup, registros y flujos reales de staff.',
+                'TON618 es un bot bilingüe de operación de staff para comunidades de Discord, con tickets, verificación, setup, métricas y control dentro de Discord.',
         },
         nav: {
-            features: 'Capacidades',
+            features: 'Producto',
             setup: 'Setup',
-            commands: 'Flujo',
-            stats: 'Metricas en vivo',
+            commands: 'Cómo se usa',
+            stats: 'Métricas en vivo',
             docs: 'Docs',
             status: 'Status',
             support: 'Soporte',
-            primaryCta: 'Invitar bot',
-            mobilePrimaryCta: 'Invitar a Discord',
+            primaryCta: 'Invitar TON618',
+            mobilePrimaryCta: 'Invitar TON618',
             openMenu: 'Abrir menú de navegación',
             closeMenu: 'Cerrar menú de navegación',
             homeAria: 'Ir al inicio',
@@ -26,129 +26,129 @@ export const es = {
         },
         app: {
             loadingTitle: 'Cargando experiencia',
-            loadingDescription: 'Preparando TON618 y la navegacion.',
+            loadingDescription: 'Preparando TON618 y la navegación.',
         },
         landing: {
             skipToContent: 'Saltar al contenido',
         },
         hero: {
-            badge: 'Bot de Discord para moderacion, tickets y verificacion',
+            badge: 'Bot bilingüe de Discord para tickets, verificación y flujos de staff',
             titleMain: 'Opera Tu Servidor',
-            titleAccent: 'Con Flujos Reales',
+            titleAccent: 'Inglés + Español',
             description:
-                'TON618 le da a tu comunidad un solo bot para moderacion, tickets, verificacion, comandos de setup, registros y coordinacion de staff.',
+                'TON618 es un bot bilingüe de operación de staff para comunidades de Discord. Ejecuta tickets, verificación, setup, métricas y flujos de control sin sacar al equipo de Discord.',
             descriptionSub:
-                'Invitalo, publica el panel de tickets y verificacion, y manten la operacion diaria dentro de Discord con comandos que el equipo si usa.',
+                'Hoy soporta English y Español. Durante el onboarding eliges el idioma del servidor, ejecutas /setup y luego activas /ticket y /verify antes de que el staff opere.',
             ctaPrimary: 'Invitar TON618',
-            ctaSecondary: 'Ver docs',
-            ctaTertiary: 'Ir a soporte',
+            ctaSecondary: 'Abrir docs',
+            ctaTertiary: 'Entrar a soporte',
             inviteUnavailable: 'Configura VITE_DISCORD_CLIENT_ID para habilitar la invitación del bot.',
             logoSubtitle: 'Bot de Discord',
             proof: {
-                one: 'Tickets con claims, notas, transcripciones y handoff de staff',
-                two: 'Verificacion, bienvenida y comandos de setup para un onboarding mas seguro',
-                three: 'Warns, modlogs, stats y auditorias para tener visibilidad operativa',
+                one: 'Soporte en English y Español con elección de idioma por servidor durante el onboarding',
+                two: 'Tickets, verificación y flujos de staff que se quedan dentro de Discord',
+                three: 'Métricas, config center, audit y debug para control diario',
             },
-            panelLabel: 'Lo que hoy si trae el bot',
+            panelLabel: 'Lo que los equipos pueden usar hoy',
             scroll: 'Desplázate para explorar',
             highlightsAria: 'Aspectos destacados del producto',
         },
         docsSection: {
             eyebrow: 'Recursos',
-            title: 'Todo Lo Necesario',
-            titleAccent: 'Para Lanzar Con Confianza',
+            title: 'Rutas Claras',
+            titleAccent: 'Para Lanzar',
             description:
-                'El sitio publico se centra en pasos utiles: setup, flujo actual, soporte, status y rutas legales.',
+                'Mantén onboarding, flujo real, soporte, status y rutas legales a mano para que el rollout sea honesto y práctico.',
             cards: {
                 setup: {
-                    title: 'Guia de setup',
+                    title: 'Setup e idioma',
                     description:
-                        'Empieza con /setup y luego activa tickets y verificacion cuando la base del servidor ya este lista.',
-                    ctaExternal: 'Abrir guia',
-                    ctaFallback: 'Ver ruta de setup',
+                        'Elige el idioma del servidor durante el onboarding, corre /setup y prepara canales, roles y defaults antes de publicar flujos visibles. Si hace falta, cámbialo después con /setup language.',
+                    ctaExternal: 'Abrir docs de onboarding',
+                    ctaFallback: 'Ver ruta de onboarding',
                 },
                 commands: {
-                    title: 'Flujo actual',
+                    title: 'Cómo se usa TON618',
                     description:
-                        'Revisa el orden de rollout y los comandos que de verdad importan para admins, staff y operadores hoy.',
-                    cta: 'Ver flujo',
+                        'Revisa el orden real: invitar, elegir idioma, /setup, /ticket, /verify, /staff, /stats y comandos de control.',
+                    cta: 'Ver cómo funciona',
                 },
                 support: {
-                    title: 'Soporte y status',
+                    title: 'Soporte, status y políticas',
                     description:
-                        'Usa soporte, status y las paginas legales cuando necesites ayuda o quieras validar confianza.',
+                        'Usa soporte, status y páginas legales públicas cuando tu equipo necesite ayuda o quiera validar confianza.',
                     ctaExternal: 'Abrir soporte',
                     ctaFallback: 'Ir a soporte',
                 },
             },
         },
         features: {
-            tag: 'Capacidades Core',
-            title: 'Hecho Para',
-            titleAccent: 'Operaciones En Discord',
+            tag: 'Superficie Actual Del Producto',
+            title: 'Un Solo Bot Para',
+            titleAccent: 'Operación Bilingüe En Discord',
             description:
-                'TON618 esta alineado con el bot que de verdad existe: setup, tickets, verificacion, operacion de staff, configuracion viva y diagnostico.',
+                'Esta landing se mantiene pegada al bot real: English y Español, onboarding por servidor, tickets, verificación, flujos de staff, métricas en vivo y comandos de control.',
             useCases: {
-                moderation: 'Lanza con setup, verificacion y visibilidad auditada en lugar de herramientas dispersas.',
-                onboarding: 'Activa tickets y verificacion desde la misma ruta de rollout command-first.',
-                support: 'Manten la carga del staff, la configuracion viva y el seguimiento dentro de Discord.',
+                language: 'Elige English o Español por servidor durante el onboarding.',
+                rollout: 'Lanza tickets y verificación desde la misma ruta command-first.',
+                operations: 'Mantén trabajo de staff, métricas y control dentro de Discord.',
             },
             items: {
-                moderation: {
-                    title: 'Trazabilidad operativa',
-                    desc: 'Mantiene historial confiable de cambios y acciones cuando el equipo necesita revisar contexto.',
-                    status: '/audit',
+                bilingual: {
+                    title: 'English y Español',
+                    desc: 'Define el idioma por servidor durante el onboarding para que la operación del staff sea consistente en esa comunidad.',
+                    status: 'EN / ES',
                 },
-                autonomy: {
-                    title: 'Flujos de tickets',
-                    desc: 'Abre el flujo de soporte dentro de Discord y deja la cola lista para un equipo staff-first.',
-                    status: '/ticket',
-                },
-                latency: {
-                    title: 'Verificacion y onboarding',
-                    desc: 'Protege el acceso de miembros nuevos antes de que entren a los flujos operativos del servidor.',
-                    status: '/verify',
-                },
-                security: {
+                setup: {
                     title: 'Setup del servidor',
-                    desc: 'Prepara la base del servidor para que roles, canales y defaults esten listos antes de operar.',
+                    desc: 'Corre /setup para preparar canales, roles, defaults y la base operativa antes del launch.',
                     status: '/setup',
                 },
-                analytics: {
-                    title: 'Metricas y salud',
-                    desc: 'Sigue carga, uso y presion operativa sin salir de Discord.',
-                    status: '/stats',
+                tickets: {
+                    title: 'Flujos de tickets',
+                    desc: 'Activa el routing de soporte dentro de Discord cuando la base del servidor ya está lista.',
+                    status: '/ticket',
                 },
-                network: {
-                    title: 'Coordinacion de staff',
-                    desc: 'Coordina la carga diaria del equipo sin repartir la operacion entre varias herramientas.',
+                verification: {
+                    title: 'Verificación',
+                    desc: 'Protege la entrada de miembros con el flujo de verificación que tu servidor necesita antes de operar en vivo.',
+                    status: '/verify',
+                },
+                staff: {
+                    title: 'Flujos de staff',
+                    desc: 'Usa /staff para coordinar ownership de cola y ejecución diaria sin sacar al equipo de Discord.',
                     status: '/staff',
                 },
-                modular: {
-                    title: 'Centro de configuracion',
-                    desc: 'Revisa y ajusta la configuracion viva cuando la base operativa ya esta en marcha.',
+                stats: {
+                    title: 'Métricas y vista SLA',
+                    desc: 'Consulta carga, actividad y señales de salud con las métricas que el bot ya expone hoy.',
+                    status: '/stats',
+                },
+                config: {
+                    title: 'Centro de configuración',
+                    desc: 'Ajusta settings vivos cuando el servidor ya está operando y el equipo necesita cambios con criterio.',
                     status: '/config center',
                 },
-                comms: {
-                    title: 'Diagnostico',
-                    desc: 'Inspecciona rutas de debug cuando la operacion necesita verificacion tecnica o troubleshooting controlado.',
-                    status: '/debug',
+                audit: {
+                    title: 'Audit y debug',
+                    desc: 'Usa trazabilidad y rutas de debug cuando la operación necesita revisión o troubleshooting controlado.',
+                    status: '/audit · /debug',
                 },
             },
         },
         experience: {
             title: 'De La Invitacion',
-            titleAccent: 'Al Servidor En Marcha',
+            titleAccent: 'A La Operación Diaria',
             subtitle:
-                'TON618 sigue un enfoque command-first: invita el bot, corre /setup, activa /ticket y /verify, y deja la operacion diaria dentro de Discord.',
-            card1Eyebrow: 'Ruta de setup',
-            card1Title: 'Usa comandos reales para salir en vivo',
+                'El rollout empieza en Discord: invita TON618, elige el idioma del servidor, corre /setup y luego publica tickets y verificación cuando la base esté lista.',
+            card1Eyebrow: 'Onboarding',
+            card1Title: 'Elige el idioma antes de salir en vivo',
             card1Desc:
-                'Empieza con /setup, luego activa /ticket y /verify, y revisa /config center cuando la base del servidor ya este viva.',
-            card2Eyebrow: 'Uso diario',
-            card2Title: 'Dale al staff herramientas que de verdad use',
+                'TON618 ya soporta English y Español. Define el idioma de cada servidor durante el onboarding antes de publicar paneles o flujos visibles para miembros.',
+            card2Eyebrow: 'Operación',
+            card2Title: 'Deja el trabajo diario del lado de Discord',
             card2Desc:
-                'El staff trabaja el dia a dia con /staff, mientras admins y owners usan /stats, /audit y /debug cuando necesitan visibilidad o diagnostico.',
+                'Después del launch, el staff usa /staff para la cola mientras admins y owners dependen de /stats, /config center, /audit y /debug para tener control.',
         },
         gallery: {
             tag: 'Workflows Del Servidor',
@@ -181,104 +181,74 @@ export const es = {
         comparison: { tag: 'Compara Y Decide', title: 'TON618 vs', titleAccent: 'La Competencia', description: 'Mira cómo TON618 se compara con otros bots populares en las funciones que más importan a equipos serios.', features: { moderation: 'Moderación avanzada', automation: 'Flujos de automatización', setupGuide: 'Guía de setup', analytics: 'Analítica en vivo', verification: 'Verificación de miembros', tickets: 'Sistema de tickets', liveUptime: 'Uptime en vivo', customFlows: 'Flujos personalizados' }, bots: { ton618: 'TON618', mee6: 'MEE6', dyno: 'Dyno', carlbot: 'Carl-bot' }, legend: { full: 'Soporte completo', partial: 'Soporte parcial', none: 'No disponible' } },
         testimonials: { tag: 'Comunidades Reales', title: 'Lo Que Dicen', titleAccent: 'Los Equipos', description: 'Servidores que ya confían en TON618 para sus operaciones diarias.', items: { t1: { name: 'Alex R.', role: 'Owner', server: 'Horizon Gaming', members: '12K miembros', quote: 'Desde que migramos a TON618 es mucho más fácil para el staff seguir tickets, warns y verificación en un mismo flujo.' }, t2: { name: 'María S.', role: 'Admin', server: 'Código Latam', members: '8K miembros', quote: 'Los flujos de automatización nos salvaron. Onboarding, verificación y soporte funcionan solos ahora.' }, t3: { name: 'Jake T.', role: 'Head Mod', server: 'Creative Hub', members: '25K miembros', quote: 'La analítica en vivo y los logs de moderación nos dan visibilidad total. No volvería a otro bot.' } } },
         integrations: { tag: 'Ecosistema Técnico', title: 'Construido Con', titleAccent: 'Tecnología Premium', description: 'TON618 se integra con las mejores herramientas del ecosistema para ofrecer rendimiento, seguridad y escalabilidad.', items: { discord: { name: 'Discord API', desc: 'Integración nativa con la API oficial' }, supabase: { name: 'Supabase', desc: 'Base de datos y autenticación en tiempo real' }, nodejs: { name: 'Node.js', desc: 'Runtime de alto rendimiento' }, typescript: { name: 'TypeScript', desc: 'Tipado estricto para estabilidad' }, react: { name: 'React', desc: 'Sitio público y superficies de soporte' }, tailwind: { name: 'Tailwind CSS', desc: 'UI premium y consistente' } } },
-        faq: { tag: 'Preguntas Frecuentes', title: 'Resolvemos', titleAccent: 'Tus Dudas', items: { q1: { question: '¿Como invito TON618 a mi servidor?', answer: 'Haz clic en "Invitar bot" en esta pagina, aprueba los permisos y TON618 quedara listo para usarse en tu servidor.' }, q2: { question: '¿TON618 es gratuito?', answer: 'La invitacion y el setup base sirven para empezar. Algunas funciones avanzadas de reportes o capas comerciales pueden depender del plan activo del servidor.' }, q3: { question: '¿Puedo migrar desde otro bot?', answer: 'Si. TON618 funciona junto a otros bots durante la transicion. Configura los modulos que necesites y desactiva el bot anterior cuando estes listo.' }, q4: { question: '¿Que tan rapido responde el bot?', answer: 'TON618 esta optimizado para baja latencia. Los comandos y acciones de moderacion se ejecutan en milisegundos incluso en servidores con alta actividad.' }, q5: { question: '¿Con que comandos deberia empezar?', answer: 'Empieza con /setup, luego activa /ticket y /verify. Cuando el servidor ya este vivo, usa /staff, /stats y /config center para operar y ajustar.' }, q6: { question: '¿Hay soporte si tengo problemas?', answer: 'Si. El sitio publico mantiene soporte, docs, status y paginas legales visibles para que el equipo sepa adonde ir cuando necesita ayuda.' } } },
+        faq: { tag: 'Preguntas Frecuentes', title: 'Respuestas Utiles', titleAccent: 'Antes Del Launch', items: { q1: { question: '¿Cómo empiezo con TON618?', answer: 'Invita el bot, elige el idioma del servidor, ejecuta /setup y activa /ticket y /verify cuando la base ya esté lista.' }, q2: { question: '¿TON618 soporta English y Español?', answer: 'Sí. TON618 soporta English y Español hoy, el idioma se define por servidor durante el onboarding y los admins pueden cambiarlo después con /setup language.' }, q3: { question: '¿Necesito dashboard para usar TON618?', answer: 'No. El flujo actual es command-first dentro de Discord. Docs y soporte ayudan durante el rollout, pero no son superficies obligatorias para operar el bot.' }, q4: { question: '¿Qué usa el staff después del setup?', answer: 'El trabajo diario se mueve con /staff. Para visibilidad y control profundo el equipo usa /stats, /config center, /audit y /debug.' }, q5: { question: '¿Puedo migrar desde otro bot de forma gradual?', answer: 'Sí. Puedes preparar setup, tickets o verificación por fases y retirar otras herramientas solo cuando tu servidor ya esté listo.' }, q6: { question: '¿Dónde encuentro ayuda o información de confianza?', answer: 'El sitio mantiene docs, soporte, status y páginas legales públicas para que el equipo sepa a dónde ir durante el rollout o ante un incidente.' } } },
         notifications: { dismiss: 'Cerrar notificaciones', events: { e1: '🛡️ AutoMod bloqueó spam en #general', e2: '✅ Nuevo miembro verificado exitosamente', e3: '📊 Reporte diario generado', e4: '🎫 Ticket #847 resuelto por staff', e5: '⚡ Flujo de bienvenida ejecutado', e6: '🔒 Permisos actualizados en #admin', e7: '📈 Pico de actividad detectado', e8: '🤖 Comando /config ejecutado' } },
         pricing: { tag: 'Planes Y Precios', title: 'Elige Tu', titleAccent: 'Plan Ideal', description: 'Desde comunidades que empiezan hasta servidores enterprise con miles de miembros.', toggle: { monthly: 'Mensual', yearly: 'Anual' }, yearlyDiscount: 'Ahorra 20%', plans: { free: { name: 'Free', price: { monthly: '$0', yearly: '$0' }, period: '/mes', desc: 'Para servidores que empiezan.', cta: 'Empezar gratis', features: ['Moderación básica', 'Hasta 3 flujos', 'Verificación simple', 'Soporte comunidad'] }, pro: { name: 'Pro', price: { monthly: '$9', yearly: '$7' }, period: '/mes', desc: 'Para equipos que necesitan más.', cta: 'Actualizar a Pro', popular: 'Más popular', features: ['Todo en Free', 'Flujos ilimitados', 'Analítica en vivo', 'Sistema de tickets', 'Herramientas extra de setup', 'Soporte prioritario'] }, enterprise: { name: 'Enterprise', price: { monthly: '$29', yearly: '$23' }, period: '/mes', desc: 'Para servidores a gran escala.', cta: 'Contactar ventas', features: ['Todo en Pro', 'API dedicada', 'SLA garantizado', 'Onboarding guiado', 'Multi-servidor', 'Soporte 24/7'] } } },
         changelog: { tag: 'Últimas Actualizaciones', title: 'Qué Hay', titleAccent: 'De Nuevo', entries: { e1: { version: 'v2.4.0', date: 'Mar 2026', title: 'Sistema de tickets rediseñado', desc: 'Nuevo panel de tickets con SLA, escalado automático y transcripciones.' }, e2: { version: 'v2.3.0', date: 'Feb 2026', title: 'Analítica en tiempo real', desc: 'Métricas de actividad, gráficas de uso y reportes automáticos.' }, e3: { version: 'v2.2.0', date: 'Ene 2026', title: 'Flujos de automatización v2', desc: 'Editor visual de flujos con triggers condicionales y acciones en cadena.' }, e4: { version: 'v2.1.0', date: 'Dic 2025', title: 'Refresh de verificación', desc: 'Se actualizó la publicación del panel de verificación con una guía de rollout más clara.' } } },
         roadmap: { tag: 'Próximamente', title: 'Hacia', titleAccent: 'Dónde Vamos', description: 'Funcionalidades confirmadas en desarrollo activo.', items: { r1: { quarter: 'Q2 2026', title: 'AI Moderation', desc: 'Detección inteligente de spam, toxicidad y raids con modelos de lenguaje.', status: 'En desarrollo' }, r2: { quarter: 'Q2 2026', title: 'Webhooks personalizados', desc: 'Conecta TON618 con servicios externos vía webhooks configurables.', status: 'En desarrollo' }, r3: { quarter: 'Q3 2026', title: 'Guías de setup ampliadas', desc: 'Más guía pública para rollout de moderación, verificación y tickets.', status: 'Planeado' }, r4: { quarter: 'Q4 2026', title: 'Marketplace de plugins', desc: 'Instala módulos creados por la comunidad desde un marketplace.', status: 'Próximamente' } } },
         commandPreview: {
             tag: 'Flujo actual',
-            title: 'Como Usar TON618',
+            title: 'Cómo Usar TON618',
             titleAccent: 'Hoy',
             description:
-                'TON618 es staff-first y command-first. El equipo empieza en Discord, define la base del servidor, activa los flujos visibles y mantiene la operacion dentro de la misma superficie de comandos.',
+                'TON618 funciona hoy con un orden simple dentro de Discord: invitas el bot, eliges el idioma del servidor durante el onboarding, corres /setup y luego activas soporte y verificación antes de que el staff opere.',
             note: {
-                eyebrow: 'Modelo actual',
-                title: 'No necesitas dashboard publico para empezar',
+                eyebrow: 'Idioma del servidor',
+                title: 'English y Español se eligen en el onboarding',
                 description:
-                    'El flujo actual vive en slash commands. Docs y soporte pueden ayudar durante el rollout, pero quedan como rutas opcionales y no como superficies obligatorias del producto.',
-                points: {
-                    point1: 'Invita el bot, corre /setup y prepara roles, canales y defaults antes de exponer paneles a miembros.',
-                    point2: 'Activa /ticket y /verify solo cuando la base ya este lista para salir con routing y controles de acceso correctos.',
-                    point3: 'Mantiene el trabajo diario del staff, las metricas y las revisiones mas profundas dentro de Discord con los comandos que ya existen hoy.',
+                    'El idioma se define por servidor antes de publicar tickets, verificación o flujos de staff. Después del onboarding, el equipo mantiene la operación dentro de Discord con los comandos que sí importan hoy.',
+                languages: {
+                    english: 'English',
+                    spanish: 'Español',
+                    timing: 'Se define al iniciar',
                 },
-            },
-            summary: {
-                items: {
-                    launch: {
-                        label: 'Lanzamiento',
-                        title: 'Setup, tickets y verificacion',
-                        description: 'Configuras el servidor, abres soporte y proteges el acceso desde la misma ruta de rollout.',
-                    },
-                    operate: {
-                        label: 'Operacion',
-                        title: 'Trabajo diario del staff',
-                        description: 'La cola diaria y la lectura rapida de carga siguen dentro de Discord cuando el servidor ya esta activo.',
-                    },
-                    control: {
-                        label: 'Control',
-                        title: 'Configuracion, auditoria y diagnostico',
-                        description: 'Ajustas settings vivos, revisas trazabilidad y entras a debug solo cuando la operacion lo necesita.',
-                    },
+                points: {
+                    point1: 'Empieza con la invitación para que el bot registre slash commands y permisos base dentro del servidor.',
+                    point2: 'Los admins lanzan la operación con /setup y luego publican /ticket y /verify cuando la base del servidor ya está lista.',
+                    point3: 'El staff trabaja con /staff mientras admins y owners usan /stats, /config center, /audit y /debug para tener control.',
                 },
             },
             workflow: {
-                eyebrow: 'Orden de rollout',
-                title: 'El camino que sigue un equipo hoy',
-                description: 'Esta secuencia refleja el producto actual: primero configuras, luego activas flujos visibles y despues operas e inspeccionas.',
+                eyebrow: 'Paso a paso',
+                title: 'El orden real de rollout',
+                description: 'Este es el orden que un equipo puede seguir hoy sin adivinar: empiezas en Discord, defines idioma, configuras la base, publicas flujos visibles y luego operas y mides.',
             },
             steps: {
+                invite: {
+                    role: 'Admin',
+                    title: 'Invita el bot',
+                    description: 'Añade TON618 desde Discord para que los slash commands y los permisos base queden disponibles antes de empezar el setup.',
+                },
+                language: {
+                    role: 'Admin',
+                    title: 'Elige el idioma del servidor',
+                    description: 'Define English o Español durante el onboarding. Ese idioma queda fijado antes de que staff o miembros vean el flujo en vivo, y los admins pueden cambiarlo después con /setup language.',
+                },
                 setup: {
                     role: 'Admin',
-                    title: 'Configura el servidor',
-                    description: 'Invita TON618 y corre el setup inicial para que canales, permisos de staff y defaults queden listos antes de salir en vivo.',
+                    title: 'Configura la operación con /setup',
+                    description: 'Usa /setup para preparar canales, roles, permisos y la configuración base antes de publicar cualquier flujo visible para miembros.',
                 },
-                tickets: {
+                launch: {
                     role: 'Admin',
-                    title: 'Activa tickets',
-                    description: 'Enciende el flujo de soporte despues del setup para que la cola abra con routing, ownership y contexto operativo correctos.',
+                    title: 'Activa /ticket y /verify',
+                    description: 'Enciende soporte y protección de acceso solo cuando el setup ya está listo, para que routing, ownership y reglas de entrada arranquen bien.',
                 },
-                verify: {
-                    role: 'Admin',
-                    title: 'Protege el acceso',
-                    description: 'Activa verificacion cuando el servidor necesita entrada controlada y un onboarding mas seguro antes de tocar la operacion viva.',
-                },
-                staff: {
-                    role: 'Staff',
-                    title: 'Opera el dia a dia',
-                    description: 'Usa el flujo de staff para coordinar ownership de cola, ejecucion y carga diaria directamente dentro de Discord.',
-                },
-                measure: {
-                    role: 'Admin + owner',
-                    title: 'Mide y ajusta',
-                    description: 'Revisa uso y configuracion viva para entender la carga, validar resultados y ajustar el servidor sin adivinar.',
-                },
-                audit: {
-                    role: 'Owner / operador',
-                    title: 'Audita y diagnostica',
-                    description: 'Usa las rutas profundas cuando la operacion necesita trazabilidad o troubleshooting controlado, sin insinuar que siempre existe un dashboard publico.',
-                },
-            },
-            roles: {
-                eyebrow: 'Quien usa que',
-                title: 'Un bot, tres responsabilidades',
-                description:
-                    'Los admins lanzan el flujo del servidor, el staff lo trabaja cada dia y los owners u operadores mantienen visibilidad sobre metricas, configuracion e incidencias.',
-                items: {
-                    admin: {
-                        eyebrow: 'Administrador',
-                        title: 'Se encarga del setup y la activacion',
-                        description: 'Usa los comandos admin-first que preparan el servidor y exponen tickets o verificacion en el momento correcto.',
-                    },
-                    staff: {
-                        eyebrow: 'Staff',
-                        title: 'Trabaja la cola dentro de Discord',
-                        description: 'Se centra en los comandos operativos que mantienen soporte y coordinacion en movimiento cuando el servidor ya esta vivo.',
-                    },
-                    owner: {
-                        eyebrow: 'Owner / operador',
-                        title: 'Vigila el sistema e interviene cuando hace falta',
-                        description: 'Mantiene visibilidad sobre metricas, configuracion, auditoria y debug cuando la operacion necesita mas control.',
+                operate: {
+                    role: 'Staff + Admin / Owner',
+                    title: 'Corre el flujo diario y el control',
+                    description: 'Cuando el servidor ya está en vivo, el equipo se queda dentro de Discord: el staff trabaja la cola y admins u owners siguen salud, ajustan settings y hacen troubleshooting solo cuando hace falta.',
+                    lanes: {
+                        staff: {
+                            label: 'Staff',
+                            title: 'Trabaja la cola con /staff',
+                            description: 'Lleva soporte, seguimiento y coordinación diaria desde el flujo vivo de staff.',
+                        },
+                        admin: {
+                            label: 'Admin / Owner',
+                            title: 'Usa métricas y comandos de control',
+                            description: 'Revisa carga con /stats e interviene con /config center, /audit o /debug cuando la operación lo necesita.',
+                        },
                     },
                 },
             },
@@ -287,40 +257,40 @@ export const es = {
         },
         stickyInvite: { cta: 'Invitar TON618' },
         scrollToTop: { label: 'Volver arriba' },
-        verifiedBadge: { label: 'Bot verificado' },
-        heroTyping: { phrases: ['Lanza mas rapido con /setup', 'Abre soporte con /ticket', 'Protege acceso con /verify', 'Revisa salud con /stats'] },
-        faqSearch: { placeholder: 'Buscar preguntas...', noResults: 'No se encontraron preguntas con ese término.' },
-        footerShare: { label: 'Compartir', twitter: 'Compartir en X', discord: 'Unirse al servidor' },
+        verifiedBadge: { label: 'Bot verificado de Discord' },
+        heroTyping: { phrases: ['Elige English o Español al iniciar', 'Corre /setup antes del launch', 'Activa /ticket y /verify', 'Revisa salud con /stats'] },
+        faqSearch: { label: 'Buscar en el FAQ', placeholder: 'Buscar en el FAQ...', noResults: 'No hay respuestas del FAQ que coincidan con esa búsqueda.' },
+        footerShare: { label: 'Compartir', twitter: 'Compartir en X', discord: 'Entrar a soporte', message: 'Mira TON618, un bot bilingüe de operación de staff para Discord.' },
         why: {
-            tag: 'Por Qué Eligen TON618',
-            title: 'Aterrizado En',
-            titleAccent: 'El Bot Real',
+            tag: 'Por Qué TON618 Encaja En Servidores Reales',
+            title: 'Diseñado Para',
+            titleAccent: 'La Operación Real',
             description:
-                'TON618 es mas facil de confiar cuando el sitio publico coincide con el producto: comandos reales, workflows reales, paginas legales publicas y rutas directas de soporte.',
+                'La superficie pública sirve más cuando coincide con el producto: onboarding bilingüe, flujos de staff dentro de Discord y rutas de soporte que no sobreprometen.',
             stats: {
-                uptime: 'Superficie de comandos',
-                uptimeValue: 'Slash commands reales',
-                uptimeSub: 'Aterrizados en el repo del bot',
-                speed: 'Superficie publica',
-                speedValue: 'Estatica y legal-ready',
-                speedSub: 'Invite, docs, status y rutas legales',
+                uptime: 'Idiomas',
+                uptimeValue: 'English + Español',
+                uptimeSub: 'Eliges por servidor durante el onboarding',
+                speed: 'Superficie operativa',
+                speedValue: 'Discord first',
+                speedSub: 'Setup, tickets, verificación, métricas y control',
             },
             reasons: {
                 precision: {
-                    title: 'Inventario real de comandos',
-                    desc: 'El sitio ahora referencia /setup, /ticket, /verify, /staff, /stats, /config center, /audit y /debug en lugar de arboles inventados.',
+                    title: 'Setup bilingüe por servidor',
+                    desc: 'TON618 soporta English y Español hoy, y la elección del idioma ocurre durante el onboarding antes de salir en vivo.',
                 },
                 performance: {
-                    title: 'Workflows listos para soporte',
-                    desc: 'Tickets, carga del staff, verificacion, configuracion y diagnostico se cuentan porque ya forman parte de TON618 hoy.',
+                    title: 'Rollout command-first',
+                    desc: 'Los equipos pueden invitar el bot, correr /setup, activar /ticket y /verify, y mantener el flujo dentro de Discord.',
                 },
                 security: {
-                    title: 'Presencia publica creible',
-                    desc: 'Invite, docs, soporte, status y paginas legales siguen visibles mientras las herramientas internas quedan fuera de la superficie publica.',
+                    title: 'Operación coherente para staff',
+                    desc: 'El trabajo diario vive en /staff mientras /stats, /config center, /audit y /debug mantienen a admins y owners en control.',
                 },
                 integration: {
-                    title: 'Segura para despliegue estatico',
-                    desc: 'El sitio publico mantiene el flujo actual de build con Vite y despliegue estatico en Square Cloud.',
+                    title: 'Rutas públicas honestas',
+                    desc: 'Docs, soporte, status y páginas legales son públicas y útiles, mientras el dashboard no se vende como promesa central.',
                 },
             },
         },
@@ -332,10 +302,10 @@ export const es = {
             title: 'Métricas Del',
             titleAccent: 'Bot En Vivo',
             description:
-                'Métricas públicas respaldadas por la telemetría operativa en vivo de TON618.',
+                'Métricas públicas sincronizadas desde la telemetría operativa en vivo de TON618.',
             source: {
                 label: 'Fuente de datos',
-                value: 'Feed operativo en vivo del bot',
+                value: 'Telemetría sincronizada del bot',
             },
             freshness: {
                 live: 'Sync reciente',
@@ -366,35 +336,35 @@ export const es = {
             },
         },
         final: {
-            tag: 'Listo Para Invitar',
+            tag: 'Listo Para Lanzar',
             title: 'Invita TON618',
-            titleAccent: 'Y Empieza Con Comandos Reales',
+            titleAccent: 'Y Elige El Idioma Del Servidor',
             description:
-                'Lleva el bot a tu servidor, publica tickets y verificacion, y usa docs o soporte si tu equipo necesita ayuda con el rollout.',
+                'Lleva el bot a tu servidor, elige English o Español durante el onboarding y luego despliega /setup, /ticket y /verify con docs y soporte a mano.',
             cta: 'Invitar TON618',
-            docsCta: 'Ver docs',
-            supportCta: 'Ir a soporte',
+            docsCta: 'Abrir docs',
+            supportCta: 'Entrar a soporte',
             unavailable: 'La URL de invitación queda deshabilitada hasta configurar VITE_DISCORD_CLIENT_ID.',
             nodes: {
-                active: 'TICKETS Y HERRAMIENTAS DE STAFF',
-                encryption: 'SETUP Y VERIFICACION',
-                stabilized: 'RUTAS LEGALES Y STATUS',
+                active: 'ENGLISH + ESPAÑOL',
+                encryption: 'TICKETS + VERIFICACIÓN',
+                stabilized: 'MÉTRICAS + CONTROL',
             },
         },
         footer: {
             tagline:
-                'Bot de Discord para moderacion, tickets, verificacion, comandos de setup y flujos de staff.',
+                'Bot bilingüe de Discord para tickets, verificación, setup, métricas y operación de staff.',
             productTitle: 'Producto',
             resourcesTitle: 'Recursos',
             supportTitle: 'Soporte',
             govTitle: 'Legal',
             nav: {
-                features: 'Capacidades',
+                features: 'Producto',
                 setup: 'Setup',
-                commands: 'Flujo',
-                stats: 'Metricas en vivo',
-                invite: 'Invitar bot',
-                docs: 'Documentación',
+                commands: 'Cómo se usa',
+                stats: 'Métricas en vivo',
+                invite: 'Invitar TON618',
+                docs: 'Docs',
                 status: 'Página de estado',
                 support: 'Servidor de soporte',
                 github: 'GitHub',
@@ -405,7 +375,7 @@ export const es = {
                 cookies: 'política de cookies',
             },
             copyright: '© {{year}} TON618',
-            stabilized: 'Producto bot para Discord',
+            stabilized: 'Bot bilingüe para staff',
             commanded: 'Creado por milo0dev',
             inviteCta: 'Invitar TON618',
         },
