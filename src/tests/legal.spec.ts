@@ -35,6 +35,16 @@ test.describe('Legal navigation and scroll restoration', () => {
     await expectPageAtTop(page);
   });
 
+  test('legal pages render natural Spanish content when the saved language is es', async ({ page }) => {
+    await page.addInitScript(() => window.localStorage.setItem('i18nextLng', 'es'));
+    await page.goto('/privacy');
+
+    await expect(page).toHaveTitle(/Política de Privacidad/);
+    await expect(page.getByRole('heading', { name: 'Política de Privacidad' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Datos que TON618 puede procesar' })).toBeVisible();
+    await expect(page.getByText('En esta página')).toBeVisible();
+  });
+
   test('hash navigation on the landing page preserves anchor scrolling', async ({ page }) => {
     await scrollToFooter(page);
     await page.locator('footer a[href="#features"]').click();

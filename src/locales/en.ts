@@ -538,9 +538,9 @@ export const en = {
                 github: 'GitHub',
             },
             gov: {
-                terms: 'terms of service',
-                privacy: 'privacy policy',
-                cookies: 'cookies policy',
+                terms: 'Terms of Service',
+                privacy: 'Privacy Policy',
+                cookies: 'Cookies Policy',
             },
             copyright: '© {{year}} TON618',
             stabilized: 'Bilingual staff bot',
@@ -549,90 +549,273 @@ export const en = {
         },
         legal: {
             close: 'Close',
-            core: 'Core Policy',
-            update: 'Last policy review',
-            status: 'Published',
-            lastUpdatedDate: 'March 27, 2026',
+            core: 'Legal document',
+            update: 'Last updated',
+            status: 'Public route',
+            lastUpdatedDate: 'March 29, 2026',
             page: {
-                eyebrow: 'Public legal page',
-                publicLabel: 'Public policy',
+                eyebrow: 'Public legal pages',
+                publicLabel: 'Legal information',
                 backToSite: 'Back to site',
                 navLabel: 'Legal document navigation',
+                sectionNavTitle: 'On this page',
+                highlightsTitle: 'At a glance',
+                sectionLabel: 'Section {{index}}',
                 relatedTitle: 'Related legal documents',
+                relatedDescription:
+                    'Review the other public documents that apply to the website, bot and support surfaces.',
                 contactTitle: 'Questions or requests',
                 contactDescription:
-                    'If you need clarification about these policies or want to request data review or removal, use the support path below.',
-                supportCta: 'Open support',
+                    'Use the published support route for policy questions, privacy requests or clarification about how TON618 is operated.',
+                contactUnavailable:
+                    'Support contact details are not currently published for this deployment. The latest official contact route will appear here when configured.',
+                supportCta: 'Support server',
+                supportLinkLabel: 'Discord support',
+                emailLinkLabel: 'Email contact',
             },
             terms: {
                 title: 'Terms of Service',
                 metaDescription:
-                    'Review the public terms of service for TON618, including acceptable use, service changes and support contact guidance.',
+                    'Professional public terms for TON618 covering acceptable use, Discord-specific responsibilities, service changes, suspension, third-party dependencies and support contact.',
                 content:
-                    'By using TON618 you agree to use the bot responsibly, comply with Discord policies and avoid abuse, spam or attempts to disrupt the service. Features, limits and availability may change as the product evolves.',
+                    'These Terms explain how TON618 may be used across the Discord bot, public website, support routes and authenticated web surfaces. They set practical expectations for server owners, administrators and staff who rely on TON618 for tickets, verification, setup, stats and daily server operations.',
+                highlights: [
+                    'Applies to the bot, public website, support surfaces and authenticated dashboard or admin access made available by TON618.',
+                    'Use of TON618 must stay consistent with Discord rules, server permissions and authorized staff workflows.',
+                    'Abuse, disruption attempts, unauthorized access or repeated policy violations can lead to restriction or removal.',
+                    'Features, limits and availability may change as the product evolves.',
+                ],
                 sections: [
                     {
-                        heading: 'Responsible use',
-                        body:
-                            'TON618 is provided for legitimate Discord moderation, automation, support and operations workflows. You agree not to use the service for abuse, spam, harassment, policy violations or attempts to disrupt the bot, website or connected systems.',
+                        heading: 'Overview and scope',
+                        body: [
+                            'TON618 is a bilingual Discord bot designed for server operations, including tickets, verification, setup, stats, staff workflows and related support tooling.',
+                            'These Terms apply when you invite or use the bot, configure it for a server, access the public website, use support channels or access authenticated TON618 web surfaces that are made available.',
+                        ],
+                        points: [
+                            'If you use TON618 on behalf of a server, you should have authority from the server owner or administrators to do so.',
+                            'Discord and any third-party platform used with TON618 keep their own terms, policies and platform rules.',
+                        ],
+                    },
+                    {
+                        heading: 'Authorized use and server responsibility',
+                        body: [
+                            'TON618 is meant for legitimate community operations. You are responsible for choosing appropriate channels, roles, permissions and staff access so the bot is only used in ways your server intends.',
+                            'You remain responsible for the instructions, settings and moderation actions that your team triggers through TON618.',
+                        ],
+                        points: [
+                            'Use the service only with proper permission from the server owner or administrators.',
+                            'Keep configuration accurate when publishing ticket panels, verification flows, role automation or staff tools.',
+                            'Review Discord permissions before granting the bot access to sensitive channels, roles or staff workflows.',
+                        ],
+                    },
+                    {
+                        heading: 'Prohibited and abusive use',
+                        body: [
+                            'You may not misuse TON618 or any connected surface in ways that harm communities, the service or third parties.',
+                        ],
+                        points: [
+                            'Do not attempt to reverse engineer, bypass security controls or gain unauthorized access to TON618 systems, accounts or data.',
+                            'Do not use the service for spam, phishing, harassment, illegal activity, raids or coordinated abuse.',
+                            'Do not automate excessive requests, scrape the website or dashboard, or interfere with normal bot operations.',
+                            'Do not use TON618 in violation of Discord policies, applicable law or the rights of others.',
+                        ],
                     },
                     {
                         heading: 'Service changes and availability',
-                        body:
-                            'Features, quotas, account tools and operational flows may change as TON618 evolves. We may improve, limit or discontinue parts of the product when needed for security, reliability, compliance or product direction.',
+                        body: [
+                            'TON618 is an actively evolving service. Features, limits, configuration surfaces, command behavior, supported modules and documentation may change over time.',
+                            'We do not guarantee uninterrupted availability, perfect accuracy or that every feature will remain unchanged. Maintenance, outages, Discord API issues or security work may affect availability.',
+                        ],
+                        points: [
+                            'Public documentation and legal pages may be updated to reflect product changes.',
+                            'Some features may be limited, experimental or disabled while reliability or safety work is in progress.',
+                        ],
                     },
                     {
-                        heading: 'Support and policy updates',
-                        body:
-                            'If you need clarification about acceptable use, contact TON618 through the support paths published on this site. Continued use of the service after an updated version is published means you accept the revised terms.',
+                        heading: 'Suspension, restriction and termination',
+                        body: [
+                            'We may suspend, restrict or terminate access to TON618 when reasonably necessary to protect the service, Discord communities, other users or supporting infrastructure.',
+                            'This can include disabling bot access for a server, limiting dashboard or support access, or removing configuration or data tied to abuse, security risk or unauthorized use.',
+                        ],
+                        points: [
+                            'Abuse, attempted disruption, fraud or repeated policy violations may lead to immediate action.',
+                            'We may also act when required by platform rules, a legitimate legal request or a security response.',
+                        ],
+                    },
+                    {
+                        heading: 'Third-party services and dependencies',
+                        body: [
+                            'TON618 depends on third-party platforms and infrastructure, including Discord and web providers used for authentication, hosting, storage and monitoring.',
+                            'Those services are not controlled entirely by TON618, and their availability, policies or technical limits may affect how the service works.',
+                        ],
+                        points: [
+                            'Your use of Discord remains subject to Discord terms, policies and API rules.',
+                            'Operational web surfaces may rely on providers such as Supabase for authentication or storage and Sentry for error or performance monitoring when enabled.',
+                        ],
+                    },
+                    {
+                        heading: 'No warranties and limitation of liability',
+                        body: [
+                            'TON618 is provided on an "as is" and "as available" basis to the extent permitted by applicable law. We work to keep the service reliable and useful, but we do not promise that it will always be uninterrupted, error-free or suitable for every server design.',
+                            'To the extent permitted by applicable law, TON618 is not liable for indirect, incidental, special, consequential or business-interruption losses arising from use of, inability to use, or reliance on the service, including data loss, moderation mistakes, misconfiguration or third-party outages.',
+                        ],
+                        points: [
+                            'Server teams should keep their own operational judgment, permissions review and backups for important workflows.',
+                        ],
+                    },
+                    {
+                        heading: 'Updates and contact',
+                        body: [
+                            'We may update these Terms when the product, support model or legal requirements change. The date at the top of this page shows the latest published version.',
+                            'If you continue using TON618 after a revised version is posted, we treat that as acceptance of the updated Terms. If you do not agree, stop using the service and remove the bot from your server.',
+                        ],
+                        points: [
+                            'Use the published support route or contact email for policy questions or requests for clarification.',
+                        ],
                     },
                 ],
             },
             privacy: {
                 title: 'Privacy Policy',
                 metaDescription:
-                    'Review how TON618 processes operational, account and support data for the bot, website and authenticated services.',
+                    'Professional public privacy policy for TON618 covering Discord identifiers, configuration data, ticket and verification workflows, authenticated access, providers and support requests.',
                 content:
-                    'TON618 only processes the data required to operate bot features, moderation flows, analytics and authenticated account access. We do not sell personal data. Server owners can contact support to request data review or removal where applicable.',
+                    'This Privacy Policy explains what data TON618 may process to operate the Discord bot, public website, support routes and authenticated web access. For a product like TON618, most processing is functional server, configuration and access data needed to run tickets, verification, setup, stats and staff workflows.',
+                highlights: [
+                    'Covers operational Discord identifiers, server configuration, ticket and verification workflow data, support requests and authenticated web access.',
+                    'Website diagnostics and performance monitoring may be collected for stability when enabled.',
+                    'TON618 does not sell personal data.',
+                    'Server owners or authorized administrators can request review or deletion of applicable data.',
+                ],
                 sections: [
                     {
-                        heading: 'Data we process',
-                        body:
-                            'TON618 processes the data needed to operate the bot, website and support workflows. This can include Discord account identifiers, server configuration data, moderation or ticket events, analytics signals and authentication details required for secure account access.',
+                        heading: 'Scope of this Policy',
+                        body: [
+                            'TON618 processes data only to the extent needed to run the service and support the communities that use it.',
+                            'The exact data depends on which product surfaces are used: the bot inside Discord, the public website, support channels and any authenticated dashboard or admin flows that are available.',
+                        ],
+                        points: [
+                            'Not every deployment or feature will process every category below at all times.',
+                        ],
                     },
                     {
-                        heading: 'How data is used',
-                        body:
-                            'Data is used to provide core product functionality, maintain service security, measure operational health, troubleshoot incidents and improve the quality of the experience. TON618 does not sell personal data to third parties.',
+                        heading: 'Data TON618 may process',
+                        body: [
+                            'Depending on the features enabled, TON618 may process categories such as the following.',
+                        ],
+                        points: [
+                            'Discord account and server identifiers, such as user IDs, guild IDs, channel IDs, role IDs and permission-related identifiers.',
+                            'Server configuration data, such as selected language, ticket settings, verification settings, channel mappings, role mappings, rate limits and other operational preferences.',
+                            'Ticket and staff workflow data, such as ticket IDs, subjects, queue or status changes, claim or assignment data, tags, timestamps, notes, macros and related operational metadata.',
+                            'Verification-related state, such as verification mode, configured channels and roles, anti-raid thresholds, verification panel settings and logs or status changes tied to the feature.',
+                            'Authenticated access data, such as Discord OAuth identity details, session state, manageable guild lists, bot installation status and permission flags used to control access to web surfaces.',
+                            'Website, support and diagnostics data, such as language preference, browser storage used for sessions, support messages, error reports, performance metrics and replay or tracing data when monitoring tools are enabled.',
+                        ],
                     },
                     {
-                        heading: 'Requests and retention',
-                        body:
-                            'Server owners or authorized operators can contact support to request review or deletion of applicable data. We keep data only as long as reasonably necessary for service delivery, security, compliance and legitimate operational records.',
+                        heading: 'Why the data is used',
+                        body: [
+                            'We use data to provide the features you request, keep the service secure, let authorized users access the right servers, troubleshoot issues and improve reliability.',
+                            'In practice, TON618 processes data because those actions are necessary to operate tickets, verification, setup, stats, support workflows and authenticated server management.',
+                        ],
+                        points: [
+                            'Deliver core bot and dashboard functionality.',
+                            'Maintain security, prevent abuse and investigate incidents.',
+                            'Sync manageable Discord servers and permissions for authorized users.',
+                            'Measure uptime, diagnose errors and improve performance.',
+                            'Respond to support, data review and deletion requests.',
+                        ],
+                    },
+                    {
+                        heading: 'Website, dashboard and authenticated access',
+                        body: [
+                            'When authenticated web access or dashboard features are enabled, TON618 may use Discord OAuth together with its authentication provider to validate identity, store secure session state and sync the list of manageable Discord servers.',
+                            'The public website may also remember language preference, use browser storage that supports authentication flows and collect performance or error diagnostics when monitoring is enabled.',
+                        ],
+                        points: [
+                            'Browser storage may include language preference and session-related keys needed for secure access continuity.',
+                            'If monitoring tools are enabled, they may receive diagnostics such as crash details, performance metrics and limited replay or tracing data from the website or dashboard.',
+                        ],
+                    },
+                    {
+                        heading: 'Providers and third-party services',
+                        body: [
+                            'TON618 may use third-party platforms and infrastructure providers to operate the service. Those providers should only receive the data reasonably needed for their role.',
+                            'Examples may include Discord as the primary platform, Supabase for authentication or storage and Sentry for website or dashboard error and performance monitoring when enabled.',
+                        ],
+                        points: [
+                            'Discord governs platform activity that happens inside Discord itself.',
+                            'Hosting, auth, storage or monitoring providers may process operational metadata needed to keep TON618 online and secure.',
+                        ],
+                    },
+                    {
+                        heading: 'Retention and storage',
+                        body: [
+                            'We retain data for as long as reasonably necessary to operate the service, maintain security, investigate incidents, preserve backups or meet legitimate operational obligations.',
+                            'Different categories may be kept for different periods depending on whether they relate to active server configuration, temporary sessions, support history or abuse prevention.',
+                        ],
+                        points: [
+                            'When a server stops using TON618 or a feature is removed, related data may be deleted, anonymized or retained for a limited period where needed for recovery, troubleshooting or security.',
+                            'Temporary session or authentication data may also be subject to the retention rules of the providers that support secure login.',
+                        ],
+                    },
+                    {
+                        heading: 'Review, deletion and access requests',
+                        body: [
+                            'Server owners and authorized administrators can contact TON618 through the published support route to request review or deletion of applicable configuration or account-linked data.',
+                            'We may need to verify authority before acting on a request, and we may decline or limit a request where the data is needed to protect the service, investigate abuse, preserve security or comply with legal obligations.',
+                        ],
+                        points: [
+                            'Requests are handled in a practical, product-specific way rather than through an automated self-service deletion promise.',
+                        ],
+                    },
+                    {
+                        heading: 'Security and no sale of personal data',
+                        body: [
+                            'TON618 uses reasonable technical and operational measures intended to protect service data from unauthorized access, misuse or accidental loss. No online service can promise absolute security, and teams should avoid placing unnecessary sensitive information into operational fields.',
+                            'TON618 does not sell personal data or share it for unrelated advertising purposes.',
+                        ],
+                        points: [
+                            'For browser-level storage and website measurement details, review the Cookies Policy alongside this Privacy Policy.',
+                        ],
                     },
                 ],
             },
             cookies: {
                 title: 'Cookies Policy',
                 metaDescription:
-                    'Review how TON618 uses essential and analytics cookies on the public website.',
+                    'Review how TON618 uses browser storage, essential cookies and measurement technologies on the public website and related web surfaces.',
                 content:
-                    'This site may use essential and analytics cookies to maintain performance, understand product usage and improve the public site and support experience. Cookie behavior can be controlled from your browser settings.',
+                    'This Cookies Policy explains how the public TON618 website may use essential browser storage and measurement technologies. It complements the Privacy Policy and focuses on website behavior rather than Discord bot operations inside servers.',
+                highlights: [
+                    'Applies to the public website and related authenticated web surfaces, not to Discord itself.',
+                    'Essential browser storage may be used for language preference, session continuity and secure operation.',
+                    'Measurement tools may be used to understand stability and improve the site when enabled.',
+                ],
                 sections: [
                     {
-                        heading: 'Essential cookies',
-                        body:
-                            'Essential cookies may be used to keep the public website stable, remember basic preferences and support secure functionality such as session continuity when those features are enabled.',
+                        heading: 'What this page covers',
+                        body: [
+                            'The TON618 website may use cookies, local storage or similar browser technologies to keep the site working properly and to understand performance.',
+                            'This page does not change how Discord or other third-party platforms handle data inside their own services.',
+                        ],
                     },
                     {
-                        heading: 'Analytics cookies',
-                        body:
-                            'Analytics cookies may be used to understand site performance, measure usage patterns and improve the clarity of the public experience. These signals help prioritize fixes and product improvements.',
+                        heading: 'Essential storage and secure sessions',
+                        body: [
+                            'Essential storage may be used to remember language preference, support secure session continuity for authenticated web access and keep the public site stable.',
+                        ],
+                        points: [
+                            'If dashboard or authenticated access is enabled, browser storage may be required for login continuity and session recovery.',
+                        ],
                     },
                     {
-                        heading: 'Browser controls',
-                        body:
-                            'You can control or block cookies from your browser settings. Some site features may behave differently if essential cookies are disabled.',
+                        heading: 'Measurement and browser controls',
+                        body: [
+                            'Measurement technologies may be used to understand site performance, stability and usage patterns so product fixes and quality improvements can be prioritized.',
+                            'You can control or block cookies from your browser settings, but some site features may behave differently if essential storage is disabled.',
+                        ],
                     },
                 ],
             },
