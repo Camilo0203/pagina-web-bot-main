@@ -2,7 +2,10 @@ import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabaseClient';
 import {
+  createCustomerPortalSession,
+  createGuildCheckoutSession,
   fetchDashboardGuilds,
+  fetchGuildBillingEntitlement,
   fetchGuildDashboardSnapshot,
   getDashboardSession,
   requestGuildBackupAction,
@@ -15,6 +18,7 @@ import {
 import { dashboardQueryKeys } from '../constants';
 import type {
   ConfigMutationSectionId,
+  DashboardBillingInterval,
   GuildDashboardSnapshot,
   TicketDashboardActionId,
 } from '../types';
@@ -268,6 +272,7 @@ export function useSignOutDashboard() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.removeQueries({ queryKey: ['dashboard', 'snapshot'] });
+      queryClient.removeQueries({ queryKey: ['dashboard', 'billing'] });
     },
   });
 }
@@ -281,9 +286,33 @@ export function useSyncDashboardGuilds() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.auth }),
         queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.guilds }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard', 'billing'] }),
       ]);
       queryClient.removeQueries({ queryKey: ['dashboard', 'snapshot'] });
     },
+  });
+}
+
+export function useGuildBilling(guildId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: dashboardQueryKeys.billing(guildId ?? 'idle'),
+    queryFn: () => fetchGuildBillingEntitlement(guildId ?? ''),
+    enabled: enabled && Boolean(guildId),
+    staleTime: 30_000,
+    retry: shouldRetryDashboardRequest,
+  });
+}
+
+export function useCreateCheckoutSession(guildId: string | null) {
+  return useMutation({
+    mutationFn: (billingInterval: DashboardBillingInterval) =>
+      createGuildCheckoutSession(guildId ?? '', billingInterval),
+  });
+}
+
+export function useCreateCustomerPortalSession(guildId: string | null) {
+  return useMutation({
+    mutationFn: () => createCustomerPortalSession(guildId ?? ''),
   });
 }
 

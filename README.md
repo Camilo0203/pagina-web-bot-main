@@ -8,11 +8,13 @@ Frontend de landing publica y dashboard operativo para TON618, construido con Vi
 - Dashboard operativo en `/dashboard` con auth via Supabase + Discord.
 - Callback OAuth endurecido en `/auth/callback`.
 - Snapshot del dashboard con degradacion parcial para `activity`, `metrics`, `ticket events` y `ticket macros`.
+- Billing beta con `Stripe Checkout + Customer Portal`, activacion por servidor y control plane en Supabase.
 
 ## Scripts
 
 - `npm install`
 - `npm run dev`
+- `npm run env:check`
 - `npm run typecheck`
 - `npm run lint`
 - `npm run test`
@@ -27,6 +29,8 @@ Variables criticas:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_SITE_URL`
+- `VITE_STRIPE_PUBLISHABLE_KEY`
+- `VITE_BILLING_BETA_MODE`
 
 Variables recomendadas:
 
@@ -56,10 +60,14 @@ Migraciones relevantes:
 - `supabase/migrations/20260313183000_create_dashboard_tables.sql`
 - `supabase/migrations/20260313193000_expand_dashboard_control_plane.sql`
 - `supabase/migrations/20260313220000_add_ticket_workspace.sql`
+- `supabase/migrations/20260403100000_add_billing_control_plane.sql`
 
-Edge Function requerida:
+Edge Functions requeridas:
 
 - `supabase/functions/sync-discord-guilds`
+- `supabase/functions/create-checkout-session`
+- `supabase/functions/create-customer-portal-session`
+- `supabase/functions/stripe-webhook`
 
 ## Configuracion de OAuth (Discord + Supabase)
 
@@ -72,13 +80,18 @@ El login del dashboard esta delegado a Supabase, el cual se conecta con Discord.
    - Ve a *Authentication* > *Providers* y activa **Discord**. Ingresa tu `Client ID` y `Client Secret`.
    - Ve a *Authentication* > *URL Configuration* y añade tu URL local (`http://localhost:5173/**`) o tu URL de produccion a las **Redirect URLs**.
 3. **Edge Functions:** 
-   - Despliega la funcion `sync-discord-guilds` configurando previamente el `DISCORD_BOT_TOKEN` en los secretos de Supabase.
+   - Despliega `sync-discord-guilds` configurando previamente `DISCORD_BOT_TOKEN` en los secretos de Supabase.
+   - Despliega `create-checkout-session`, `create-customer-portal-session` y `stripe-webhook`.
+   - Configura los secretos de billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PORTAL_RETURN_URL` y `BILLING_BETA_MODE`.
 
 Finalmente, manten al bot publicando latidos constantes hacia `bot_stats`, `bot_guilds`, `guild_metrics_daily` y las tablas operativas del dashboard para que el panel luzca actualizado.
 
 ## Release
 
 - Checklist de release: `docs/release-readiness-checklist.md`
+- Checklist de beta pagada: `docs/billing-beta-launch-checklist.md`
+- Runbook de rollback billing: `docs/billing-rollback-runbook.md`
+- Runbook de incidente pago sin Pro: `docs/runbook-payment-activated-but-pro-missing.md`
 - Checklist de QA manual: `docs/manual-qa-checklist.md`
 - Deuda tecnica resuelta: `docs/technical-debt-resolved.md`
 - Revision tecnica Codex: `docs/technical-review-codex.md`

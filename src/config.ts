@@ -51,6 +51,8 @@ export const config = {
   contactEmail: import.meta.env.VITE_CONTACT_EMAIL || '',
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+  stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
+  billingBetaMode: parseBooleanEnv(import.meta.env.VITE_BILLING_BETA_MODE, false),
   siteUrl,
   dashboardInternalPath: '/dashboard',
   authCallbackPath: '/auth/callback',
@@ -130,4 +132,25 @@ export function getDiscordInviteUrl(guildId?: string): string {
     : '';
 
   return `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${permissions}&scope=bot%20applications.commands${guildSuffix}`;
+}
+
+export function getDashboardBillingUrl(guildId?: string | null): string {
+  const baseUrl = getDashboardUrl();
+  const url = new URL(baseUrl, getSiteOrigin() || 'https://ton618.local');
+  url.searchParams.set('section', 'billing');
+
+  if (guildId) {
+    url.searchParams.set('guild', guildId);
+  }
+
+  if (config.billingBetaMode) {
+    url.searchParams.set('beta', 'billing');
+  }
+
+  const serialized = `${url.pathname}${url.search}${url.hash}`;
+  if (!isDashboardExternal()) {
+    return serialized;
+  }
+
+  return url.toString();
 }

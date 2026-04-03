@@ -8,6 +8,8 @@ import type {
   GuildSyncStatus,
 } from '../types';
 
+export const DASHBOARD_GUILD_ACCESS_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 export function getPreferredGuildId(
   guilds: DashboardGuild[],
   requestedGuildId: string | null,
@@ -153,4 +155,17 @@ export function isGuildHealthy(syncStatus: GuildSyncStatus | null, guild: Dashbo
   }
 
   return syncStatus.bridgeStatus !== 'error' && syncStatus.failedMutations === 0;
+}
+
+export function isGuildAccessFresh(lastSyncedAt: string | null, maxAgeMs = DASHBOARD_GUILD_ACCESS_MAX_AGE_MS) {
+  if (!lastSyncedAt) {
+    return false;
+  }
+
+  const parsed = new Date(lastSyncedAt);
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  return Date.now() - parsed.getTime() <= maxAgeMs;
 }

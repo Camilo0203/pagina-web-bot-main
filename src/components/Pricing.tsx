@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { CreditCard, Check, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { getDiscordInviteUrl } from '../config';
+import { config, getDashboardBillingUrl, getDiscordInviteUrl } from '../config';
 import { cardStagger, instantReveal, motionStagger, motionViewport, revealUp, sectionIntro, withDelay, withDuration } from '../lib/motion';
 
 type BillingCycle = 'monthly' | 'yearly';
@@ -18,6 +18,8 @@ export default function Pricing() {
   const planReveal = shouldReduceMotion ? instantReveal : withDuration(revealUp, 0.28);
   const [cycle, setCycle] = useState<BillingCycle>('monthly');
   const inviteUrl = getDiscordInviteUrl();
+  const proUrl = getDashboardBillingUrl();
+  const enterpriseUrl = config.supportServerUrl || (config.contactEmail ? `mailto:${config.contactEmail}` : '#pricing');
   const copy = isEnglish
     ? {
         tag: 'Operational plans',
@@ -155,6 +157,11 @@ export default function Pricing() {
             const planCopy = copy.plans[plan];
             const features = planCopy.features;
             const popular = planCopy.popular;
+            const href = plan === 'free'
+              ? inviteUrl || '#pricing'
+              : plan === 'pro'
+                ? proUrl
+                : enterpriseUrl;
 
             return (
               <motion.div
@@ -192,7 +199,7 @@ export default function Pricing() {
                 </ul>
 
                 <a
-                  href={inviteUrl || '#pricing'}
+                  href={href}
                   className={isPro ? 'btn-premium-primary w-full' : 'btn-premium-outline w-full'}
                 >
                   {isPro && <Sparkles className="h-4 w-4" />}

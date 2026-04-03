@@ -15,6 +15,7 @@ export {
 } from './configSchemas';
 export {
   dashboardGuildSchema,
+  guildBillingEntitlementSchema,
   guildConfigSchema,
   guildEventSchema,
   guildMetricsSchema,
@@ -27,6 +28,8 @@ export {
   guildBackupManifestSchema,
   guildSyncStatusSchema,
   dashboardSyncResultSchema,
+  checkoutSessionResultSchema,
+  customerPortalSessionSchema,
 } from './guildSchemas';
 export {
   ticketWorkflowStatusSchema,

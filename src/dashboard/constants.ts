@@ -2,6 +2,7 @@ import {
   Activity,
   BarChart3,
   BrainCircuit,
+  CreditCard,
   Bot,
   Command,
   Compass,
@@ -30,6 +31,7 @@ export const DASHBOARD_SECTION_STORAGE_PREFIX = 'dashboard:last-section:';
 export const dashboardQueryKeys = {
   auth: ['dashboard', 'auth'] as const,
   guilds: ['dashboard', 'guilds'] as const,
+  billing: (guildId: string) => ['dashboard', 'billing', guildId] as const,
   snapshot: (guildId: string) => ['dashboard', 'snapshot', guildId] as const,
 };
 
@@ -67,6 +69,12 @@ export const dashboardSections: DashboardSectionMeta[] = [
     label: 'dashboard.sections.playbooks.label',
     description: 'dashboard.sections.playbooks.description',
     icon: BrainCircuit,
+  },
+  {
+    id: 'billing',
+    label: 'Billing',
+    description: 'Plans, subscriptions and paid beta controls',
+    icon: CreditCard,
   },
   {
     id: 'general',
@@ -295,8 +303,14 @@ export const dashboardTaskGroups: DashboardTaskGroup[] = [
     label: 'dashboard.taskGroups.system.label',
     description: 'dashboard.taskGroups.system.description',
     icon: Settings2,
-    sections: ['system', 'analytics'],
+    sections: ['billing', 'system', 'analytics'],
     shortcuts: [
+      {
+        id: 'system-billing',
+        label: 'Billing',
+        description: 'Plans, subscriptions and Pro activation',
+        sectionId: 'billing',
+      },
       {
         id: 'system-sync',
         label: 'dashboard.shortcuts.system-sync.label',
@@ -332,6 +346,7 @@ export const dashboardSectionToMutationSection: Record<
   overview: null,
   inbox: null,
   playbooks: null,
+  billing: null,
   general: 'general',
   server_roles: 'server_roles_channels',
   tickets: 'tickets',

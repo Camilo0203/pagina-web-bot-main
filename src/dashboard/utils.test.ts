@@ -14,6 +14,7 @@ import {
   getDashboardChecklist,
   getDashboardQuickActions,
   getDashboardSectionStates,
+  isGuildAccessFresh,
   normalizeGuildConfig,
   type DashboardChecklistStep,
   type DashboardSectionState,
@@ -545,5 +546,19 @@ describe('getDashboardQuickActions', () => {
       sectionId: 'verification',
       priority: 88,
     });
+  });
+});
+
+describe('isGuildAccessFresh', () => {
+  it('solo acepta accesos sincronizados dentro de la ventana permitida', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-03T18:00:00.000Z'));
+
+    expect(isGuildAccessFresh('2026-04-03T17:00:00.000Z')).toBe(true);
+    expect(isGuildAccessFresh('2026-04-02T17:59:59.000Z')).toBe(false);
+    expect(isGuildAccessFresh(null)).toBe(false);
+    expect(isGuildAccessFresh('not-a-date')).toBe(false);
+
+    vi.useRealTimers();
   });
 });

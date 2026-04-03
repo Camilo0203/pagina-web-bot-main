@@ -15,6 +15,7 @@ const VisualExperience = lazy(() => import('../components/VisualExperience'));
 const WhyTon = lazy(() => import('../components/WhyTon'));
 const DocsSection = lazy(() => import('../components/DocsSection'));
 const LiveStats = lazy(() => import('../components/LiveStats'));
+const Pricing = lazy(() => import('../components/Pricing'));
 const FAQ = lazy(() => import('../components/FAQ'));
 const FinalCTA = lazy(() => import('../components/FinalCTA'));
 const CommandPreview = lazy(() => import('../components/CommandPreview'));
@@ -53,9 +54,11 @@ export default function LandingPage() {
         image: socialImageUrl,
         description,
         offers: {
-          '@type': 'Offer',
-          price: '0',
+          '@type': 'AggregateOffer',
           priceCurrency: 'USD',
+          lowPrice: '9',
+          highPrice: '84',
+          offerCount: '2',
         },
       },
       {
@@ -146,6 +149,7 @@ export default function LandingPage() {
                   <WhyTon />
                   <DocsSection />
                   <CommandPreview />
+                  <Pricing />
                 </>
               ),
             })}

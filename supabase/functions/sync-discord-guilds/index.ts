@@ -18,6 +18,10 @@ interface DiscordGuild {
   permissions_new?: string;
 }
 
+interface DiscordUser {
+  id: string;
+}
+
 interface InstalledGuildRow {
   guild_id: string;
   guild_name: string;
@@ -66,15 +70,37 @@ function hasManageablePermissions(permissionsRaw: string | null | undefined, isO
   }
 }
 
-function resolveDiscordUserId(user: { user_metadata?: Record<string, unknown> | null }): string | null {
+interface AuthIdentity {
+  provider?: string;
+  identity_data?: Record<string, unknown> | null;
+  id?: string | null;
+}
+
+function resolveDiscordUserId(user: {
+  user_metadata?: Record<string, unknown> | null;
+  identities?: AuthIdentity[] | null;
+}): string | null {
   const metadata = user.user_metadata && typeof user.user_metadata === 'object'
     ? user.user_metadata
     : {};
 
   const providerId = typeof metadata.provider_id === 'string' ? metadata.provider_id : null;
   const subject = typeof metadata.sub === 'string' ? metadata.sub : null;
+  const discordIdentity = Array.isArray(user.identities)
+    ? user.identities.find((identity) => identity?.provider === 'discord')
+    : null;
+  const identityData = discordIdentity?.identity_data && typeof discordIdentity.identity_data === 'object'
+    ? discordIdentity.identity_data
+    : {};
+  const identityProviderId = typeof identityData.provider_id === 'string'
+    ? identityData.provider_id
+    : null;
+  const identitySubject = typeof identityData.sub === 'string'
+    ? identityData.sub
+    : null;
+  const identityId = typeof discordIdentity?.id === 'string' ? discordIdentity.id : null;
 
-  return providerId ?? subject;
+  return providerId ?? subject ?? identityProviderId ?? identitySubject ?? identityId;
 }
 
 async function fetchDiscordResource<T>(
@@ -205,6 +231,29 @@ Deno.serve(async (request: Request) => {
       });
     }
 
+    const discordUser = await fetchDiscordResource<DiscordUser>('/users/@me', providerToken);
+    if (!discordUser?.id) {
+      return new Response(JSON.stringify({ error: 'Discord identity lookup failed.' }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const sessionDiscordUserId = resolveDiscordUserId(user);
+    if (!sessionDiscordUserId) {
+      return new Response(JSON.stringify({ error: 'The Supabase session is not linked to a Discord identity.' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (sessionDiscordUserId !== discordUser.id) {
+      return new Response(JSON.stringify({ error: 'Discord token does not belong to the authenticated user.' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const discordResponse = await fetch('https://discord.com/api/v10/users/@me/guilds', {
       headers: {
         Authorization: `Bearer ${providerToken}`,
@@ -226,12 +275,12 @@ Deno.serve(async (request: Request) => {
 
     const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey);
     const nowIso = new Date().toISOString();
+    const discordUserId = discordUser.id;
 
     if (!manageableGuilds.length) {
-      const discordUserId = resolveDiscordUserId(user);
       const discordBotToken = Deno.env.get('DISCORD_BOT_TOKEN');
 
-      if (discordUserId && discordBotToken) {
+      if (discordBotToken) {
         manageableGuilds = await resolveManageableGuildsWithBotToken(
           adminClient,
           discordUserId,

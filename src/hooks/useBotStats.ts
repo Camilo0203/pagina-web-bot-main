@@ -14,6 +14,7 @@ interface BotStatsRow {
   commands_executed: number | null;
   uptime_percentage: number | null;
   updated_at: string | null;
+  source: string | null;
 }
 
 export const defaultBotStats: BotStats = {
@@ -132,7 +133,8 @@ export function useBotStats(): UseBotStatsResult {
       try {
         const { data, error: queryError } = await client
           .from('bot_stats')
-          .select('servers, users, commands_executed, uptime_percentage, updated_at')
+          .select('servers, users, commands_executed, uptime_percentage, updated_at, source')
+          .eq('source', 'live')
           .order('updated_at', { ascending: false })
           .limit(1)
           .maybeSingle<BotStatsRow>();

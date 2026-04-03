@@ -27,11 +27,18 @@ function persistSection(guildId: string, section: DashboardSectionId) {
 export function usePersistentDashboardSection(
   selectedGuildId: string | null,
   defaultSection: DashboardSectionId | null | undefined,
+  requestedSection?: string | null,
 ) {
   const [activeSection, setActiveSection] = useState<DashboardSectionId>('overview');
 
   useEffect(() => {
     if (!selectedGuildId) {
+      return;
+    }
+
+    const requestedDashboardSection = requestedSection ?? null;
+    if (isDashboardSectionId(requestedDashboardSection)) {
+      setActiveSection(requestedDashboardSection);
       return;
     }
 
@@ -42,7 +49,7 @@ export function usePersistentDashboardSection(
     }
 
     setActiveSection(defaultSection ?? 'overview');
-  }, [defaultSection, selectedGuildId]);
+  }, [defaultSection, requestedSection, selectedGuildId]);
 
   useEffect(() => {
     if (!selectedGuildId) {

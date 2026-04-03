@@ -5,6 +5,7 @@ export const dashboardSectionIds = [
   'overview',
   'inbox',
   'playbooks',
+  'billing',
   'general',
   'server_roles',
   'tickets',

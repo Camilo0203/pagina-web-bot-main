@@ -45,6 +45,7 @@ export {
   getActiveModules,
   isSessionReady,
   isGuildHealthy,
+  isGuildAccessFresh,
 } from './guild';
 
 export {

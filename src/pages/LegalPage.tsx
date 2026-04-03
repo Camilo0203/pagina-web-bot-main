@@ -8,6 +8,7 @@ import { config, getAbsoluteAssetUrl, getCanonicalUrl } from '../config';
 import {
   LEGAL_DOCUMENT_TYPES,
   getLegalDocumentContent,
+  getLegalDocumentTitle,
   type LegalDocumentType,
 } from '../lib/legalDocuments';
 
@@ -126,7 +127,7 @@ export default function LegalPage({ type }: LegalPageProps) {
                           : 'border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20 hover:text-white'
                       }`}
                     >
-                      {t(`legal.${documentType}.title`)}
+                      {getLegalDocumentTitle(t, documentType)}
                     </Link>
                   );
                 })}
@@ -311,7 +312,7 @@ export default function LegalPage({ type }: LegalPageProps) {
                               : 'border-white/10 bg-black/30 text-slate-200 hover:border-white/20 hover:text-white'
                           }`}
                         >
-                          {t(`legal.${documentType}.title`)}
+                          {getLegalDocumentTitle(t, documentType)}
                         </Link>
                       );
                     })}

@@ -18,13 +18,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     environment: import.meta.env.MODE,
     integrations: [
       Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration(),
     ],
-    // Captura el 100% de las transacciones (puedes bajarlo en prod)
-    tracesSampleRate: 1.0,
-    // Graba video del 10% de las sesiones sanas, y el 100% de las que tengan error
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
+    tracesSampleRate: import.meta.env.PROD ? 0.15 : 1.0,
   });
 }
 

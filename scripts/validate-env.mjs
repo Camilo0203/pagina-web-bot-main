@@ -26,6 +26,23 @@ const mode = modeArg ? modeArg.slice('--mode='.length) : 'runtime';
 const envFile = fileArg ? path.resolve(process.cwd(), fileArg.slice('--file='.length)) : null;
 const env = envFile ? { ...process.env, ...parseEnvFile(envFile) } : process.env;
 
+function parseBooleanEnv(value) {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['0', 'false', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return undefined;
+}
+
 const requiredKeys = [
   'VITE_DISCORD_CLIENT_ID',
   'VITE_SUPABASE_URL',
@@ -50,6 +67,29 @@ if (env.VITE_SITE_URL && !/^https?:\/\/.+/i.test(env.VITE_SITE_URL)) {
   errors.push('VITE_SITE_URL must be an absolute URL.');
 }
 
+if (String(env.VITE_DASHBOARD_URL || '').trim() && !/^https?:\/\/.+/i.test(env.VITE_DASHBOARD_URL)) {
+  errors.push('VITE_DASHBOARD_URL must be an absolute URL when provided.');
+}
+
+const billingBetaMode = parseBooleanEnv(env.VITE_BILLING_BETA_MODE);
+if (env.VITE_BILLING_BETA_MODE !== undefined && billingBetaMode === undefined) {
+  errors.push('VITE_BILLING_BETA_MODE must be a boolean-like value (true/false, 1/0, yes/no, on/off).');
+}
+
+if (mode === 'production' && env.VITE_BILLING_BETA_MODE === undefined) {
+  errors.push('VITE_BILLING_BETA_MODE must be set explicitly in production.');
+}
+
+if (String(env.VITE_STRIPE_PUBLISHABLE_KEY || '').trim()) {
+  if (!/^pk_(test|live)_[A-Za-z0-9]+/.test(String(env.VITE_STRIPE_PUBLISHABLE_KEY).trim())) {
+    errors.push('VITE_STRIPE_PUBLISHABLE_KEY format looks invalid. Expected a Stripe publishable key starting with pk_test_ or pk_live_.');
+  }
+} else if (mode === 'production') {
+  errors.push('VITE_STRIPE_PUBLISHABLE_KEY is required in production for billing checkout.');
+} else {
+  warnings.push('VITE_STRIPE_PUBLISHABLE_KEY is empty. Billing checkout CTA will not be deploy-ready.');
+}
+
 if (mode === 'production') {
   if (/localhost|127\.0\.0\.1/i.test(String(env.VITE_SITE_URL || ''))) {
     errors.push('VITE_SITE_URL cannot point to localhost in production mode.');
@@ -61,14 +101,30 @@ if (mode === 'production') {
 
 if (!String(env.VITE_SUPPORT_SERVER_URL || '').trim()) {
   warnings.push('VITE_SUPPORT_SERVER_URL is empty. Footer and support CTA will lose the direct support link.');
+} else if (!/^https?:\/\/.+/i.test(String(env.VITE_SUPPORT_SERVER_URL))) {
+  errors.push('VITE_SUPPORT_SERVER_URL must be an absolute URL when provided.');
 }
 
 if (!String(env.VITE_DOCS_URL || '').trim()) {
   warnings.push('VITE_DOCS_URL is empty. Docs CTA will point to fallback routes only.');
+} else if (!/^https?:\/\/.+/i.test(String(env.VITE_DOCS_URL))) {
+  errors.push('VITE_DOCS_URL must be an absolute URL when provided.');
 }
 
 if (!String(env.VITE_STATUS_URL || '').trim()) {
   warnings.push('VITE_STATUS_URL is empty. Status CTA will be hidden or degraded.');
+} else if (!/^https?:\/\/.+/i.test(String(env.VITE_STATUS_URL))) {
+  errors.push('VITE_STATUS_URL must be an absolute URL when provided.');
+}
+
+if (!String(env.VITE_CONTACT_EMAIL || '').trim()) {
+  warnings.push('VITE_CONTACT_EMAIL is empty. Enterprise and billing contact paths will degrade.');
+} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(env.VITE_CONTACT_EMAIL).trim())) {
+  errors.push('VITE_CONTACT_EMAIL must be a valid email address.');
+}
+
+if (billingBetaMode === false) {
+  warnings.push('VITE_BILLING_BETA_MODE is false. Self-serve billing will stay broadly available only if allowlist enforcement is disabled server-side.');
 }
 
 for (const warning of warnings) {

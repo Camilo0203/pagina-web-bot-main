@@ -38,6 +38,19 @@ export interface GuildConfigRow {
   config_source: string | null;
 }
 
+export interface GuildBillingEntitlementRow {
+  guild_id: string;
+  effective_plan: string | null;
+  plan_source: string | null;
+  subscription_status: string | null;
+  billing_interval: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean | null;
+  supporter_enabled: boolean | null;
+  supporter_expires_at: string | null;
+  updated_at: string | null;
+}
+
 export interface GuildInventoryRow {
   guild_id: string;
   roles: unknown;

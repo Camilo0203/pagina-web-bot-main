@@ -26,6 +26,28 @@ export const dashboardGuildSchema = z.object({
   lastSyncedAt: z.string().nullable(),
 });
 
+export const guildBillingEntitlementSchema = z.object({
+  guildId: z.string().min(1),
+  effectivePlan: z.enum(['free', 'pro', 'enterprise']),
+  planSource: z.enum(['free', 'stripe', 'override']),
+  subscriptionStatus: z.string().nullable(),
+  billingInterval: z.enum(['month', 'year']).nullable(),
+  currentPeriodEnd: z.string().nullable(),
+  cancelAtPeriodEnd: z.boolean(),
+  supporterEnabled: z.boolean(),
+  supporterExpiresAt: z.string().nullable(),
+  updatedAt: z.string().nullable(),
+});
+
+export const checkoutSessionResultSchema = z.object({
+  url: z.string().url(),
+  expiresAt: z.string().nullable(),
+});
+
+export const customerPortalSessionSchema = z.object({
+  url: z.string().url(),
+});
+
 export const guildConfigSchema = z.object({
   guildId: z.string().min(1),
   generalSettings: generalSettingsSchema,

@@ -4,6 +4,7 @@ export type DashboardSectionId =
   | 'overview'
   | 'inbox'
   | 'playbooks'
+  | 'billing'
   | 'general'
   | 'server_roles'
   | 'tickets'
@@ -59,6 +60,32 @@ export interface DashboardGuild {
   premiumTier: string | null;
   botLastSeenAt: string | null;
   lastSyncedAt: string | null;
+}
+
+export type DashboardBillingInterval = 'month' | 'year';
+export type DashboardEffectivePlan = 'free' | 'pro' | 'enterprise';
+export type DashboardPlanSource = 'free' | 'stripe' | 'override';
+
+export interface GuildBillingEntitlement {
+  guildId: string;
+  effectivePlan: DashboardEffectivePlan;
+  planSource: DashboardPlanSource;
+  subscriptionStatus: string | null;
+  billingInterval: DashboardBillingInterval | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  supporterEnabled: boolean;
+  supporterExpiresAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface CheckoutSessionResult {
+  url: string;
+  expiresAt: string | null;
+}
+
+export interface CustomerPortalSessionResult {
+  url: string;
 }
 
 export interface GeneralSettings {

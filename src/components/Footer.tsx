@@ -2,7 +2,7 @@ import { Twitter, Github, MessageCircle, Mail, Map, ExternalLink } from 'lucide-
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { config, getDiscordInviteUrl } from '../config';
-import { LEGAL_DOCUMENT_TYPES } from '../lib/legalDocuments';
+import { getLegalDocumentTitle, LEGAL_DOCUMENT_TYPES } from '../lib/legalDocuments';
 import Logo from './Logo';
 
 function FooterLink({
@@ -141,7 +141,7 @@ export default function Footer() {
               ))}
               {LEGAL_DOCUMENT_TYPES.map((type) => (
                 <li key={type}>
-                  <FooterLink href={`/${type}`} label={t(`footer.gov.${type}`)} />
+                  <FooterLink href={`/${type}`} label={getLegalDocumentTitle(t, type)} />
                 </li>
               ))}
             </ul>

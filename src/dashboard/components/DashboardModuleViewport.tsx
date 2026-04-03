@@ -28,6 +28,7 @@ import {
 const OverviewModule = lazy(() => import('../modules/OverviewModule'));
 const InboxModule = lazy(() => import('../modules/InboxModule'));
 const PlaybooksModule = lazy(() => import('../modules/PlaybooksModule'));
+const BillingModule = lazy(() => import('../modules/BillingModule'));
 const GeneralModule = lazy(() => import('../modules/GeneralModule'));
 const ServerRolesModule = lazy(() => import('../modules/ServerRolesModule'));
 const TicketsModule = lazy(() => import('../modules/TicketsModule'));
@@ -232,6 +233,7 @@ function ModuleFallback({ activeSection }: { activeSection: DashboardSectionId }
 interface DashboardModuleViewportProps {
   activeSection: DashboardSectionId;
   selectedGuild: DashboardGuild | null;
+  isGuildAccessFresh: boolean;
   invalidRequestedGuildId: string | null;
   fallbackGuildId: string | null;
   setSelectedGuildId: (guildId: string) => void;
@@ -292,6 +294,7 @@ function buildDerivedViewModel(
 export default function DashboardModuleViewport({
   activeSection,
   selectedGuild,
+  isGuildAccessFresh,
   invalidRequestedGuildId,
   fallbackGuildId,
   setSelectedGuildId,
@@ -364,6 +367,19 @@ export default function DashboardModuleViewport({
         description={t('dashboard.states.noSelectedGuild.description')}
         icon={AlertTriangle}
       />
+    );
+  }
+
+  if (activeSection === 'billing') {
+    return (
+      <Suspense fallback={<ModuleFallback activeSection={activeSection} />}>
+        <BillingModule
+          guild={selectedGuild}
+          isGuildAccessFresh={isGuildAccessFresh}
+          onSyncGuildAccess={syncGuildAccess}
+          isSyncing={isSyncing}
+        />
+      </Suspense>
     );
   }
 

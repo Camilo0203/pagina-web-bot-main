@@ -267,6 +267,7 @@ export default function DashboardDemoPage() {
         <DashboardModuleViewport
           activeSection={activeSection}
           selectedGuild={demoDashboardGuild}
+          isGuildAccessFresh
           invalidRequestedGuildId={null}
           fallbackGuildId={null}
           setSelectedGuildId={() => undefined}

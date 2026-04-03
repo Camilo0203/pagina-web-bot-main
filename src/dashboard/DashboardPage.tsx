@@ -28,7 +28,7 @@ import { usePersistentDashboardSection } from './hooks/usePersistentDashboardSec
 import { useGuildSelection } from './hooks/useGuildSelection';
 import { useDashboardDarkMode } from './hooks/useDashboardDarkMode';
 import { useMinimumDisplayState } from './hooks/useMinimumDisplayState';
-import { getDashboardSectionStates } from './utils';
+import { getDashboardSectionStates, isGuildAccessFresh } from './utils';
 import type { ConfigMutationSectionId } from './types';
 import {
   addSentryModuleNavigation,
@@ -58,15 +58,22 @@ export default function DashboardPage() {
   const [searchParams] = useSearchParams();
   const demoVariant = searchParams.get('demo');
   const requestedGuildId = searchParams.get('guild');
+  const requestedSection = searchParams.get('section');
 
   if (demoVariant === 'ops-console') {
     return <DashboardDemoPage />;
   }
 
-  return <DashboardLivePage requestedGuildId={requestedGuildId} />;
+  return <DashboardLivePage requestedGuildId={requestedGuildId} requestedSection={requestedSection} />;
 }
 
-function DashboardLivePage({ requestedGuildId }: { requestedGuildId: string | null }) {
+function DashboardLivePage({
+  requestedGuildId,
+  requestedSection,
+}: {
+  requestedGuildId: string | null;
+  requestedSection: string | null;
+}) {
   const { t } = useTranslation();
 
   const authQuery = useDashboardAuth();
@@ -88,7 +95,11 @@ function DashboardLivePage({ requestedGuildId }: { requestedGuildId: string | nu
     setSelectedGuildId,
   } = useGuildSelection(guilds);
 
-  const snapshotQuery = useGuildDashboardSnapshot(selectedGuildId, Boolean(selectedGuildId));
+  const isSelectedGuildAccessFresh = isGuildAccessFresh(selectedGuild?.lastSyncedAt ?? null);
+  const snapshotQuery = useGuildDashboardSnapshot(
+    selectedGuildId,
+    Boolean(selectedGuildId && isSelectedGuildAccessFresh),
+  );
   const snapshot = snapshotQuery.data;
   const requestConfigChange = useRequestGuildConfigChange(selectedGuildId);
   const requestBackupAction = useRequestGuildBackupAction(selectedGuildId);
@@ -101,6 +112,7 @@ function DashboardLivePage({ requestedGuildId }: { requestedGuildId: string | nu
   const { activeSection, setActiveSection } = usePersistentDashboardSection(
     selectedGuildId,
     snapshot?.config.dashboardPreferences.defaultSection,
+    requestedSection,
   );
 
   const syncStatus = snapshot?.syncStatus ?? null;
@@ -470,6 +482,7 @@ function DashboardLivePage({ requestedGuildId }: { requestedGuildId: string | nu
           <DashboardModuleViewport
             activeSection={activeSection}
             selectedGuild={selectedGuild}
+            isGuildAccessFresh={isSelectedGuildAccessFresh}
             invalidRequestedGuildId={invalidRequestedGuildId}
             fallbackGuildId={fallbackGuildId}
             setSelectedGuildId={setSelectedGuildId}
