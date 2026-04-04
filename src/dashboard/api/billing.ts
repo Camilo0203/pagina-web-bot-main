@@ -17,6 +17,7 @@ import {
   GuildBillingEntitlementRow,
   runQueryWithTimeout,
 } from './shared';
+import { getFreshDashboardSession } from './auth';
 
 function serializeInvokeErrorPart(value: unknown): string | null {
   if (value == null) {
@@ -184,20 +185,22 @@ export async function createGuildCheckoutSession(
     }, refreshError ? 'error' : 'info');
   }
 
-  const { data: verifiedSessionData, error: verifiedSessionError } = await client.auth.getSession();
-  const verifiedSession = verifiedSessionData.session;
+  const freshSessionState = await getFreshDashboardSession();
+  const verifiedSession = freshSessionState.session;
   const verifiedExpiresAt = verifiedSession?.expires_at ?? null;
   const verifiedIsExpired = verifiedExpiresAt !== null && verifiedExpiresAt <= nowInSeconds;
   const verifiedWillExpireSoon = verifiedExpiresAt !== null && verifiedExpiresAt - nowInSeconds < 60;
+
   debugAuthLog('createGuildCheckoutSession:session:verified', {
-    hasSession: Boolean(verifiedSession),
+    sessionExists: Boolean(freshSessionState.session),
+    userExists: Boolean(freshSessionState.user),
     hasAccessToken: Boolean(verifiedSession?.access_token),
     expiresAt: verifiedExpiresAt,
+    userId: freshSessionState.user?.id ?? verifiedSession?.user?.id ?? null,
     isExpired: verifiedIsExpired,
     willExpireSoon: verifiedWillExpireSoon,
     refreshExecuted,
-    sessionError: verifiedSessionError?.message ?? null,
-  }, verifiedSessionError ? 'error' : 'info');
+  });
 
   if (!verifiedSession?.access_token) {
     throw new Error('No hay una sesión válida de Supabase para abrir checkout.');
@@ -206,9 +209,11 @@ export async function createGuildCheckoutSession(
   debugAuthLog('createGuildCheckoutSession:invoke:start', {
     guildId: resolvedGuildId,
     billingInterval,
-    hasSession: Boolean(verifiedSession),
+    sessionExists: Boolean(freshSessionState.session),
+    userExists: Boolean(freshSessionState.user),
     hasAccessToken: Boolean(verifiedSession?.access_token),
     expiresAt: verifiedExpiresAt,
+    userId: freshSessionState.user?.id ?? verifiedSession?.user?.id ?? null,
     isExpired: verifiedIsExpired,
     willExpireSoon: verifiedWillExpireSoon,
     refreshExecuted,

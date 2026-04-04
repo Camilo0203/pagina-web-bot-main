@@ -214,8 +214,9 @@ export async function getFreshDashboardSession(): Promise<DashboardSessionState>
     return sessionState;
   } catch (error: unknown) {
     if (isInvalidJwtError(error)) {
+      const invalidSessionError = createDashboardError('auth.jwt', error, 'Invalid JWT');
       debugAuthLog('getFreshDashboardSession:invalid-session', {
-        message: createDashboardError('auth.jwt', error, 'Invalid JWT').message,
+        message: invalidSessionError.message,
         sessionExists: false,
         userExists: false,
         hasAccessToken: false,
@@ -224,7 +225,7 @@ export async function getFreshDashboardSession(): Promise<DashboardSessionState>
         error,
       }, 'error');
       await clearDashboardAuthState();
-      throw new Error(i18n.t('dashboardAuth.errors.invalidSession'));
+      throw invalidSessionError;
     }
 
     debugAuthLog('getFreshDashboardSession:error', {
