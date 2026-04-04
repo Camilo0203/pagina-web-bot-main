@@ -11,11 +11,90 @@ import type {
 } from '../types';
 import {
   createDashboardError,
+  debugAuthLog,
   ensureGuildId,
   getSupabaseClient,
   GuildBillingEntitlementRow,
   runQueryWithTimeout,
 } from './shared';
+
+function serializeInvokeErrorPart(value: unknown): string | null {
+  if (value == null) {
+    return null;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed || null;
+  }
+
+  if (value instanceof Error) {
+    return value.message || value.name;
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+async function summarizeFunctionInvokeError(error: unknown): Promise<string> {
+  if (!(error && typeof error === 'object')) {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  const invokeError = error as Record<string, unknown>;
+  const details: string[] = [];
+
+  if (typeof invokeError.status === 'number') {
+    details.push(`status=${invokeError.status}`);
+  }
+
+  if (typeof invokeError.code === 'string' && invokeError.code) {
+    details.push(`code=${invokeError.code}`);
+  }
+
+  const message = serializeInvokeErrorPart(invokeError.message);
+  if (message) {
+    details.push(`message=${message}`);
+  }
+
+  const data = serializeInvokeErrorPart(invokeError.data);
+  if (data) {
+    details.push(`data=${data}`);
+  }
+
+  const body = serializeInvokeErrorPart(invokeError.body);
+  if (body) {
+    details.push(`body=${body}`);
+  }
+
+  const context = invokeError.context;
+  if (context instanceof Response) {
+    details.push(`responseStatus=${context.status}`);
+    if (context.statusText) {
+      details.push(`responseStatusText=${context.statusText}`);
+    }
+
+    try {
+      const responseBody = await context.clone().text();
+      const serializedBody = serializeInvokeErrorPart(responseBody);
+      if (serializedBody) {
+        details.push(`responseBody=${serializedBody}`);
+      }
+    } catch {
+      // Best-effort only; keep the rest of the error details.
+    }
+  } else {
+    const serializedContext = serializeInvokeErrorPart(context);
+    if (serializedContext) {
+      details.push(`context=${serializedContext}`);
+    }
+  }
+
+  return details.join(' | ') || 'Unknown function invoke error';
+}
 
 function mapBillingRow(row: GuildBillingEntitlementRow): GuildBillingEntitlement {
   return guildBillingEntitlementSchema.parse({
@@ -65,6 +144,38 @@ export async function createGuildCheckoutSession(
   const client = getSupabaseClient();
   const resolvedGuildId = ensureGuildId(guildId, 'crear el checkout');
 
+  debugAuthLog('createGuildCheckoutSession:session:start', {
+    guildId: resolvedGuildId,
+    billingInterval,
+  });
+
+  const { data: sessionData, error: sessionError } = await client.auth.getSession();
+  debugAuthLog('createGuildCheckoutSession:session:getSession', {
+    hasSession: Boolean(sessionData.session),
+    hasAccessToken: Boolean(sessionData.session?.access_token),
+    sessionError: sessionError?.message ?? null,
+  }, sessionError ? 'error' : 'info');
+
+  if (!sessionData.session?.access_token) {
+    const { data: refreshData, error: refreshError } = await client.auth.refreshSession();
+    debugAuthLog('createGuildCheckoutSession:session:refreshSession', {
+      hasSession: Boolean(refreshData.session),
+      hasAccessToken: Boolean(refreshData.session?.access_token),
+      refreshError: refreshError?.message ?? null,
+    }, refreshError ? 'error' : 'info');
+  }
+
+  const { data: verifiedSessionData, error: verifiedSessionError } = await client.auth.getSession();
+  debugAuthLog('createGuildCheckoutSession:session:verified', {
+    hasSession: Boolean(verifiedSessionData.session),
+    hasAccessToken: Boolean(verifiedSessionData.session?.access_token),
+    sessionError: verifiedSessionError?.message ?? null,
+  }, verifiedSessionError ? 'error' : 'info');
+
+  if (!verifiedSessionData.session?.access_token) {
+    throw new Error('No hay una sesión válida de Supabase para abrir checkout.');
+  }
+
   const { data, error } = await client.functions.invoke('create-checkout-session', {
     body: {
       guildId: resolvedGuildId,
@@ -73,12 +184,20 @@ export async function createGuildCheckoutSession(
   });
 
   if (error) {
-    throw createDashboardError(
-      'billing.checkout',
-      error,
-      'No se pudo crear la sesion de pago.',
-    );
+    const summarizedError = await summarizeFunctionInvokeError(error);
+    debugAuthLog('createGuildCheckoutSession:invoke:error', {
+      guildId: resolvedGuildId,
+      billingInterval,
+      error: summarizedError,
+    }, 'error');
+    throw new Error(summarizedError);
   }
+
+  debugAuthLog('createGuildCheckoutSession:invoke:success', {
+    guildId: resolvedGuildId,
+    billingInterval,
+    hasUrl: Boolean(data && typeof data === 'object' && 'url' in (data as Record<string, unknown>)),
+  });
 
   return checkoutSessionResultSchema.parse(data);
 }
@@ -105,4 +224,3 @@ export async function createCustomerPortalSession(
 
   return customerPortalSessionSchema.parse(data);
 }
-

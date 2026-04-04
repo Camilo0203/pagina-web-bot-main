@@ -41,7 +41,15 @@ function supabaseAuthConfigured(): boolean {
 }
 
 export async function getDashboardSession(): Promise<DashboardSessionState> {
+  debugAuthLog('getDashboardSession:start', {
+    supabaseAuthConfigured: supabaseAuthConfigured(),
+  });
+
   if (!supabaseAuthConfigured()) {
+    debugAuthLog('getDashboardSession:disabled', {
+      sessionExists: false,
+      userExists: false,
+    });
     return {
       session: null,
       user: null,
@@ -70,6 +78,12 @@ export async function getDashboardSession(): Promise<DashboardSessionState> {
       i18n.t('dashboardAuth.errors.userLoadFailed'),
     );
   }
+
+  debugAuthLog('getDashboardSession:success', {
+    sessionExists: Boolean(sessionData.session),
+    userExists: Boolean(userData.user),
+    hasAccessToken: Boolean(sessionData.session?.access_token),
+  });
 
   return {
     session: sessionData.session,
@@ -163,14 +177,30 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
 }
 
 export async function getFreshDashboardSession(): Promise<DashboardSessionState> {
+  debugAuthLog('getFreshDashboardSession:start');
+
   try {
-    return await getDashboardSession();
+    const sessionState = await getDashboardSession();
+    debugAuthLog('getFreshDashboardSession:success', {
+      sessionExists: Boolean(sessionState.session),
+      userExists: Boolean(sessionState.user),
+      hasAccessToken: Boolean(sessionState.session?.access_token),
+    });
+    return sessionState;
   } catch (error: unknown) {
     if (isInvalidJwtError(error)) {
+      debugAuthLog('getFreshDashboardSession:invalid-session', {
+        message: createDashboardError('auth.jwt', error, 'Invalid JWT').message,
+        error,
+      }, 'error');
       await clearDashboardAuthState();
       throw new Error(i18n.t('dashboardAuth.errors.invalidSession'));
     }
 
+    debugAuthLog('getFreshDashboardSession:error', {
+      message: error instanceof Error ? error.message : String(error),
+      error,
+    }, 'error');
     throw error;
   }
 }

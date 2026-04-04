@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CreditCard, ExternalLink, RefreshCcw, ShieldAlert, Sparkles } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { config } from '../../config';
@@ -54,6 +54,7 @@ export default function BillingModule({
   isSyncing,
 }: BillingModuleProps) {
   const [searchParams] = useSearchParams();
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const isSpanish = typeof document !== 'undefined'
     ? document.documentElement.lang.startsWith('es')
     : true;
@@ -258,8 +259,13 @@ export default function BillingModule({
   const canManageBilling = Boolean(entitlement.subscriptionStatus);
 
   async function startCheckout(interval: 'month' | 'year') {
-    const result = await checkoutMutation.mutateAsync(interval);
-    window.location.assign(result.url);
+    try {
+      setCheckoutError(null);
+      const result = await checkoutMutation.mutateAsync(interval);
+      window.location.assign(result.url);
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : 'Checkout failed');
+    }
   }
 
   async function openPortal() {
@@ -389,9 +395,19 @@ export default function BillingModule({
               {copy.contactSales}
             </a>
           </div>
+
+          {checkoutError ? (
+            <div
+              className="mt-4 rounded-[1.35rem] border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-100"
+              role="alert"
+            >
+              {isSpanish
+                ? `Error al abrir checkout: ${checkoutError}`
+                : `Failed to open checkout: ${checkoutError}`}
+            </div>
+          ) : null}
         </section>
       </div>
     </div>
   );
 }
-
