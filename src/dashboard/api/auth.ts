@@ -64,6 +64,15 @@ export async function getDashboardSession(): Promise<DashboardSessionState> {
     );
 
   if (sessionError) {
+    debugAuthLog('getDashboardSession:error', {
+      stage: 'session',
+      message: createDashboardError(
+        'auth.session',
+        sessionError,
+        i18n.t('dashboardAuth.errors.sessionValidationFailed'),
+      ).message,
+      error: sessionError,
+    }, 'error');
     throw createDashboardError(
       'auth.session',
       sessionError,
@@ -72,6 +81,15 @@ export async function getDashboardSession(): Promise<DashboardSessionState> {
   }
 
   if (userError) {
+    debugAuthLog('getDashboardSession:error', {
+      stage: 'user',
+      message: createDashboardError(
+        'auth.user',
+        userError,
+        i18n.t('dashboardAuth.errors.userLoadFailed'),
+      ).message,
+      error: userError,
+    }, 'error');
     throw createDashboardError(
       'auth.user',
       userError,
@@ -83,6 +101,8 @@ export async function getDashboardSession(): Promise<DashboardSessionState> {
     sessionExists: Boolean(sessionData.session),
     userExists: Boolean(userData.user),
     hasAccessToken: Boolean(sessionData.session?.access_token),
+    expiresAt: sessionData.session?.expires_at ?? null,
+    userId: userData.user?.id ?? sessionData.session?.user?.id ?? null,
   });
 
   return {
@@ -156,8 +176,11 @@ export async function exchangeDashboardCodeForSession(code: string): Promise<Ses
 
     debugAuthLog('exchangeDashboardCodeForSession:success', {
       durationMs: Date.now() - startedAt,
-      hasSession: Boolean(data.session),
-      userId: data.session?.user?.id ?? null,
+      sessionExists: Boolean(data.session),
+      userExists: Boolean(data.user ?? data.session?.user),
+      hasAccessToken: Boolean(data.session?.access_token),
+      expiresAt: data.session?.expires_at ?? null,
+      userId: data.user?.id ?? data.session?.user?.id ?? null,
     });
 
     return data.session;
@@ -185,12 +208,19 @@ export async function getFreshDashboardSession(): Promise<DashboardSessionState>
       sessionExists: Boolean(sessionState.session),
       userExists: Boolean(sessionState.user),
       hasAccessToken: Boolean(sessionState.session?.access_token),
+      expiresAt: sessionState.session?.expires_at ?? null,
+      userId: sessionState.user?.id ?? sessionState.session?.user?.id ?? null,
     });
     return sessionState;
   } catch (error: unknown) {
     if (isInvalidJwtError(error)) {
       debugAuthLog('getFreshDashboardSession:invalid-session', {
         message: createDashboardError('auth.jwt', error, 'Invalid JWT').message,
+        sessionExists: false,
+        userExists: false,
+        hasAccessToken: false,
+        expiresAt: null,
+        userId: null,
         error,
       }, 'error');
       await clearDashboardAuthState();

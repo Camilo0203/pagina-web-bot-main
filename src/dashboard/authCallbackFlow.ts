@@ -182,11 +182,21 @@ export function updateExecutionState(attemptKey: string, patch: Partial<Callback
 }
 
 async function recoverExistingSession() {
+  debugAuthLog('recoverExistingSession:start');
   const authState = await getFreshDashboardSession();
+  debugAuthLog('recoverExistingSession:success', {
+    sessionExists: Boolean(authState.session),
+    hasAccessToken: Boolean(authState.session?.access_token),
+    expiresAt: authState.session?.expires_at ?? null,
+    userId: authState.user?.id ?? authState.session?.user?.id ?? null,
+  });
   return authState.session;
 }
 
 async function resolveFreshSessionAfterExchange(code: string | null) {
+  debugAuthLog('resolveFreshSessionAfterExchange:start', {
+    hasCode: Boolean(code),
+  });
   let exchangeError: unknown = null;
 
   if (code) {
@@ -202,6 +212,12 @@ async function resolveFreshSessionAfterExchange(code: string | null) {
 
   try {
     authState = await getFreshDashboardSession();
+    debugAuthLog('resolveFreshSessionAfterExchange', {
+      sessionExists: Boolean(authState.session),
+      hasAccessToken: Boolean(authState.session?.access_token),
+      expiresAt: authState.session?.expires_at ?? null,
+      userId: authState.user?.id ?? authState.session?.user?.id ?? null,
+    });
   } catch (error: unknown) {
     sessionError = error;
   }
@@ -218,6 +234,11 @@ async function resolveFreshSessionAfterExchange(code: string | null) {
     throw exchangeError;
   }
 
+  debugAuthLog('resolveFreshSessionAfterExchange:no-session-after-exchange', {
+    hasCode: Boolean(code),
+    exchangeError: exchangeError instanceof Error ? exchangeError.message : exchangeError,
+    sessionError: sessionError instanceof Error ? sessionError.message : sessionError,
+  }, 'error');
   return null;
 }
 
@@ -320,6 +341,11 @@ export function runAuthCallbackFlow(
         : await recoverExistingSession();
 
       if (!session) {
+        debugAuthLog('callback:no-session-after-exchange', {
+          attemptKey,
+          hasCode: Boolean(code),
+          requestedGuildId: execution.requestedGuildId,
+        }, 'error');
         await clearDashboardAuthState();
         throw new Error(i18n.t('dashboardAuth.errors.missingSessionAfterCallback'));
       }
@@ -329,6 +355,13 @@ export function runAuthCallbackFlow(
     }
 
     if (!execution.session?.provider_token) {
+      debugAuthLog('callback:missing-provider-token', {
+        attemptKey,
+        sessionExists: Boolean(execution.session),
+        hasAccessToken: Boolean(execution.session?.access_token),
+        expiresAt: execution.session?.expires_at ?? null,
+        userId: execution.session?.user?.id ?? null,
+      }, 'error');
       throw new Error(i18n.t('dashboardAuth.errors.missingProviderToken'));
     }
 

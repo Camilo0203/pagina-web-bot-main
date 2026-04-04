@@ -176,6 +176,14 @@ export async function createGuildCheckoutSession(
     throw new Error('No hay una sesión válida de Supabase para abrir checkout.');
   }
 
+  debugAuthLog('createGuildCheckoutSession:invoke:start', {
+    guildId: resolvedGuildId,
+    billingInterval,
+    hasSession: Boolean(verifiedSessionData.session),
+    hasAccessToken: Boolean(verifiedSessionData.session?.access_token),
+    expiresAt: verifiedSessionData.session?.expires_at ?? null,
+  });
+
   const { data, error } = await client.functions.invoke('create-checkout-session', {
     body: {
       guildId: resolvedGuildId,
