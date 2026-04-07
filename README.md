@@ -8,7 +8,7 @@ Frontend de landing publica y dashboard operativo para TON618, construido con Vi
 - Dashboard operativo en `/dashboard` con auth via Supabase + Discord.
 - Callback OAuth endurecido en `/auth/callback`.
 - Snapshot del dashboard con degradacion parcial para `activity`, `metrics`, `ticket events` y `ticket macros`.
-- Billing beta con `Stripe Checkout + Customer Portal`, activacion por servidor y control plane en Supabase.
+- Sistema de billing con Lemon Squeezy (checkout + webhook), planes monthly/yearly/lifetime/donate, y control plane en Supabase.
 
 ## Scripts
 
@@ -29,8 +29,6 @@ Variables criticas:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_SITE_URL`
-- `VITE_STRIPE_PUBLISHABLE_KEY`
-- `VITE_BILLING_BETA_MODE`
 
 Variables recomendadas:
 
@@ -60,14 +58,16 @@ Migraciones relevantes:
 - `supabase/migrations/20260313183000_create_dashboard_tables.sql`
 - `supabase/migrations/20260313193000_expand_dashboard_control_plane.sql`
 - `supabase/migrations/20260313220000_add_ticket_workspace.sql`
-- `supabase/migrations/20260403100000_add_billing_control_plane.sql`
+- `supabase/migrations/20260406000000_create_billing_tables.sql`
+- `supabase/migrations/20260406000001_create_rls_policies.sql`
 
 Edge Functions requeridas:
 
 - `supabase/functions/sync-discord-guilds`
-- `supabase/functions/create-checkout-session`
-- `supabase/functions/create-customer-portal-session`
-- `supabase/functions/stripe-webhook`
+- `supabase/functions/billing-create-checkout`
+- `supabase/functions/billing-webhook`
+- `supabase/functions/billing-guild-status`
+- `supabase/functions/billing-get-guilds`
 
 ## Configuracion de OAuth (Discord + Supabase)
 
@@ -81,8 +81,10 @@ El login del dashboard esta delegado a Supabase, el cual se conecta con Discord.
    - Ve a *Authentication* > *URL Configuration* y añade tu URL local (`http://localhost:5173/**`) o tu URL de produccion a las **Redirect URLs**.
 3. **Edge Functions:** 
    - Despliega `sync-discord-guilds` configurando previamente `DISCORD_BOT_TOKEN` en los secretos de Supabase.
-   - Despliega `create-checkout-session`, `create-customer-portal-session` y `stripe-webhook`.
-   - Configura los secretos de billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PORTAL_RETURN_URL` y `BILLING_BETA_MODE`.
+   - Despliega las funciones de billing: `billing-create-checkout`, `billing-webhook`, `billing-guild-status` y `billing-get-guilds`.
+   - Configura los secretos de Lemon Squeezy: `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, `LEMON_SQUEEZY_STORE_ID`, `LEMON_SQUEEZY_TEST_MODE`.
+   - Configura los variant IDs: `LEMON_SQUEEZY_VARIANT_PRO_MONTHLY`, `LEMON_SQUEEZY_VARIANT_PRO_YEARLY`, `LEMON_SQUEEZY_VARIANT_LIFETIME`, `LEMON_SQUEEZY_VARIANT_DONATE`.
+   - Configura `BOT_API_KEY` (debe coincidir con el bot para autenticacion de `billing-guild-status`).
 
 Finalmente, manten al bot publicando latidos constantes hacia `bot_stats`, `bot_guilds`, `guild_metrics_daily` y las tablas operativas del dashboard para que el panel luzca actualizado.
 
@@ -96,3 +98,5 @@ Finalmente, manten al bot publicando latidos constantes hacia `bot_stats`, `bot_
 - Deuda tecnica resuelta: `docs/technical-debt-resolved.md`
 - Revision tecnica Codex: `docs/technical-review-codex.md`
 - Verificacion final: `docs/final-verification-report.md`
+- Setup de Lemon Squeezy: `docs/LEMON_SQUEEZY_SETUP.md`
+- Backend de billing completo: `docs/BILLING_BACKEND_COMPLETE.md`

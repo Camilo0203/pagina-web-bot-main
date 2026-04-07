@@ -74,9 +74,22 @@ Deno.serve(async (req: Request) => {
       const adminSupabase = createSupabaseClient();
       const db = new BillingDatabase(adminSupabase);
       
-      const existingSubscription = await db.getActiveGuildSubscription(guild_id);
-      if (existingSubscription) {
-        return errorResponse('This guild already has an active premium subscription', 409);
+      const premiumStatus = await db.getGuildPremiumStatus(guild_id);
+      if (premiumStatus.has_premium) {
+        const currentPlan = premiumStatus.plan_key || 'unknown';
+        const isLifetime = premiumStatus.lifetime;
+        
+        if (isLifetime) {
+          return errorResponse(
+            `This guild already has lifetime premium access. Upgrades are not supported.`,
+            409
+          );
+        }
+        
+        return errorResponse(
+          `This guild already has an active ${currentPlan} subscription. Please cancel it first or wait until it expires.`,
+          409
+        );
       }
     }
 
@@ -117,6 +130,10 @@ Deno.serve(async (req: Request) => {
 
     // Create checkout session
     const testMode = requireEnv('LEMON_SQUEEZY_TEST_MODE') === 'true';
+    
+    if (testMode) {
+      console.warn('⚠️  Creating checkout in TEST MODE');
+    }
     
     const checkout = await lemonClient.createCheckout({
       storeId,

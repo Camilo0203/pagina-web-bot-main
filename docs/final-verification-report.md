@@ -1,6 +1,7 @@
 # Final Verification Report
 
-Fecha: 2026-03-18
+Fecha: 2026-04-07
+Estado: Billing migrado a Lemon Squeezy, tests de billing agregados
 
 ## Comandos ejecutados
 
@@ -38,11 +39,13 @@ Fecha: 2026-03-18
 
 ## Correcciones realizadas durante esta pasada
 
-- CTA internos hacia `/dashboard` convertidos a navegacion SPA en la landing.
-- Ajuste menor del texto del fallback de carga en `src/App.tsx`.
-- `README.md` reescrito con rutas relativas y estado actual del proyecto.
-- `docs/technical-review-codex.md` creado.
-- Este reporte regenerado con el resultado real de la validacion actual.
+- Migración completa de Stripe a Lemon Squeezy en backend y documentación.
+- Suite de tests de billing agregada (71 tests en total entre web y bot).
+- README.md actualizado en ambos repositorios para reflejar Lemon Squeezy.
+- .env.example limpiado de variables Stripe obsoletas.
+- Checklists de release/beta actualizados con flujo Lemon Squeezy.
+- Integración premium del bot cerrada para producción con graceful degradation.
+- Documentación técnica alineada con estado real del sistema.
 
 ## Errores encontrados
 
@@ -58,3 +61,7 @@ Fecha: 2026-03-18
 - No se ejecuto QA manual de navegador real en esta pasada.
 - La validacion automatizada no cubre auth real con Discord ni mutaciones reales contra Supabase.
 - El snapshot sigue dependiendo de datasets criticos para `config`, `inventory` e `inbox`.
+- Tests de billing son unitarios con mocks - no cubren integracion real con Lemon Squeezy API.
+- Webhook signature verification testeada pero no validada contra eventos reales de Lemon Squeezy.
+- Cache de premium en bot testeado pero no validado en carga real con multiples guilds.
+- Graceful degradation de premium testeada pero no validada en escenarios de downtime prolongado.

@@ -143,10 +143,6 @@ export function getDashboardBillingUrl(guildId?: string | null): string {
     url.searchParams.set('guild', guildId);
   }
 
-  if (config.billingBetaMode) {
-    url.searchParams.set('beta', 'billing');
-  }
-
   const serialized = `${url.pathname}${url.search}${url.hash}`;
   if (!isDashboardExternal()) {
     return serialized;

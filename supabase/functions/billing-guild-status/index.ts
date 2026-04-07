@@ -64,7 +64,9 @@ Deno.serve(async (req: Request) => {
       guild_id: guildId,
       has_premium: premiumStatus.has_premium,
       plan_key: premiumStatus.plan_key,
+      tier: premiumStatus.plan_key, // Alias for bot compatibility
       ends_at: premiumStatus.ends_at,
+      expires_at: premiumStatus.ends_at, // Alias for bot compatibility
       lifetime: premiumStatus.lifetime,
       subscription: subscriptionDetails,
       checked_at: new Date().toISOString(),

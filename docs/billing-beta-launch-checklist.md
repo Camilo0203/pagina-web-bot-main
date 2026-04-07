@@ -1,29 +1,29 @@
 # Billing Beta Launch Checklist
 
-## Stripe
+## Lemon Squeezy
 
-- [ ] Crear `Pro Monthly` en Stripe por `USD 9`.
-- [ ] Crear `Pro Yearly` en Stripe por `USD 84`.
-- [ ] Guardar los `price_id` reales para monthly y yearly.
-- [ ] Configurar Customer Portal con cancelacion al final del periodo.
-- [ ] Definir `success_url` y `cancel_url` del dashboard.
-- [ ] Activar Stripe Tax si la cuenta ya esta lista para eso.
+- [ ] Crear producto `TON618 Bot Pro` en Lemon Squeezy.
+- [ ] Crear variante `Pro Monthly` por `USD 9.99`.
+- [ ] Crear variante `Pro Yearly` por `USD 99.99`.
+- [ ] Crear variante `Lifetime` por `USD 299.99`.
+- [ ] Crear variante `Donation` (pay what you want).
+- [ ] Guardar los `variant_id` reales para monthly, yearly, lifetime y donate.
+- [ ] Configurar webhook con eventos de subscription y order.
 
 ## Supabase
 
-- [ ] Aplicar `supabase/migrations/20260403100000_add_billing_control_plane.sql`.
-- [ ] Cargar secretos: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PORTAL_RETURN_URL`, `BILLING_BETA_MODE`.
+- [ ] Aplicar `supabase/migrations/20260406000000_create_billing_tables.sql`.
+- [ ] Aplicar `supabase/migrations/20260406000001_create_rls_policies.sql`.
+- [ ] Cargar secretos: `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, `LEMON_SQUEEZY_STORE_ID`, `LEMON_SQUEEZY_VARIANT_PRO_MONTHLY`, `LEMON_SQUEEZY_VARIANT_PRO_YEARLY`, `LEMON_SQUEEZY_VARIANT_LIFETIME`, `LEMON_SQUEEZY_VARIANT_DONATE`, `BOT_API_KEY`.
 - [ ] Desplegar `sync-discord-guilds`.
-- [ ] Desplegar `create-checkout-session`.
-- [ ] Desplegar `create-customer-portal-session`.
-- [ ] Desplegar `stripe-webhook`.
-- [ ] Confirmar que `guild_effective_entitlements` responde para un guild de prueba.
-- [ ] Cargar `billing_beta_allowlist` con los usuarios iniciales.
+- [ ] Desplegar `billing-create-checkout`.
+- [ ] Desplegar `billing-webhook`.
+- [ ] Desplegar `billing-guild-status`.
+- [ ] Desplegar `billing-get-guilds`.
+- [ ] Confirmar que `guild_subscriptions` responde para un guild de prueba.
 
 ## Web
 
-- [ ] Definir `VITE_STRIPE_PUBLISHABLE_KEY`.
-- [ ] Definir `VITE_BILLING_BETA_MODE=true`.
 - [ ] Ejecutar `npm run env:check -- --mode=production`.
 - [ ] Ejecutar `npm run verify`.
 - [ ] Ejecutar `npm run test:unit`.
@@ -43,14 +43,14 @@
 - [ ] Login con Discord.
 - [ ] Sync de guilds exitoso.
 - [ ] Guild stale bloquea checkout hasta re-sync.
-- [ ] Guild fresco con bot instalado abre Stripe Checkout.
-- [ ] Pago en test mode completa `checkout.session.completed`.
-- [ ] `guild_billing_subscriptions` queda `active` o `trialing`.
-- [ ] `guild_effective_entitlements` refleja `pro`.
+- [ ] Guild fresco con bot instalado abre Lemon Squeezy Checkout.
+- [ ] Pago en test mode completa `subscription_created` o `order_created`.
+- [ ] `guild_subscriptions` queda `active` con `premium_enabled=true`.
 - [ ] Dashboard muestra `Pro` en menos de `60s`.
-- [ ] El bot refleja `Pro` en `commercial_settings` y `opsPlan`.
-- [ ] Customer Portal abre y muestra la suscripcion correcta.
-- [ ] Cancelacion al final del periodo se refleja en dashboard y bot.
+- [ ] El bot refleja `Pro` consultando `billing-guild-status`.
+- [ ] Cancelacion marca `cancel_at_period_end=true` y premium sigue activo hasta `ends_at`.
+- [ ] Lifetime purchase activa premium permanente sin `ends_at`.
+- [ ] Donation se registra sin activar premium.
 
 ## Go / no-go
 

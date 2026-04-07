@@ -115,6 +115,10 @@ Deno.serve(async (req: Request) => {
           await handleSubscriptionPaymentFailed(db, event);
           break;
         
+        case 'subscription_payment_recovered':
+          await handleSubscriptionPaymentRecovered(db, event);
+          break;
+        
         case 'order_created':
           await handleOrderCreated(db, event);
           break;
@@ -137,6 +141,11 @@ Deno.serve(async (req: Request) => {
 
     } catch (error) {
       console.error('Error processing webhook:', error);
+      console.error('Webhook event details:', {
+        event_name: eventName,
+        event_id: event.data.id,
+        custom_data: event.meta.custom_data,
+      });
       
       // Mark as failed
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -158,8 +167,16 @@ async function handleSubscriptionCreated(db: BillingDatabase, event: any) {
   const customData = extractCustomData(event);
   const attrs = event.data.attributes;
   
-  if (!customData.discord_user_id || !customData.guild_id || !customData.plan_key) {
-    throw new Error('Missing required custom data in subscription_created');
+  // Validate required custom data with specific error messages
+  const missingFields: string[] = [];
+  if (!customData.discord_user_id) missingFields.push('discord_user_id');
+  if (!customData.guild_id) missingFields.push('guild_id');
+  if (!customData.plan_key) missingFields.push('plan_key');
+  
+  if (missingFields.length > 0) {
+    const errorMsg = `Missing required custom data in subscription_created: ${missingFields.join(', ')}`;
+    console.error(errorMsg, { event_id: event.data.id, custom_data: customData });
+    throw new Error(errorMsg);
   }
 
   // Ensure user exists
@@ -240,12 +257,16 @@ async function handleSubscriptionCancelled(db: BillingDatabase, event: any) {
   // Don't disable premium immediately - let it run until period end
   const endsAt = attrs.ends_at || attrs.renews_at;
   
+  if (!endsAt) {
+    console.warn(`⚠️  Subscription cancelled without ends_at/renews_at: ${event.data.id}. Using current date as fallback.`);
+  }
+  
   await db.cancelGuildSubscription(
     subscription.id,
     endsAt ? new Date(endsAt).toISOString() : new Date().toISOString()
   );
 
-  console.log(`Subscription cancelled: ${event.data.id} - ends at: ${endsAt}`);
+  console.log(`Subscription cancelled: ${event.data.id} - ends at: ${endsAt || 'immediate'}`);
 }
 
 async function handleSubscriptionResumed(db: BillingDatabase, event: any) {
@@ -348,6 +369,27 @@ async function handleSubscriptionPaymentFailed(db: BillingDatabase, event: any) 
   });
 
   console.log(`Subscription payment failed: ${event.data.id}`);
+}
+
+async function handleSubscriptionPaymentRecovered(db: BillingDatabase, event: any) {
+  const attrs = event.data.attributes;
+  const subscription = await db.getGuildSubscriptionByProvider(event.data.id);
+  
+  if (!subscription) {
+    console.warn(`Subscription not found: ${event.data.id}`);
+    return;
+  }
+
+  const renewsAt = attrs.renews_at ? new Date(attrs.renews_at) : null;
+
+  // Reactivate subscription after payment recovery
+  await db.updateGuildSubscription(subscription.id, {
+    status: 'active',
+    premium_enabled: true,
+    renews_at: renewsAt?.toISOString() || null,
+  });
+
+  console.log(`Subscription payment recovered: ${event.data.id}`);
 }
 
 async function handleOrderCreated(db: BillingDatabase, event: any) {
@@ -455,11 +497,12 @@ async function handleOrderRefunded(db: BillingDatabase, event: any) {
   // Update purchase status
   await db.updatePurchaseStatus(purchase.id, 'refunded');
 
-  // If it was a lifetime purchase, deactivate premium
-  if (purchase.kind === 'lifetime' && purchase.guild_id) {
+  // If it was a premium purchase (lifetime or subscription), deactivate premium
+  if ((purchase.kind === 'lifetime' || purchase.kind === 'subscription') && purchase.guild_id) {
     const subscription = await db.getActiveGuildSubscription(purchase.guild_id);
     if (subscription) {
       await db.deactivateGuildSubscription(subscription.id);
+      console.log(`Premium deactivated for guild ${purchase.guild_id} due to refund`);
     }
   }
 
@@ -471,5 +514,5 @@ async function handleOrderRefunded(db: BillingDatabase, event: any) {
     }
   }
 
-  console.log(`Order refunded: ${event.data.id}`);
+  console.log(`Order refunded: ${event.data.id} - kind: ${purchase.kind}`);
 }

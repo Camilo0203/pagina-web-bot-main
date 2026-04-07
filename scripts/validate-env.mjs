@@ -71,25 +71,6 @@ if (String(env.VITE_DASHBOARD_URL || '').trim() && !/^https?:\/\/.+/i.test(env.V
   errors.push('VITE_DASHBOARD_URL must be an absolute URL when provided.');
 }
 
-const billingBetaMode = parseBooleanEnv(env.VITE_BILLING_BETA_MODE);
-if (env.VITE_BILLING_BETA_MODE !== undefined && billingBetaMode === undefined) {
-  errors.push('VITE_BILLING_BETA_MODE must be a boolean-like value (true/false, 1/0, yes/no, on/off).');
-}
-
-if (mode === 'production' && env.VITE_BILLING_BETA_MODE === undefined) {
-  errors.push('VITE_BILLING_BETA_MODE must be set explicitly in production.');
-}
-
-if (String(env.VITE_STRIPE_PUBLISHABLE_KEY || '').trim()) {
-  if (!/^pk_(test|live)_[A-Za-z0-9]+/.test(String(env.VITE_STRIPE_PUBLISHABLE_KEY).trim())) {
-    errors.push('VITE_STRIPE_PUBLISHABLE_KEY format looks invalid. Expected a Stripe publishable key starting with pk_test_ or pk_live_.');
-  }
-} else if (mode === 'production') {
-  errors.push('VITE_STRIPE_PUBLISHABLE_KEY is required in production for billing checkout.');
-} else {
-  warnings.push('VITE_STRIPE_PUBLISHABLE_KEY is empty. Billing checkout CTA will not be deploy-ready.');
-}
-
 if (mode === 'production') {
   if (/localhost|127\.0\.0\.1/i.test(String(env.VITE_SITE_URL || ''))) {
     errors.push('VITE_SITE_URL cannot point to localhost in production mode.');

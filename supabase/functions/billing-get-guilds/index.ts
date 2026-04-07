@@ -60,7 +60,19 @@ Deno.serve(async (req: Request) => {
       guilds = await discordClient.getUserGuilds(discordAccessToken);
     } catch (error) {
       console.error('Failed to fetch Discord guilds:', error);
-      return errorResponse('Failed to fetch guilds from Discord. Please re-authenticate.', 401);
+      
+      // Check if it's an authentication error
+      if (error instanceof Error && error.message.includes('401')) {
+        return errorResponse(
+          'Discord access token has expired. Please log out and log in again.',
+          401
+        );
+      }
+      
+      return errorResponse(
+        'Failed to fetch guilds from Discord. Please try again or re-authenticate.',
+        500
+      );
     }
 
     // Filter to only manageable guilds

@@ -6,8 +6,6 @@
 - [ ] `VITE_SUPABASE_URL` configurado.
 - [ ] `VITE_SUPABASE_ANON_KEY` configurado.
 - [ ] `VITE_SITE_URL` apunta al dominio final.
-- [ ] `VITE_STRIPE_PUBLISHABLE_KEY` configurado.
-- [ ] `VITE_BILLING_BETA_MODE=true` para la beta pagada controlada.
 - [ ] Redirects OAuth de Discord/Supabase incluyen `/auth/callback`.
 - [ ] `VITE_SUPPORT_SERVER_URL`, `VITE_STATUS_URL`, `VITE_DOCS_URL` y `VITE_CONTACT_EMAIL` revisados.
 - [ ] `npm run env:check -- --mode=production` pasa con el archivo/env real del deploy.
@@ -16,15 +14,14 @@
 
 - [ ] Migraciones de Supabase aplicadas.
 - [ ] Edge Function `sync-discord-guilds` desplegada.
-- [ ] Edge Functions `create-checkout-session`, `create-customer-portal-session` y `stripe-webhook` desplegadas.
-- [ ] Secretos Supabase de billing cargados: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PORTAL_RETURN_URL`, `BILLING_BETA_MODE`.
-- [ ] Stripe webhook apunta al endpoint publicado y firma verificada.
-- [ ] `billing_beta_allowlist` cargada para los usuarios iniciales.
+- [ ] Edge Functions `billing-create-checkout`, `billing-webhook`, `billing-guild-status` y `billing-get-guilds` desplegadas.
+- [ ] Secretos Supabase de billing cargados: `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, `LEMON_SQUEEZY_STORE_ID`, `LEMON_SQUEEZY_VARIANT_PRO_MONTHLY`, `LEMON_SQUEEZY_VARIANT_PRO_YEARLY`, `LEMON_SQUEEZY_VARIANT_LIFETIME`, `LEMON_SQUEEZY_VARIANT_DONATE`, `BOT_API_KEY`.
+- [ ] Lemon Squeezy webhook apunta al endpoint publicado y firma HMAC verificada.
 - [ ] RLS validado para lectura del dashboard.
 - [ ] El bot publica `bot_stats`.
 - [ ] `bot_stats` publica datos `source='live'`; no se exponen seeds como metricas publicas.
 - [ ] El bot publica `bot_guilds` y `guild_metrics_daily`.
-- [ ] El bot lee `guild_effective_entitlements` y proyecta `commercial_settings`/`opsPlan` en menos de 60s.
+- [ ] El bot consulta `billing-guild-status` con `BOT_API_KEY` y cachea resultados por 5 minutos.
 
 ## Calidad obligatoria
 
@@ -55,16 +52,15 @@
 - [ ] Estados vacios, errores y warnings muestran texto explicito, no solo color.
 - [ ] Fallos parciales de `activity`, `metrics`, `ticket events` y `ticket macros` degradan con gracia sin tumbar el snapshot completo.
 - [ ] Modulo Billing muestra plan, estado, renovacion/cancelacion y CTAs correctos.
-- [ ] Checkout `Pro monthly` y `Pro yearly` crean sesion valida.
-- [ ] Customer Portal abre para guild suscrito.
+- [ ] Checkout `Pro monthly`, `Pro yearly`, `Lifetime` y `Donate` crean sesion valida.
 - [ ] `?checkout=success` confirma activacion y refleja `Pro` sin recargar manualmente el estado.
 
 ## Seguridad y observabilidad
 
 - [ ] `sync-discord-guilds` rechaza `providerToken` que no pertenece al Discord user autenticado.
 - [ ] Sentry Session Replay sigue desactivado en produccion.
-- [ ] Existe alerta para `stripe-webhook` fallido o sin eventos recientes.
-- [ ] Existe alerta para bridge lag > 5 min o desalineacion de entitlement/proyeccion.
+- [ ] Existe alerta para `billing-webhook` fallido o sin eventos recientes.
+- [ ] Existe alerta para cache premium lag > 5 min o desalineacion de estado.
 - [ ] Existe alerta para fallos de creacion de tickets por encima del umbral definido.
 
 ## Legal y soporte

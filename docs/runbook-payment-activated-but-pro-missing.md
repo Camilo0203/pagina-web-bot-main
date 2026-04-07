@@ -2,72 +2,69 @@
 
 ## Sintoma
 
-El usuario completa Stripe Checkout, pero el dashboard o el bot siguen mostrando `Free`.
+El usuario completa Lemon Squeezy Checkout, pero el dashboard o el bot siguen mostrando `Free`.
 
 ## Triage rapido
 
-1. Identificar `guild_id`, `user_id`, `stripe_customer_id` y hora exacta del pago.
+1. Identificar `guild_id`, `discord_user_id`, `provider_customer_id` y hora exacta del pago.
 2. Confirmar si el dashboard muestra `?checkout=success`.
 3. Verificar si el usuario sigue teniendo `user_guild_access` fresco para ese guild.
 
 ## Cadena de verificacion
 
-### 1. Stripe
+### 1. Lemon Squeezy
 
-- Confirmar existencia de `checkout.session.completed`.
-- Confirmar `customer.subscription.updated` o `invoice.paid`.
-- Verificar que el `metadata.guild_id` del checkout es correcto.
+- Confirmar existencia de `subscription_created` o `order_created`.
+- Verificar que el `custom_data.guild_id` del checkout es correcto.
+- Confirmar que el evento fue enviado al webhook.
 
 ### 2. Webhook
 
-- Buscar `stripe_event_id` en `billing_webhook_events`.
-- Si no existe, el problema es de entrega o firma.
-- Si existe con `status='failed'`, revisar el error y reintentar el evento.
+- Buscar `event_id` en `webhook_events`.
+- Si no existe, el problema es de entrega o firma HMAC.
+- Si existe con `processed=false`, revisar el error y reintentar el evento.
 
 ### 3. Suscripcion persistida
 
-- Revisar `guild_billing_subscriptions` por `guild_id`.
-- Confirmar `status in ('trialing','active','past_due')`.
-- Confirmar `current_period_end` vigente.
+- Revisar `guild_subscriptions` por `guild_id`.
+- Confirmar `status='active'` y `premium_enabled=true`.
+- Para subscriptions: confirmar `renews_at` vigente.
+- Para lifetime: confirmar `lifetime=true` y `ends_at=null`.
 
-### 4. Entitlement efectivo
+### 4. Proyeccion al bot
 
-- Consultar `guild_effective_entitlements` por `guild_id`.
-- Si no devuelve `pro`, revisar override activo o datos incompletos en la suscripcion.
-
-### 5. Proyeccion al bot
-
-- Confirmar que el bot tiene `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`.
-- Revisar el ultimo heartbeat del bridge.
-- Forzar un sync del bridge si hace falta.
+- Confirmar que el bot tiene `SUPABASE_URL` y `BOT_API_KEY`.
+- Verificar que `billing-guild-status` devuelve `has_premium=true`.
+- Revisar cache TTL (5 minutos por defecto).
+- Invalidar cache manualmente si es necesario.
 
 ## Acciones comunes
 
 ### Webhook no procesado
 
-1. Corregir firma o secreto.
-2. Reenviar el evento desde Stripe.
-3. Confirmar que `billing_webhook_events` cambia a `processed`.
+1. Verificar firma HMAC con `LEMON_SQUEEZY_WEBHOOK_SECRET`.
+2. Reenviar el evento desde Lemon Squeezy Dashboard.
+3. Confirmar que `webhook_events` cambia a `processed=true`.
 
-### Suscripcion persistida pero entitlement en `free`
+### Suscripcion persistida pero premium no activo
 
-1. Revisar `status`, `current_period_end` y `plan`.
+1. Revisar `status`, `premium_enabled`, `ends_at` y `plan_key`.
 2. Corregir la fila afectada solo si hay evidencia clara del valor correcto.
-3. Confirmar de nuevo la vista `guild_effective_entitlements`.
+3. Confirmar que `premium_enabled=true`.
 
-### Entitlement correcto pero bot sigue en `free`
+### Premium correcto pero bot sigue en `free`
 
-1. Forzar sync del bridge.
-2. Revisar logs de `dashboard.bridge.entitlement_fetch_failed`.
-3. Verificar que `commercial_settings` y `dashboard_general_settings.opsPlan` cambiaron.
+1. Invalidar cache premium del bot para ese `guild_id`.
+2. Verificar que `BOT_API_KEY` coincide entre bot y Supabase.
+3. Revisar logs del bot para errores de `premiumService`.
 
 ## Compensacion manual
 
 Si el pago es valido y el cliente sigue bloqueado:
 
-1. Insertar o actualizar `guild_entitlement_overrides` con `plan_override='pro'`.
-2. Definir una nota con motivo, actor y hora.
-3. Retirar el override cuando el estado automatico quede sano.
+1. Actualizar `guild_subscriptions` manualmente con `premium_enabled=true`.
+2. Documentar motivo, actor y hora en notas internas.
+3. Monitorear que el estado se mantenga correcto en renovaciones futuras.
 
 ## Cierre
 
