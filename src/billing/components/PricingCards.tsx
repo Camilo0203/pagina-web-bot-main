@@ -21,6 +21,10 @@ export function PricingCards({ onSelectPlan, loading, selectedPlan }: PricingCar
       description: t('pricing.plans.monthly.description'),
       price: '$9.99',
       interval: t('pricing.plans.monthly.interval'),
+      planType: 'Subscription',
+      billingCycle: 'Monthly',
+      cancelable: true,
+      requiresGuild: true,
       features: [
         'Up to 50 custom commands',
         '20 auto-role configurations',
@@ -43,6 +47,10 @@ export function PricingCards({ onSelectPlan, loading, selectedPlan }: PricingCar
       description: t('pricing.plans.yearly.description'),
       price: '$99.99',
       interval: t('pricing.plans.yearly.interval'),
+      planType: 'Subscription',
+      billingCycle: 'Yearly',
+      cancelable: true,
+      requiresGuild: true,
       savings: t('pricing.plans.yearly.savings'),
       features: [
         'Everything in Monthly',
@@ -66,6 +74,10 @@ export function PricingCards({ onSelectPlan, loading, selectedPlan }: PricingCar
       description: t('pricing.plans.lifetime.description'),
       price: '$299.99',
       interval: t('pricing.plans.lifetime.interval'),
+      planType: 'One-Time Purchase',
+      billingCycle: 'Forever',
+      cancelable: false,
+      requiresGuild: true,
       features: [
         'Everything in Pro',
         '100 custom commands',
@@ -122,6 +134,17 @@ export function PricingCards({ onSelectPlan, loading, selectedPlan }: PricingCar
                 </div>
               )}
 
+              {/* Plan Type Badge */}
+              <div className="absolute top-4 right-4 z-10">
+                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                  plan.planType === 'One-Time Purchase'
+                    ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                    : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                }`}>
+                  {plan.planType}
+                </span>
+              </div>
+
               {/* Card */}
               <div
                 className={`relative h-full rounded-2xl border p-8 backdrop-blur-sm transition-all duration-200 hover:scale-105 ${
@@ -143,6 +166,24 @@ export function PricingCards({ onSelectPlan, loading, selectedPlan }: PricingCar
                 {/* Description */}
                 <p className="mt-2 text-sm text-slate-400">{plan.description}</p>
 
+                {/* Billing Info */}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {plan.billingCycle}
+                  </span>
+                  {plan.cancelable && (
+                    <span className="inline-flex items-center gap-1 text-xs text-green-400">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Cancel anytime
+                    </span>
+                  )}
+                </div>
+
                 {/* Price */}
                 <div className="mt-6">
                   <div className="flex items-baseline gap-2">
@@ -154,8 +195,20 @@ export function PricingCards({ onSelectPlan, loading, selectedPlan }: PricingCar
                   )}
                 </div>
 
+                {/* Server Requirement Notice */}
+                {plan.requiresGuild && (
+                  <div className="mt-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20 p-3">
+                    <p className="text-xs text-indigo-300 flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Requires server selection after purchase</span>
+                    </p>
+                  </div>
+                )}
+
                 {/* Features */}
-                <ul className="mt-8 space-y-3">
+                <ul className="mt-6 space-y-3">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <Check className="h-5 w-5 flex-shrink-0 text-green-400 mt-0.5" />

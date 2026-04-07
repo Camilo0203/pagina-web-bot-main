@@ -6,9 +6,12 @@ interface Guild {
   id: string;
   name: string;
   icon: string | null;
+  icon_url: string | null;
+  owner: boolean;
   has_premium: boolean;
-  premium_tier: string | null;
-  premium_expires_at: string | null;
+  plan_key: string | null;
+  ends_at: string | null;
+  lifetime: boolean;
 }
 
 interface BillingDashboardProps {
@@ -28,7 +31,7 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
 
   const fetchGuilds = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('lemon-get-user-guilds');
+      const { data, error } = await supabase.functions.invoke('billing-get-guilds');
 
       if (error) throw error;
 
@@ -40,22 +43,22 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
     }
   };
 
-  const handleUpgrade = async (guildId: string, planType: string) => {
+  const handleUpgrade = async (guildId: string, planKey: string) => {
     setCheckoutLoading(true);
-    setSelectedPlan(planType);
+    setSelectedPlan(planKey);
 
     try {
-      const { data, error } = await supabase.functions.invoke('lemon-create-checkout', {
+      const { data, error } = await supabase.functions.invoke('billing-create-checkout', {
         body: {
           guild_id: guildId,
-          plan_type: planType,
+          plan_key: planKey,
         },
       });
 
       if (error) throw error;
 
-      if (data?.url) {
-        window.location.href = data.url;
+      if (data?.checkout_url) {
+        window.location.href = data.checkout_url;
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
@@ -76,14 +79,14 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
     });
   };
 
-  const getTierBadge = (tier: string | null) => {
+  const getTierBadge = (planKey: string | null) => {
     const badges = {
       pro_monthly: { label: 'Pro Monthly', color: 'bg-blue-500' },
       pro_yearly: { label: 'Pro Yearly', color: 'bg-purple-500' },
       lifetime: { label: 'Lifetime', color: 'bg-gradient-to-r from-yellow-400 to-orange-500' },
     };
 
-    const badge = badges[tier as keyof typeof badges];
+    const badge = badges[planKey as keyof typeof badges];
     if (!badge) return null;
 
     return (
@@ -130,7 +133,7 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
               )}
               <div>
                 <h2 className="text-2xl font-bold text-white">{selectedGuild.name}</h2>
-                {selectedGuild.has_premium && getTierBadge(selectedGuild.premium_tier)}
+                {selectedGuild.has_premium && getTierBadge(selectedGuild.plan_key)}
               </div>
             </div>
 
@@ -145,9 +148,9 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        {selectedGuild.premium_tier === 'lifetime' 
+                        {selectedGuild.lifetime 
                           ? 'Lifetime Access' 
-                          : `Expires: ${formatExpiryDate(selectedGuild.premium_expires_at)}`
+                          : `Expires: ${formatExpiryDate(selectedGuild.ends_at)}`
                         }
                       </span>
                     </div>
@@ -157,12 +160,12 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
                 <div className="bg-white/5 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-white mb-3">Active Features</h3>
                   <ul className="space-y-2 text-gray-300">
-                    <li>✅ Up to {selectedGuild.premium_tier === 'lifetime' ? '100' : '50'} custom commands</li>
+                    <li>✅ Up to {selectedGuild.lifetime ? '100' : '50'} custom commands</li>
                     <li>✅ Advanced moderation tools</li>
                     <li>✅ Custom embed builder</li>
                     <li>✅ Priority support</li>
                     <li>✅ Server analytics</li>
-                    {selectedGuild.premium_tier === 'lifetime' && (
+                    {selectedGuild.lifetime && (
                       <li>✅ Exclusive lifetime features</li>
                     )}
                   </ul>
@@ -236,7 +239,7 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
                 )}
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-white">{guild.name}</h3>
-                  {guild.has_premium && getTierBadge(guild.premium_tier)}
+                  {guild.has_premium && getTierBadge(guild.plan_key)}
                 </div>
               </div>
 

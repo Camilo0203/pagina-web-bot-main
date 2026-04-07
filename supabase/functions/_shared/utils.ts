@@ -72,6 +72,22 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+export function isValidCurrency(currency: string): boolean {
+  // ISO 4217 currency codes (3 uppercase letters)
+  return /^[A-Z]{3}$/.test(currency);
+}
+
+export function validateProviderId(id: unknown, fieldName: string): string {
+  if (!id) {
+    throw new Error(`${fieldName} is required`);
+  }
+  const idStr = String(id);
+  if (idStr === 'null' || idStr === 'undefined' || idStr.trim() === '') {
+    throw new Error(`${fieldName} is invalid: ${idStr}`);
+  }
+  return idStr;
+}
+
 export async function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,

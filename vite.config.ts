@@ -17,7 +17,11 @@ export default defineConfig(({ mode }) => {
   return {
     test: {
       setupFiles: ['./src/test-setup.ts'],
-      include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+      include: [
+        'src/**/*.test.ts',
+        'src/**/*.test.tsx',
+        'supabase/functions/**/*.test.ts',
+      ],
       exclude: ['src/tests/**', 'tests/**', 'node_modules/**'],
     },
     plugins: [

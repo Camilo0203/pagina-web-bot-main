@@ -58,12 +58,17 @@ export default function PricingPage() {
     }
 
     if (!isAuthenticated) {
-      toast.error('Please sign in with Discord first');
+      toast.error('Please sign in with Discord to continue', {
+        description: 'You need to authenticate to purchase premium plans',
+      });
       handleSignIn();
       return;
     }
 
     setSelectedPlan(planKey);
+    toast.success('Plan selected!', {
+      description: 'Now choose which server to upgrade',
+    });
     
     // Scroll to guild selector
     setTimeout(() => {
@@ -75,37 +80,75 @@ export default function PricingPage() {
   };
 
   const handleDonation = async () => {
+    if (!isAuthenticated) {
+      toast.error('Sign in required', {
+        description: 'Please sign in with Discord to make a donation',
+      });
+      handleSignIn();
+      return;
+    }
+
     try {
       setProcessingDonation(true);
+      toast.loading('Creating donation checkout...', { id: 'donation' });
       const response = await createBillingCheckout({ plan_key: 'donate' });
+      toast.success('Redirecting to checkout...', { id: 'donation' });
       window.location.href = response.checkout_url;
     } catch (error) {
       console.error('Donation error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create donation checkout');
-    } finally {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create donation checkout';
+      toast.error('Donation failed', {
+        id: 'donation',
+        description: errorMessage,
+      });
       setProcessingDonation(false);
     }
   };
 
   const handleProceedToCheckout = async () => {
     if (!selectedPlan || !selectedGuildId) {
-      toast.error('Please select a plan and server');
+      toast.error('Missing information', {
+        description: 'Please select both a plan and a server',
+      });
       return;
     }
 
+    const selectedGuild = guilds.find(g => g.id === selectedGuildId);
+
     try {
       setProcessingCheckout(true);
+      toast.loading(`Creating checkout for ${selectedGuild?.name || 'your server'}...`, { id: 'checkout' });
       
       const response = await createBillingCheckout({
         guild_id: selectedGuildId,
         plan_key: selectedPlan,
       });
 
+      toast.success('Redirecting to secure checkout...', { id: 'checkout' });
       // Redirect to Lemon Squeezy checkout
       window.location.href = response.checkout_url;
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create checkout');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout';
+      
+      // Parse specific error messages
+      if (errorMessage.includes('already has an active')) {
+        toast.error('Server already has premium', {
+          id: 'checkout',
+          description: 'This server already has an active premium subscription',
+        });
+      } else if (errorMessage.includes('permission')) {
+        toast.error('Permission denied', {
+          id: 'checkout',
+          description: 'You need Manage Server permission to upgrade this server',
+        });
+      } else {
+        toast.error('Checkout failed', {
+          id: 'checkout',
+          description: errorMessage,
+        });
+      }
+      
       setProcessingCheckout(false);
     }
   };
@@ -113,7 +156,31 @@ export default function PricingPage() {
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/20 mb-4">
+            <svg
+              className="w-8 h-8 animate-spin text-indigo-400"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          </div>
+          <p className="text-white font-semibold">Loading pricing...</p>
+          <p className="text-slate-400 text-sm mt-2">Checking authentication status</p>
+        </div>
       </div>
     );
   }
@@ -161,6 +228,37 @@ export default function PricingPage() {
               animate={{ opacity: 1, y: 0 }}
               className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8"
             >
+              {/* Progress Indicator */}
+              <div className="mb-6 flex items-center justify-center gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold">
+                    ✓
+                  </div>
+                  <span className="text-slate-400">Plan Selected</span>
+                </div>
+                <div className="w-8 h-0.5 bg-slate-600" />
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                    2
+                  </div>
+                  <span className="text-white font-medium">Choose Server</span>
+                </div>
+                <div className="w-8 h-0.5 bg-slate-600" />
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-slate-600 flex items-center justify-center text-slate-400 text-xs font-bold">
+                    3
+                  </div>
+                  <span className="text-slate-400">Checkout</span>
+                </div>
+              </div>
+
+              {/* Selected Plan Info */}
+              <div className="mb-6 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                <p className="text-sm text-indigo-300 text-center">
+                  Selected: <span className="font-semibold">{selectedPlan.replace('_', ' ').toUpperCase()}</span>
+                </p>
+              </div>
+
               <h2 className="text-2xl font-bold text-white mb-6 text-center">
                 Select a Server
               </h2>

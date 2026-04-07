@@ -63,37 +63,6 @@ export async function createBillingCheckout(
 }
 
 /**
- * Get premium status for a specific guild
- */
-export async function fetchGuildPremiumStatus(
-  guildId: string
-): Promise<GuildPremiumStatus> {
-  if (!supabase) {
-    throw new Error('Supabase client not initialized');
-  }
-
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session) {
-    throw new Error('No active session. Please login with Discord.');
-  }
-
-  const { data, error } = await supabase.functions.invoke(
-    `billing-guild-status/${guildId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${sessionData.session.access_token}`,
-      },
-    }
-  );
-
-  if (error) {
-    throw new Error(error.message || 'Failed to fetch guild premium status');
-  }
-
-  return data as GuildPremiumStatus;
-}
-
-/**
  * Sign in with Discord OAuth
  */
 export async function signInWithDiscord(redirectTo?: string) {

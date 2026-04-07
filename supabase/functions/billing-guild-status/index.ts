@@ -2,7 +2,7 @@
 // Public endpoint for bot to check premium status (requires API key)
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv } from '../_shared/utils.ts';
+import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv, isValidDiscordId } from '../_shared/utils.ts';
 import { createSupabaseClient, BillingDatabase } from '../_shared/database.ts';
 
 Deno.serve(async (req: Request) => {
@@ -33,7 +33,8 @@ Deno.serve(async (req: Request) => {
     }
 
     // Validate guild_id format
-    if (!/^\d{17,19}$/.test(guildId)) {
+    if (!isValidDiscordId(guildId)) {
+      console.error('Invalid guild_id format in billing-guild-status:', { guildId });
       return errorResponse('Invalid guild_id format', 400);
     }
 
@@ -60,17 +61,26 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    return jsonResponse({
+    // Ensure robust shape with explicit null handling
+    const response = {
       guild_id: guildId,
-      has_premium: premiumStatus.has_premium,
-      plan_key: premiumStatus.plan_key,
-      tier: premiumStatus.plan_key, // Alias for bot compatibility
-      ends_at: premiumStatus.ends_at,
-      expires_at: premiumStatus.ends_at, // Alias for bot compatibility
-      lifetime: premiumStatus.lifetime,
+      has_premium: Boolean(premiumStatus.has_premium),
+      plan_key: premiumStatus.plan_key || null,
+      tier: premiumStatus.plan_key || null, // Alias for bot compatibility
+      ends_at: premiumStatus.ends_at || null,
+      expires_at: premiumStatus.ends_at || null, // Alias for bot compatibility
+      lifetime: Boolean(premiumStatus.lifetime),
       subscription: subscriptionDetails,
       checked_at: new Date().toISOString(),
+    };
+
+    console.log(`✅ Guild premium status checked: ${guildId}`, {
+      has_premium: response.has_premium,
+      plan_key: response.plan_key,
+      lifetime: response.lifetime,
     });
+
+    return jsonResponse(response);
 
   } catch (error) {
     return handleError(error);

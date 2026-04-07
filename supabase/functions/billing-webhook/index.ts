@@ -2,7 +2,7 @@
 // Handles all payment events with idempotency and proper business logic
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv } from '../_shared/utils.ts';
+import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv, validateProviderId, isValidCurrency, isValidDiscordId } from '../_shared/utils.ts';
 import { 
   verifyLemonSqueezySignature, 
   generateEventHash,
@@ -179,6 +179,38 @@ async function handleSubscriptionCreated(db: BillingDatabase, event: any) {
     throw new Error(errorMsg);
   }
 
+  // Validate Discord IDs format
+  if (!isValidDiscordId(customData.discord_user_id)) {
+    throw new Error(`Invalid discord_user_id format: ${customData.discord_user_id}`);
+  }
+  if (!isValidDiscordId(customData.guild_id)) {
+    throw new Error(`Invalid guild_id format: ${customData.guild_id}`);
+  }
+
+  // Validate plan_key
+  if (!isPremiumPlan(customData.plan_key)) {
+    throw new Error(`Invalid plan_key for subscription: ${customData.plan_key}`);
+  }
+
+  // Validate provider IDs
+  const providerCustomerId = validateProviderId(attrs.customer_id, 'customer_id');
+  const providerSubscriptionId = validateProviderId(event.data.id, 'subscription_id');
+  const providerOrderId = validateProviderId(attrs.order_id, 'order_id');
+  const providerProductId = validateProviderId(attrs.product_id, 'product_id');
+  const providerVariantId = validateProviderId(attrs.variant_id, 'variant_id');
+
+  // Validate currency
+  const currency = attrs.currency?.toUpperCase() || 'USD';
+  if (!isValidCurrency(currency)) {
+    throw new Error(`Invalid currency: ${attrs.currency}`);
+  }
+
+  // Validate and normalize amount (use total for consistency)
+  const amount = Math.round((attrs.total || attrs.subtotal || 0) * 100);
+  if (amount <= 0) {
+    console.warn('⚠️ Subscription created with zero or negative amount', { event_id: event.data.id, amount: attrs.total });
+  }
+
   // Ensure user exists
   await db.upsertUser({
     discord_user_id: customData.discord_user_id,
@@ -187,17 +219,18 @@ async function handleSubscriptionCreated(db: BillingDatabase, event: any) {
 
   // Create guild subscription
   const renewsAt = attrs.renews_at ? new Date(attrs.renews_at) : null;
+  const mappedStatus = mapSubscriptionStatus(attrs.status);
   
   await db.createGuildSubscription({
     guild_id: customData.guild_id,
     discord_user_id: customData.discord_user_id,
     provider: 'lemon_squeezy',
-    provider_customer_id: String(attrs.customer_id),
-    provider_subscription_id: event.data.id,
+    provider_customer_id: providerCustomerId,
+    provider_subscription_id: providerSubscriptionId,
     plan_key: customData.plan_key,
     billing_type: 'subscription',
-    status: mapSubscriptionStatus(attrs.status),
-    premium_enabled: true,
+    status: mappedStatus,
+    premium_enabled: mappedStatus === 'active',
     cancel_at_period_end: false,
     renews_at: renewsAt?.toISOString() || null,
     ends_at: null,
@@ -207,20 +240,25 @@ async function handleSubscriptionCreated(db: BillingDatabase, event: any) {
   // Create purchase record
   await db.createPurchase({
     provider: 'lemon_squeezy',
-    provider_order_id: String(attrs.order_id),
-    provider_product_id: String(attrs.product_id),
-    provider_variant_id: String(attrs.variant_id),
+    provider_order_id: providerOrderId,
+    provider_product_id: providerProductId,
+    provider_variant_id: providerVariantId,
     discord_user_id: customData.discord_user_id,
     guild_id: customData.guild_id,
     plan_key: customData.plan_key,
     kind: 'subscription',
-    amount: Math.round((attrs.subtotal || 0) * 100),
-    currency: attrs.currency || 'USD',
+    amount,
+    currency,
     status: 'completed',
     raw_payload: attrs,
   });
 
-  console.log(`Subscription created for guild ${customData.guild_id}: ${customData.plan_key}`);
+  console.log(`✅ Subscription created for guild ${customData.guild_id}:`, {
+    plan_key: customData.plan_key,
+    status: mappedStatus,
+    amount: `${amount / 100} ${currency}`,
+    subscription_id: providerSubscriptionId,
+  });
 }
 
 async function handleSubscriptionUpdated(db: BillingDatabase, event: any) {
@@ -242,7 +280,11 @@ async function handleSubscriptionUpdated(db: BillingDatabase, event: any) {
     cancel_at_period_end: attrs.cancelled || false,
   });
 
-  console.log(`Subscription updated: ${event.data.id} - status: ${attrs.status}`);
+  console.log(`✅ Subscription updated: ${event.data.id}`, {
+    status: attrs.status,
+    renews_at: attrs.renews_at || 'none',
+    cancel_at_period_end: attrs.cancelled || false,
+  });
 }
 
 async function handleSubscriptionCancelled(db: BillingDatabase, event: any) {
@@ -266,7 +308,10 @@ async function handleSubscriptionCancelled(db: BillingDatabase, event: any) {
     endsAt ? new Date(endsAt).toISOString() : new Date().toISOString()
   );
 
-  console.log(`Subscription cancelled: ${event.data.id} - ends at: ${endsAt || 'immediate'}`);
+  console.log(`⚠️ Subscription cancelled: ${event.data.id}`, {
+    ends_at: endsAt || 'immediate',
+    guild_id: subscription.guild_id,
+  });
 }
 
 async function handleSubscriptionResumed(db: BillingDatabase, event: any) {
@@ -285,7 +330,10 @@ async function handleSubscriptionResumed(db: BillingDatabase, event: any) {
     renewsAt?.toISOString() || new Date().toISOString()
   );
 
-  console.log(`Subscription resumed: ${event.data.id}`);
+  console.log(`✅ Subscription resumed: ${event.data.id}`, {
+    guild_id: subscription.guild_id,
+    renews_at: renewsAt?.toISOString() || 'none',
+  });
 }
 
 async function handleSubscriptionExpired(db: BillingDatabase, event: any) {
@@ -299,7 +347,9 @@ async function handleSubscriptionExpired(db: BillingDatabase, event: any) {
   // Disable premium immediately
   await db.deactivateGuildSubscription(subscription.id);
 
-  console.log(`Subscription expired: ${event.data.id}`);
+  console.log(`❌ Subscription expired: ${event.data.id}`, {
+    guild_id: subscription.guild_id,
+  });
 }
 
 async function handleSubscriptionPaused(db: BillingDatabase, event: any) {
@@ -315,7 +365,9 @@ async function handleSubscriptionPaused(db: BillingDatabase, event: any) {
     premium_enabled: false,
   });
 
-  console.log(`Subscription paused: ${event.data.id}`);
+  console.log(`⏸️ Subscription paused: ${event.data.id}`, {
+    guild_id: subscription.guild_id,
+  });
 }
 
 async function handleSubscriptionUnpaused(db: BillingDatabase, event: any) {
@@ -332,7 +384,9 @@ async function handleSubscriptionUnpaused(db: BillingDatabase, event: any) {
     premium_enabled: true,
   });
 
-  console.log(`Subscription unpaused: ${event.data.id}`);
+  console.log(`▶️ Subscription unpaused: ${event.data.id}`, {
+    guild_id: subscription.guild_id,
+  });
 }
 
 async function handleSubscriptionPaymentSuccess(db: BillingDatabase, event: any) {
@@ -352,7 +406,10 @@ async function handleSubscriptionPaymentSuccess(db: BillingDatabase, event: any)
     renews_at: renewsAt?.toISOString() || null,
   });
 
-  console.log(`Subscription payment success: ${event.data.id}`);
+  console.log(`✅ Subscription payment success: ${event.data.id}`, {
+    guild_id: subscription.guild_id,
+    renews_at: renewsAt?.toISOString() || 'none',
+  });
 }
 
 async function handleSubscriptionPaymentFailed(db: BillingDatabase, event: any) {
@@ -363,12 +420,14 @@ async function handleSubscriptionPaymentFailed(db: BillingDatabase, event: any) 
     return;
   }
 
-  // Mark as past_due but don't disable premium yet
+  // Mark as past_due but keep premium enabled (grace period)
+  // Premium will be disabled on subscription_expired
   await db.updateGuildSubscription(subscription.id, {
     status: 'past_due',
+    premium_enabled: true,  // Explicit: keep premium during grace period
   });
 
-  console.log(`Subscription payment failed: ${event.data.id}`);
+  console.log(`⚠️ Subscription payment failed (grace period active): ${event.data.id}`);
 }
 
 async function handleSubscriptionPaymentRecovered(db: BillingDatabase, event: any) {
@@ -389,15 +448,49 @@ async function handleSubscriptionPaymentRecovered(db: BillingDatabase, event: an
     renews_at: renewsAt?.toISOString() || null,
   });
 
-  console.log(`Subscription payment recovered: ${event.data.id}`);
+  console.log(`✅ Subscription payment recovered: ${event.data.id}`, {
+    guild_id: subscription.guild_id,
+    renews_at: renewsAt?.toISOString() || 'none',
+  });
 }
 
 async function handleOrderCreated(db: BillingDatabase, event: any) {
   const customData = extractCustomData(event);
   const attrs = event.data.attributes;
   
+  // Validate required custom data
   if (!customData.discord_user_id || !customData.plan_key) {
     throw new Error('Missing required custom data in order_created');
+  }
+
+  // Validate Discord user ID format
+  if (!isValidDiscordId(customData.discord_user_id)) {
+    throw new Error(`Invalid discord_user_id format: ${customData.discord_user_id}`);
+  }
+
+  const planKey = customData.plan_key;
+
+  // Validate plan_key is valid
+  if (!isPremiumPlan(planKey) && !isDonationPlan(planKey)) {
+    throw new Error(`Invalid plan_key in order_created: ${planKey}`);
+  }
+
+  // Validate provider IDs
+  const providerCustomerId = validateProviderId(attrs.customer_id, 'customer_id');
+  const providerOrderId = validateProviderId(event.data.id, 'order_id');
+  const providerProductId = String(attrs.first_order_item?.product_id || '');
+  const providerVariantId = String(attrs.first_order_item?.variant_id || '');
+
+  // Validate currency
+  const currency = attrs.currency?.toUpperCase() || 'USD';
+  if (!isValidCurrency(currency)) {
+    throw new Error(`Invalid currency: ${attrs.currency}`);
+  }
+
+  // Validate amount
+  const amount = attrs.total;
+  if (typeof amount !== 'number' || amount <= 0) {
+    throw new Error(`Invalid amount in order_created: ${amount}`);
   }
 
   // Ensure user exists
@@ -406,12 +499,15 @@ async function handleOrderCreated(db: BillingDatabase, event: any) {
     username: 'Unknown',
   });
 
-  const planKey = customData.plan_key;
-
   // Handle lifetime purchase
   if (isLifetimePlan(planKey)) {
     if (!customData.guild_id) {
       throw new Error('Missing guild_id for lifetime purchase');
+    }
+
+    // Validate guild_id format
+    if (!isValidDiscordId(customData.guild_id)) {
+      throw new Error(`Invalid guild_id format: ${customData.guild_id}`);
     }
 
     // Create guild subscription (lifetime)
@@ -419,7 +515,7 @@ async function handleOrderCreated(db: BillingDatabase, event: any) {
       guild_id: customData.guild_id,
       discord_user_id: customData.discord_user_id,
       provider: 'lemon_squeezy',
-      provider_customer_id: String(attrs.customer_id),
+      provider_customer_id: providerCustomerId,
       provider_subscription_id: null,
       plan_key: planKey,
       billing_type: 'one_time',
@@ -434,30 +530,42 @@ async function handleOrderCreated(db: BillingDatabase, event: any) {
     // Create purchase record
     await db.createPurchase({
       provider: 'lemon_squeezy',
-      provider_order_id: event.data.id,
-      provider_product_id: String(attrs.first_order_item?.product_id || ''),
-      provider_variant_id: String(attrs.first_order_item?.variant_id || ''),
+      provider_order_id: providerOrderId,
+      provider_product_id: providerProductId,
+      provider_variant_id: providerVariantId,
       discord_user_id: customData.discord_user_id,
       guild_id: customData.guild_id,
       plan_key: planKey,
       kind: 'lifetime',
-      amount: attrs.total,
-      currency: attrs.currency,
+      amount,
+      currency,
       status: 'completed',
       raw_payload: attrs,
     });
 
-    console.log(`Lifetime purchase created for guild ${customData.guild_id}`);
+    console.log(`✅ Lifetime purchase created for guild ${customData.guild_id}:`, {
+      plan_key: planKey,
+      amount: `${amount / 100} ${currency}`,
+      order_id: providerOrderId,
+    });
   }
   // Handle donation
   else if (isDonationPlan(planKey)) {
+    // Donations should NOT have guild_id
+    if (customData.guild_id) {
+      console.warn('⚠️ Donation received with guild_id (ignoring):', { 
+        discord_user_id: customData.discord_user_id, 
+        guild_id: customData.guild_id 
+      });
+    }
+
     // Create donation record
     await db.createDonation({
       provider: 'lemon_squeezy',
-      provider_order_id: event.data.id,
+      provider_order_id: providerOrderId,
       discord_user_id: customData.discord_user_id,
-      amount: attrs.total,
-      currency: attrs.currency,
+      amount,
+      currency,
       status: 'completed',
       message: null,
       raw_payload: attrs,
@@ -466,33 +574,49 @@ async function handleOrderCreated(db: BillingDatabase, event: any) {
     // Also create purchase record for analytics
     await db.createPurchase({
       provider: 'lemon_squeezy',
-      provider_order_id: event.data.id,
-      provider_product_id: String(attrs.first_order_item?.product_id || ''),
-      provider_variant_id: String(attrs.first_order_item?.variant_id || ''),
+      provider_order_id: providerOrderId,
+      provider_product_id: providerProductId,
+      provider_variant_id: providerVariantId,
       discord_user_id: customData.discord_user_id,
-      guild_id: null,
+      guild_id: null,  // Explicit: donations never have guild_id
       plan_key: planKey,
       kind: 'donation',
-      amount: attrs.total,
-      currency: attrs.currency,
+      amount,
+      currency,
       status: 'completed',
       raw_payload: attrs,
     });
 
-    console.log(`Donation received from ${customData.discord_user_id}: ${attrs.total} ${attrs.currency}`);
+    console.log(`✅ Donation received from ${customData.discord_user_id}:`, {
+      amount: `${amount / 100} ${currency}`,
+      order_id: providerOrderId,
+    });
+  }
+  else {
+    // This should never happen if validation is correct
+    throw new Error(`Unhandled plan_key in order_created: ${planKey}`);
   }
 }
 
 async function handleOrderRefunded(db: BillingDatabase, event: any) {
   const attrs = event.data.attributes;
+  const orderId = validateProviderId(event.data.id, 'order_id');
   
   // Find purchase by order ID
-  const purchase = await db.getPurchaseByProviderOrder('lemon_squeezy', event.data.id);
+  const purchase = await db.getPurchaseByProviderOrder('lemon_squeezy', orderId);
   
   if (!purchase) {
-    console.warn(`Purchase not found for refunded order: ${event.data.id}`);
+    console.warn(`⚠️ Purchase not found for refunded order: ${orderId}`);
     return;
   }
+
+  // Log refund details
+  console.log(`🔄 Processing refund for order ${orderId}:`, {
+    kind: purchase.kind,
+    plan_key: purchase.plan_key,
+    amount: `${purchase.amount / 100} ${purchase.currency}`,
+    guild_id: purchase.guild_id || 'none',
+  });
 
   // Update purchase status
   await db.updatePurchaseStatus(purchase.id, 'refunded');
@@ -502,17 +626,22 @@ async function handleOrderRefunded(db: BillingDatabase, event: any) {
     const subscription = await db.getActiveGuildSubscription(purchase.guild_id);
     if (subscription) {
       await db.deactivateGuildSubscription(subscription.id);
-      console.log(`Premium deactivated for guild ${purchase.guild_id} due to refund`);
+      console.log(`❌ Premium deactivated for guild ${purchase.guild_id} due to refund`);
+    } else {
+      console.warn(`⚠️ No active subscription found for refunded guild ${purchase.guild_id}`);
     }
   }
 
   // If it was a donation, update donation status
   if (purchase.kind === 'donation') {
-    const donation = await db.getDonationByProviderOrder('lemon_squeezy', event.data.id);
+    const donation = await db.getDonationByProviderOrder('lemon_squeezy', orderId);
     if (donation) {
       await db.updateDonationStatus(donation.id, 'refunded');
+      console.log(`✅ Donation refund recorded for ${donation.discord_user_id}`);
+    } else {
+      console.warn(`⚠️ Donation record not found for refunded order ${orderId}`);
     }
   }
 
-  console.log(`Order refunded: ${event.data.id} - kind: ${purchase.kind}`);
+  console.log(`✅ Order refund processed: ${orderId} - kind: ${purchase.kind}`);
 }

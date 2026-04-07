@@ -177,16 +177,33 @@ export class BillingDatabase {
   }
 
   async getActiveGuildSubscription(guildId: string): Promise<GuildSubscription | null> {
+    // Get all subscriptions for this guild that have premium enabled
     const { data, error } = await this.supabase
       .from('guild_subscriptions')
       .select('*')
       .eq('guild_id', guildId)
-      .eq('status', 'active')
       .eq('premium_enabled', true)
-      .maybeSingle();
+      .in('status', ['active', 'cancelled'])
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    
+    if (!data || data.length === 0) return null;
+
+    // Filter to only include subscriptions that are:
+    // 1. Active, OR
+    // 2. Cancelled but still in grace period (ends_at is in the future)
+    const now = new Date();
+    const validSubscriptions = data.filter((sub: GuildSubscription) => {
+      if (sub.status === 'active') return true;
+      if (sub.status === 'cancelled' && sub.ends_at) {
+        return new Date(sub.ends_at) > now;
+      }
+      return false;
+    });
+
+    // Return the most recent valid subscription
+    return validSubscriptions.length > 0 ? validSubscriptions[0] : null;
   }
 
   async deactivateGuildSubscription(id: string): Promise<GuildSubscription> {

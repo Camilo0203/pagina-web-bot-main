@@ -57,6 +57,20 @@
 - [ ] Confirmar que el snapshot no cae completo cuando falla una fuente opcional.
 - [ ] Confirmar que el mensaje visible identifica la fuente degradada y orienta qué revisar.
 
+## Billing
+
+- [ ] Navegar a `/pricing` y confirmar que los tres planes muestran precio correcto (Pro Monthly $9.99, Pro Yearly $99.99, Lifetime $299.99).
+- [ ] Con `LEMON_SQUEEZY_TEST_MODE=true`, completar checkout de `Pro Monthly` y verificar que redirige a `?checkout=success`.
+- [ ] Confirmar que `guild_subscriptions` queda con `status=active` y `premium_enabled=true`.
+- [ ] Confirmar que el dashboard muestra el plan correcto sin recargar manualmente.
+- [ ] El bot refleja `Pro` al consultar `billing-guild-status` (esperar hasta 5 minutos o invalidar cache manualmente).
+- [ ] Verificar checkout de `Lifetime`: `premium_enabled=true`, `lifetime=true`, `ends_at=null`.
+- [ ] Verificar checkout de `Donate`: registro en tabla pero `premium_enabled=false`.
+- [ ] Cancelar una suscripcion de prueba: confirmar `cancel_at_period_end=true` y premium sigue activo hasta `ends_at`.
+- [ ] Confirmar que intentar checkout con un guild que ya tiene `premium_enabled=true` retorna error claro.
+- [ ] Confirmar que el boton de checkout requiere tener el bot instalado y guild fresco (no stale).
+- [ ] Con `BOT_API_KEY` incorrecto, confirmar que `billing-guild-status` devuelve 401.
+
 ## Regresion final
 
 - [ ] `npm run typecheck`

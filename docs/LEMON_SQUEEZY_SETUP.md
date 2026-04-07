@@ -68,7 +68,7 @@ Create 4 variants under the TON618 Bot Pro product:
 
 1. Go to **Settings → Webhooks**
 2. Click **Create Webhook**
-3. Set URL: `https://[your-supabase-project].supabase.co/functions/v1/lemon-squeezy-webhook`
+3. Set URL: `https://[your-supabase-project].supabase.co/functions/v1/billing-webhook`
 4. Select events:
    - `subscription_created`
    - `subscription_updated`
@@ -95,10 +95,9 @@ supabase db push
 ```
 
 This will create the following tables:
-- `subscriptions`
-- `purchases`
-- `guild_premium`
-- `donations`
+- `guild_subscriptions`
+- `webhook_events`
+- `purchases` (one-time / lifetime / donations)
 
 ### Step 2: Set Environment Variables
 
@@ -108,11 +107,10 @@ Go to **Project Settings → Edge Functions** and add:
 LEMON_SQUEEZY_API_KEY=lemon_your_api_key_here
 LEMON_SQUEEZY_STORE_ID=12345
 LEMON_SQUEEZY_WEBHOOK_SECRET=whsec_your_webhook_secret_here
-LEMON_SQUEEZY_PRODUCT_ID=123456
-LEMON_SQUEEZY_VARIANT_MONTHLY=123456
-LEMON_SQUEEZY_VARIANT_YEARLY=123457
+LEMON_SQUEEZY_VARIANT_PRO_MONTHLY=123456
+LEMON_SQUEEZY_VARIANT_PRO_YEARLY=123457
 LEMON_SQUEEZY_VARIANT_LIFETIME=123458
-LEMON_SQUEEZY_VARIANT_DONATION=123459
+LEMON_SQUEEZY_VARIANT_DONATE=123459
 LEMON_SQUEEZY_TEST_MODE=false
 BOT_API_KEY=your_secure_random_key_here
 ```
@@ -125,16 +123,17 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### Step 3: Deploy Edge Functions
 
 ```bash
-supabase functions deploy lemon-squeezy-webhook
-supabase functions deploy lemon-create-checkout
-supabase functions deploy lemon-get-guild-premium
-supabase functions deploy lemon-get-user-guilds
+supabase functions deploy billing-webhook
+supabase functions deploy billing-create-checkout
+supabase functions deploy billing-guild-status
+supabase functions deploy billing-get-guilds
+supabase functions deploy sync-discord-guilds
 ```
 
 ### Step 4: Test Webhook Endpoint
 
 ```bash
-curl -X POST https://[your-project].supabase.co/functions/v1/lemon-squeezy-webhook \
+curl -X POST https://[your-project].supabase.co/functions/v1/billing-webhook \
   -H "Content-Type: application/json" \
   -H "X-Signature: test" \
   -d '{"test": true}'
@@ -254,9 +253,9 @@ Add pricing link to your navbar:
    - Complete checkout
 
 2. **Webhook Processing**
-   - Check Supabase logs: `supabase functions logs lemon-squeezy-webhook`
-   - Verify `guild_premium` table updated
-   - Check `subscriptions` or `purchases` table
+   - Check Supabase logs: `supabase functions logs billing-webhook`
+   - Verify `guild_subscriptions` table updated (`status=active`, `premium_enabled=true`)
+   - Check `webhook_events` table for idempotency record
 
 3. **Bot Verification**
    - Run `/premium` in Discord server
@@ -332,22 +331,22 @@ Add pricing link to your navbar:
 
 **Fix:**
 ```bash
-supabase functions logs lemon-squeezy-webhook --tail
+supabase functions logs billing-webhook --tail
 ```
 
 ### Premium Not Activating
 
 **Check:**
-1. Webhook processed successfully
-2. `guild_premium` table has entry
-3. `is_active = true`
-4. `expires_at` is in future (or NULL for lifetime)
+1. Webhook processed successfully (`webhook_events` table has row with `processed=true`)
+2. `guild_subscriptions` table has entry for the guild
+3. `premium_enabled = true`
+4. `ends_at` is in future or NULL for lifetime
 5. Bot has correct `BOT_API_KEY`
 
-**Manual Fix:**
+**Manual Fix (use only with evidence, document the change):**
 ```sql
-UPDATE guild_premium 
-SET is_active = true 
+UPDATE guild_subscriptions
+SET premium_enabled = true
 WHERE guild_id = 'YOUR_GUILD_ID';
 ```
 
@@ -361,8 +360,8 @@ WHERE guild_id = 'YOUR_GUILD_ID';
 
 **Test:**
 ```bash
-curl -H "X-Bot-Api-Key: YOUR_KEY" \
-  https://[project].supabase.co/functions/v1/lemon-get-guild-premium/GUILD_ID
+curl -H "x-bot-api-key: YOUR_KEY" \
+  "https://[project].supabase.co/functions/v1/billing-guild-status?guild_id=GUILD_ID"
 ```
 
 ### Checkout Session Not Creating

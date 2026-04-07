@@ -39,24 +39,33 @@ export function DonationSection({ onDonate, loading }: DonationSectionProps) {
               {t('pricing.donation.description')}
             </p>
 
-            {/* Disclaimer */}
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-orange-500/10 border border-orange-500/20 px-4 py-2">
-              <svg
-                className="h-5 w-5 text-orange-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span className="text-sm font-medium text-orange-300">
-                {t('pricing.donation.disclaimer')}
-              </span>
+            {/* Important Notice - Donations don't activate premium */}
+            <div className="mt-6 max-w-lg mx-auto">
+              <div className="rounded-xl bg-orange-500/10 border-2 border-orange-500/30 p-4">
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="h-6 w-6 text-orange-400 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-orange-300 mb-1">
+                      Important: Donations do NOT activate premium features
+                    </p>
+                    <p className="text-xs text-orange-200/80">
+                      {t('pricing.donation.disclaimer')} To get premium features, please purchase a Pro plan above.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* CTA Button */}
@@ -97,9 +106,17 @@ export function DonationSection({ onDonate, loading }: DonationSectionProps) {
             </button>
 
             {/* Additional info */}
-            <p className="mt-6 text-sm text-slate-400">
-              Donations can be made anonymously or with your Discord account
-            </p>
+            <div className="mt-6 space-y-2">
+              <p className="text-sm text-slate-400">
+                • Donations support development and server costs
+              </p>
+              <p className="text-sm text-slate-400">
+                • All donations are processed securely through Lemon Squeezy
+              </p>
+              <p className="text-sm text-slate-400">
+                • You'll receive a confirmation email after donating
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>

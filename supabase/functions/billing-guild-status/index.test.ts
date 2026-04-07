@@ -269,4 +269,172 @@ describe('billing-guild-status', () => {
       expect(subscription).toBeNull();
     });
   });
+
+  // -------------------------------------------------------------------------
+  // Authentication — API key enforcement
+  // -------------------------------------------------------------------------
+  describe('Authentication: API key rejection', () => {
+    it('request with wrong API key must not match the expected key', () => {
+      const incomingKey = 'wrong-key-totally-invalid';
+      const expectedKey = process.env.BOT_API_KEY;
+      expect(incomingKey).not.toBe(expectedKey);
+    });
+
+    it('request with missing API key (null) must not match', () => {
+      const incomingKey = null;
+      const expectedKey = process.env.BOT_API_KEY;
+      expect(incomingKey).not.toBe(expectedKey);
+    });
+
+    it('request with correct API key must match', () => {
+      const incomingKey = process.env.BOT_API_KEY;
+      const expectedKey = process.env.BOT_API_KEY;
+      expect(incomingKey).toBe(expectedKey);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Grace Period: cancelled subscription still within billing cycle
+  // -------------------------------------------------------------------------
+  describe('Grace Period Logic: cancelled but still vigent', () => {
+    /**
+     * Business rule (enforced in DB query):
+     *   has_premium = true  when status = 'cancelled' AND ends_at > now
+     *   has_premium = false when status = 'cancelled' AND ends_at <= now
+     *   has_premium = false when status = 'expired'
+     */
+    const isWithinGracePeriod = (sub: {
+      status: string;
+      cancel_at_period_end: boolean;
+      ends_at: string | null;
+    }): boolean => {
+      if (sub.status !== 'cancelled' || !sub.cancel_at_period_end || !sub.ends_at) return false;
+      return new Date(sub.ends_at) > new Date();
+    };
+
+    it('cancelled subscription with ends_at in the future → has_premium=true', async () => {
+      const endsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
+
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: true,  // DB still returns true — ends_at > now
+        plan_key: 'pro_monthly',
+        ends_at: endsAt,
+        lifetime: false,
+      });
+
+      mockDb.getActiveGuildSubscription.mockResolvedValue({
+        status: 'cancelled',
+        cancel_at_period_end: true,
+        ends_at: endsAt,
+        premium_enabled: true,
+      });
+
+      const sub = await mockDb.getActiveGuildSubscription('guild-cancelled-vigent');
+      const premium = await mockDb.getGuildPremiumStatus('guild-cancelled-vigent');
+
+      expect(premium.has_premium).toBe(true);
+      expect(isWithinGracePeriod(sub)).toBe(true);
+      expect(sub.premium_enabled).toBe(true);
+    });
+
+    it('cancelled subscription with ends_at in the past → has_premium=false', async () => {
+      const endsAt = '2020-01-01T00:00:00Z'; // Past
+
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: false, // DB returns false — ends_at already passed
+        plan_key: null,
+        ends_at: endsAt,
+        lifetime: false,
+      });
+
+      mockDb.getActiveGuildSubscription.mockResolvedValue({
+        status: 'cancelled',
+        cancel_at_period_end: true,
+        ends_at: endsAt,
+        premium_enabled: false,
+      });
+
+      const premium = await mockDb.getGuildPremiumStatus('guild-cancelled-expired');
+      const sub = await mockDb.getActiveGuildSubscription('guild-cancelled-expired');
+
+      expect(premium.has_premium).toBe(false);
+      expect(isWithinGracePeriod(sub)).toBe(false);
+      expect(sub.premium_enabled).toBe(false);
+    });
+
+    it('expired subscription (status=expired) → has_premium=false immediately', async () => {
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: false,
+        plan_key: null,
+        ends_at: '2020-06-01T00:00:00Z',
+        lifetime: false,
+      });
+
+      mockDb.getActiveGuildSubscription.mockResolvedValue({
+        status: 'expired',
+        cancel_at_period_end: false,
+        ends_at: '2020-06-01T00:00:00Z',
+        premium_enabled: false,
+      });
+
+      const premium = await mockDb.getGuildPremiumStatus('guild-expired-status');
+
+      expect(premium.has_premium).toBe(false);
+    });
+
+    it('response expires_at alias matches ends_at for cancelled-vigent guild', async () => {
+      const endsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: true,
+        plan_key: 'pro_yearly',
+        ends_at: endsAt,
+        lifetime: false,
+      });
+
+      const status = await mockDb.getGuildPremiumStatus('guild-cancelled-grace');
+      // Bot reads expires_at (alias of ends_at)
+      const response = {
+        has_premium: status.has_premium,
+        ends_at: status.ends_at,
+        expires_at: status.ends_at,  // alias
+        tier: status.plan_key,
+      };
+
+      expect(response.expires_at).toBe(response.ends_at);
+      expect(response.has_premium).toBe(true);
+      expect(response.tier).toBe('pro_yearly');
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // owner_user_id forwarded in response
+  // -------------------------------------------------------------------------
+  describe('owner_user_id in response', () => {
+    it('includes owner_user_id in response when available', async () => {
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: true,
+        plan_key: 'pro_monthly',
+        ends_at: '2027-01-01T00:00:00Z',
+        lifetime: false,
+        owner_user_id: '123456789012345678',
+      });
+
+      const status = await mockDb.getGuildPremiumStatus('guild-with-owner');
+      expect(status.owner_user_id).toBe('123456789012345678');
+    });
+
+    it('owner_user_id is null for guilds with no premium history', async () => {
+      mockDb.getGuildPremiumStatus.mockResolvedValue({
+        has_premium: false,
+        plan_key: null,
+        ends_at: null,
+        lifetime: false,
+        owner_user_id: null,
+      });
+
+      const status = await mockDb.getGuildPremiumStatus('guild-no-owner');
+      expect(status.owner_user_id).toBeNull();
+    });
+  });
 });

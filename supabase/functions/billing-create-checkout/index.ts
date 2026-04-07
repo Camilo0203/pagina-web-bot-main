@@ -5,6 +5,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv, getRequestBody, validateRequiredFields, isValidDiscordId } from '../_shared/utils.ts';
 import { LemonSqueezyClient } from '../_shared/lemon.ts';
 import { createSupabaseClient, BillingDatabase } from '../_shared/database.ts';
+import { DiscordClient } from '../_shared/discord.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 Deno.serve(async (req: Request) => {
@@ -43,6 +44,12 @@ Deno.serve(async (req: Request) => {
       return errorResponse('Discord user ID not found in session', 400);
     }
 
+    // Validate Discord user ID format
+    if (!isValidDiscordId(discordUserId)) {
+      console.error('Invalid Discord user ID format:', { discordUserId, user_id: user.id });
+      return errorResponse('Invalid Discord user ID format', 400);
+    }
+
     // Parse request body
     const body = await getRequestBody<{
       guild_id?: string;
@@ -68,6 +75,45 @@ Deno.serve(async (req: Request) => {
 
       if (!isValidDiscordId(guild_id)) {
         return errorResponse('Invalid guild_id format', 400);
+      }
+
+      // Validate user has permission to manage this guild
+      const discordAccessToken = user.user_metadata?.provider_token;
+      if (!discordAccessToken) {
+        return errorResponse('Discord access token not found. Please re-authenticate.', 401);
+      }
+
+      const discordClientId = requireEnv('DISCORD_CLIENT_ID');
+      const discordClientSecret = requireEnv('DISCORD_CLIENT_SECRET');
+      const discordRedirectUri = requireEnv('DISCORD_REDIRECT_URI');
+      
+      const discordClient = new DiscordClient(
+        discordClientId,
+        discordClientSecret,
+        discordRedirectUri
+      );
+
+      // Fetch user's guilds from Discord
+      let userGuilds;
+      try {
+        userGuilds = await discordClient.getUserGuilds(discordAccessToken);
+      } catch (error) {
+        console.error('Failed to fetch Discord guilds for ownership validation:', error);
+        return errorResponse(
+          'Failed to verify guild ownership. Please try again or re-authenticate.',
+          500
+        );
+      }
+
+      // Filter to manageable guilds and check if guild_id is in the list
+      const manageableGuilds = discordClient.filterManageableGuilds(userGuilds);
+      const hasPermission = manageableGuilds.some(g => g.id === guild_id);
+
+      if (!hasPermission) {
+        return errorResponse(
+          'You do not have permission to manage this guild. You must be the owner or have "Manage Server" permission.',
+          403
+        );
       }
 
       // Check if guild already has active premium
@@ -153,11 +199,14 @@ Deno.serve(async (req: Request) => {
       testMode,
     });
 
-    console.log('Checkout created:', {
+    console.log('✅ Checkout created:', {
       checkout_id: checkout.data.id,
       plan_key,
       guild_id: guild_id || null,
       discord_user_id: discordUserId,
+      variant_id: variantId,
+      test_mode: testMode,
+      user_email: user.email || 'none',
     });
 
     return jsonResponse({

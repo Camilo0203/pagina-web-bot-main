@@ -1,7 +1,7 @@
 # Final Verification Report
 
 Fecha: 2026-04-07
-Estado: Billing migrado a Lemon Squeezy, tests de billing agregados
+Estado: Sistema de billing en Lemon Squeezy. Tests de billing y premium expandidos.
 
 ## Comandos ejecutados
 
@@ -22,8 +22,10 @@ Estado: Billing migrado a Lemon Squeezy, tests de billing agregados
 - Resultado final: ok
 - Ejecucion: `vitest run`
 - Resultado observado:
-  - 2 archivos de test
-  - 16 tests pasados
+  - 5 archivos de test (src + supabase/functions)
+  - 24 tests pasados (src), 97 tests pasados (supabase/functions)
+  - Bot: 76 tests pasados (node:test)
+  - Total: 197 tests en ambos repos
 - Warnings no bloqueantes:
   - Vite mostro warnings de opciones `esbuild` deprecadas reportadas desde el plugin React Babel.
 
@@ -39,12 +41,12 @@ Estado: Billing migrado a Lemon Squeezy, tests de billing agregados
 
 ## Correcciones realizadas durante esta pasada
 
-- Migración completa de Stripe a Lemon Squeezy en backend y documentación.
-- Suite de tests de billing agregada (71 tests en total entre web y bot).
-- README.md actualizado en ambos repositorios para reflejar Lemon Squeezy.
-- .env.example limpiado de variables Stripe obsoletas.
+- Sistema de billing implementado con Lemon Squeezy como proveedor de pagos.
+- Suite de tests de billing expandida: 97 tests en supabase/functions (web) + 76 tests en bot.
+- README.md actualizado en ambos repositorios para reflejar estado real.
+- .env.example y .env.lemon-squeezy.example corregidos con nombres de variables canónicos.
 - Checklists de release/beta actualizados con flujo Lemon Squeezy.
-- Integración premium del bot cerrada para producción con graceful degradation.
+- Integración premium del bot completa con cache 5min, stale fallback 1hr, retry en 5xx y graceful degradation.
 - Documentación técnica alineada con estado real del sistema.
 
 ## Errores encontrados
