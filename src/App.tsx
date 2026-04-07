@@ -12,6 +12,9 @@ const DashboardPage = lazy(() => import('./dashboard/DashboardPage'));
 const AuthCallbackPage = lazy(() => import('./dashboard/AuthCallbackPage'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const PricingPage = lazy(() => import('./billing/pages/PricingPage'));
+const BillingSuccessPage = lazy(() => import('./billing/pages/BillingSuccessPage'));
+const BillingCancelPage = lazy(() => import('./billing/pages/BillingCancelPage'));
 
 function AppLoadingFallback() {
   const { t } = useTranslation();
@@ -67,6 +70,9 @@ export default function App() {
           {LEGAL_DOCUMENT_TYPES.map((type) => (
             <Route key={type} path={`/${type}`} element={<LegalPage type={type} />} />
           ))}
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/billing/success" element={<BillingSuccessPage />} />
+          <Route path="/billing/cancel" element={<BillingCancelPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="*" element={<NotFoundPage />} />
