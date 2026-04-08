@@ -1,44 +1,73 @@
 -- Migration: Row Level Security policies for billing tables
 -- Description: Secure access to billing data
 
--- Enable RLS on all billing tables
-ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE purchases ENABLE ROW LEVEL SECURITY;
-ALTER TABLE guild_premium ENABLE ROW LEVEL SECURITY;
-ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.purchases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.guild_premium ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.donations ENABLE ROW LEVEL SECURITY;
 
--- Subscriptions policies
-CREATE POLICY "Users can view their own subscriptions"
-  ON subscriptions FOR SELECT
-  USING (discord_user_id = auth.jwt() ->> 'user_metadata'->>'provider_id');
+DO $$
+BEGIN
+  IF to_regclass('public.subscriptions') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Users can view their own subscriptions" ON public.subscriptions;
+    CREATE POLICY "Users can view their own subscriptions"
+      ON public.subscriptions
+      FOR SELECT
+      USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
 
-CREATE POLICY "Service role can manage all subscriptions"
-  ON subscriptions FOR ALL
-  USING (auth.jwt() ->> 'role' = 'service_role');
+    DROP POLICY IF EXISTS "Service role can manage all subscriptions" ON public.subscriptions;
+    CREATE POLICY "Service role can manage all subscriptions"
+      ON public.subscriptions
+      FOR ALL
+      USING (auth.role() = 'service_role')
+      WITH CHECK (auth.role() = 'service_role');
+  END IF;
 
--- Purchases policies
-CREATE POLICY "Users can view their own purchases"
-  ON purchases FOR SELECT
-  USING (discord_user_id = auth.jwt() ->> 'user_metadata'->>'provider_id');
+  IF to_regclass('public.purchases') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Users can view their own purchases" ON public.purchases;
+    CREATE POLICY "Users can view their own purchases"
+      ON public.purchases
+      FOR SELECT
+      USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
 
-CREATE POLICY "Service role can manage all purchases"
-  ON purchases FOR ALL
-  USING (auth.jwt() ->> 'role' = 'service_role');
+    DROP POLICY IF EXISTS "Service role can manage all purchases" ON public.purchases;
+    CREATE POLICY "Service role can manage all purchases"
+      ON public.purchases
+      FOR ALL
+      USING (auth.role() = 'service_role')
+      WITH CHECK (auth.role() = 'service_role');
+  END IF;
 
--- Guild premium policies (read-only for users, managed by service)
-CREATE POLICY "Anyone can view guild premium status"
-  ON guild_premium FOR SELECT
-  USING (true);
+  IF to_regclass('public.guild_premium') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Anyone can view guild premium status" ON public.guild_premium;
+    CREATE POLICY "Anyone can view guild premium status"
+      ON public.guild_premium
+      FOR SELECT
+      USING (true);
 
-CREATE POLICY "Service role can manage guild premium"
-  ON guild_premium FOR ALL
-  USING (auth.jwt() ->> 'role' = 'service_role');
+    DROP POLICY IF EXISTS "Service role can manage guild premium" ON public.guild_premium;
+    CREATE POLICY "Service role can manage guild premium"
+      ON public.guild_premium
+      FOR ALL
+      USING (auth.role() = 'service_role')
+      WITH CHECK (auth.role() = 'service_role');
+  END IF;
 
--- Donations policies
-CREATE POLICY "Users can view their own donations"
-  ON donations FOR SELECT
-  USING (discord_user_id = auth.jwt() ->> 'user_metadata'->>'provider_id' OR discord_user_id IS NULL);
+  IF to_regclass('public.donations') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "Users can view their own donations" ON public.donations;
+    CREATE POLICY "Users can view their own donations"
+      ON public.donations
+      FOR SELECT
+      USING (
+        discord_user_id IS NULL OR
+        discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id')
+      );
 
-CREATE POLICY "Service role can manage all donations"
-  ON donations FOR ALL
-  USING (auth.jwt() ->> 'role' = 'service_role');
+    DROP POLICY IF EXISTS "Service role can manage all donations" ON public.donations;
+    CREATE POLICY "Service role can manage all donations"
+      ON public.donations
+      FOR ALL
+      USING (auth.role() = 'service_role')
+      WITH CHECK (auth.role() = 'service_role');
+  END IF;
+END $$;
