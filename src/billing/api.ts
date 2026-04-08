@@ -3,8 +3,7 @@ import { supabase } from '../lib/supabaseClient';
 import type { 
   GuildsResponse, 
   CheckoutRequest, 
-  CheckoutResponse,
-  GuildPremiumStatus 
+  CheckoutResponse
 } from './types';
 
 /**

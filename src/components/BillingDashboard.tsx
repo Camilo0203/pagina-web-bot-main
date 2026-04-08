@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../dashboard/supabaseClient';
-import { Loader2, Crown, Calendar, CreditCard, AlertCircle, ExternalLink } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+import { Loader2, Crown, Calendar, AlertCircle, ExternalLink } from 'lucide-react';
 
 interface Guild {
   id: string;
@@ -23,7 +23,6 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   useEffect(() => {
     fetchGuilds();
@@ -31,6 +30,9 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
 
   const fetchGuilds = async () => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
       const { data, error } = await supabase.functions.invoke('billing-get-guilds');
 
       if (error) throw error;
@@ -45,9 +47,11 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
 
   const handleUpgrade = async (guildId: string, planKey: string) => {
     setCheckoutLoading(true);
-    setSelectedPlan(planKey);
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
       const { data, error } = await supabase.functions.invoke('billing-create-checkout', {
         body: {
           guild_id: guildId,
@@ -65,7 +69,6 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
       alert('Failed to start checkout. Please try again.');
     } finally {
       setCheckoutLoading(false);
-      setSelectedPlan(null);
     }
   };
 

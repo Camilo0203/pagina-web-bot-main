@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { CreditCard, Check, Sparkles, Shield, Zap, CheckCircle } from 'lucide-react';
+import { CreditCard, Check, Shield, Zap, CheckCircle } from 'lucide-react';
 import { GuildSelector } from '../components/GuildSelector';
 import { TrustSignals } from '../components/TrustSignals';
 import { FAQSection } from '../components/FAQSection';

@@ -132,11 +132,3 @@ export function getPlanPeriod(planKey: PricingPlanKey, cycle: BillingCycle, lang
   }
   return '';
 }
-
-export function getLowestPrice(): number {
-  return PRICING_CONFIG.pro.price.monthly.amount;
-}
-
-export function getHighestPrice(): number {
-  return PRICING_CONFIG.pro.price.monthly.amount;
-}

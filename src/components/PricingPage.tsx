@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { PricingCard } from './PricingCard';
 import { Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../dashboard/supabaseClient';
+import { supabase } from '../lib/supabaseClient';
 
 export function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -12,6 +12,9 @@ export function PricingPage() {
     setLoading(planType);
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -20,6 +23,9 @@ export function PricingPage() {
       }
 
       if (planType === 'donation') {
+        if (!supabase) {
+          throw new Error('Supabase client not initialized');
+        }
         const { data, error } = await supabase.functions.invoke('lemon-create-checkout', {
           body: { plan_type: 'donation' },
         });

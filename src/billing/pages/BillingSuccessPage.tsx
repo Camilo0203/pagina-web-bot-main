@@ -11,7 +11,7 @@ const PLAN_LABELS: Record<string, string> = {
   donate: 'Donation',
 };
 
-export function BillingSuccessPage() {
+export default function BillingSuccessPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const planKey = searchParams.get('plan_key') || '';

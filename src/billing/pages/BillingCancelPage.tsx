@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 
-export function BillingCancelPage() {
+export default function BillingCancelPage() {
   const navigate = useNavigate();
 
   return (
