@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronRight, Sparkles, Activity, CreditCard } from 'lucide-react';
+import { Sparkles, Activity } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { config, getDiscordInviteUrl } from '../config';
 import Logo from './Logo';
 import { useHeavyMedia } from '../hooks/useHeavyMedia';
@@ -257,7 +256,7 @@ export default function Hero() {
               variants={heroCtaReveal}
               initial="hidden"
               animate="show"
-              className="flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center lg:justify-start"
+              className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center lg:justify-start"
             >
               {canInvite ? (
                 <a href={inviteUrl} className="btn-premium-primary group w-full sm:w-auto">
@@ -276,21 +275,12 @@ export default function Hero() {
                 </button>
               )}
 
-              <Link
-                to="/pricing"
-                className="btn-premium-outline group w-full sm:w-auto shadow-lg hover:shadow-indigo-500/10"
-              >
-                <CreditCard className="h-4 w-4" />
-                <span>{t('nav.docs') === 'Docs' ? 'See Pro Plans' : 'Ver Planes Pro'}</span>
-                <ChevronRight className={`h-4 w-4 ${shouldReduceMotion ? '' : 'transition-transform duration-200 group-hover:translate-x-1'}`} />
-              </Link>
-
               {hasSupport ? (
                 <a
                   href={supportHref}
                   target={supportHref.startsWith('mailto:') ? undefined : '_blank'}
                   rel={supportHref.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                 >
                   <span>{t('hero.ctaTertiary')}</span>
                 </a>
