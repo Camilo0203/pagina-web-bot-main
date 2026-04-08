@@ -15,7 +15,7 @@ const VisualExperience = lazy(() => import('../components/VisualExperience'));
 const WhyTon = lazy(() => import('../components/WhyTon'));
 const DocsSection = lazy(() => import('../components/DocsSection'));
 const LiveStats = lazy(() => import('../components/LiveStats'));
-const Pricing = lazy(() => import('../components/Pricing'));
+const PricingPreview = lazy(() => import('../components/PricingPreview'));
 const FAQ = lazy(() => import('../components/FAQ'));
 const FinalCTA = lazy(() => import('../components/FinalCTA'));
 const CommandPreview = lazy(() => import('../components/CommandPreview'));
@@ -149,7 +149,7 @@ export default function LandingPage() {
                   <WhyTon />
                   <DocsSection />
                   <CommandPreview />
-                  <Pricing />
+                  <PricingPreview />
                 </>
               ),
             })}

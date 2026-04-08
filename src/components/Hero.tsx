@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronRight, Sparkles, Activity, BookOpen } from 'lucide-react';
+import { ChevronRight, Sparkles, Activity, CreditCard } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { config, getDiscordInviteUrl } from '../config';
 import Logo from './Logo';
 import { useHeavyMedia } from '../hooks/useHeavyMedia';
@@ -28,7 +29,6 @@ export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const inviteUrl = getDiscordInviteUrl();
   const canInvite = Boolean(inviteUrl);
-  const hasDocs = Boolean(config.docsUrl);
   const supportHref = config.supportServerUrl || (config.contactEmail ? `mailto:${config.contactEmail}` : '');
   const hasSupport = Boolean(supportHref);
   const heroReveal = shouldReduceMotion ? instantReveal : revealUp;
@@ -276,18 +276,14 @@ export default function Hero() {
                 </button>
               )}
 
-              {hasDocs ? (
-                <a
-                  href={config.docsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-premium-outline group w-full sm:w-auto shadow-lg hover:shadow-indigo-500/10"
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span>{t('hero.ctaSecondary')}</span>
-                  <ChevronRight className={`h-4 w-4 ${shouldReduceMotion ? '' : 'transition-transform duration-200 group-hover:translate-x-1'}`} />
-                </a>
-              ) : null}
+              <Link
+                to="/pricing"
+                className="btn-premium-outline group w-full sm:w-auto shadow-lg hover:shadow-indigo-500/10"
+              >
+                <CreditCard className="h-4 w-4" />
+                <span>{t('nav.docs') === 'Docs' ? 'See Pro Plans' : 'Ver Planes Pro'}</span>
+                <ChevronRight className={`h-4 w-4 ${shouldReduceMotion ? '' : 'transition-transform duration-200 group-hover:translate-x-1'}`} />
+              </Link>
 
               {hasSupport ? (
                 <a

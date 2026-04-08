@@ -220,14 +220,14 @@ export default function PricingPage() {
 
                 <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl mb-6">
                   <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    {isEnglish ? 'Price The Operations Layer' : 'Ponle Precio A La Capa Operativa'}
+                    {isEnglish ? 'Upgrade Your Discord Server' : 'Mejora Tu Servidor Discord'}
                   </span>
                 </h1>
 
                 <p className="mt-6 text-lg leading-8 text-slate-300 sm:text-xl max-w-3xl mx-auto">
                   {isEnglish
-                    ? 'Free gets the server installed. Pro turns support into an operational system. Enterprise is for guided rollout across multiple communities.'
-                    : 'Free instala la base. Pro convierte soporte en sistema operativo. Enterprise sirve para rollout guiado entre varias comunidades.'}
+                    ? 'Choose your plan, sign in with Discord, select your server, and upgrade to Pro in minutes.'
+                    : 'Elige tu plan, inicia sesión con Discord, selecciona tu servidor y mejora a Pro en minutos.'}
                 </p>
 
                 <motion.div
@@ -261,8 +261,11 @@ export default function PricingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-indigo-600/20 border border-indigo-500/30 rounded-xl p-6 text-center backdrop-blur-sm"
                 >
-                  <p className="text-lg mb-4 text-white">
-                    {isEnglish ? 'Sign in with Discord to get started' : 'Inicia sesión con Discord para comenzar'}
+                  <h3 className="text-2xl font-bold mb-4 text-white">
+                    {isEnglish ? 'Step 1: Sign in with Discord' : 'Paso 1: Inicia sesión con Discord'}
+                  </h3>
+                  <p className="text-slate-300 mb-6">
+                    {isEnglish ? 'We need to verify your Discord account to show your servers' : 'Necesitamos verificar tu cuenta de Discord para mostrar tus servidores'}
                   </p>
                   <button
                     onClick={handleSignIn}
@@ -472,8 +475,11 @@ export default function PricingPage() {
               </div>
 
               <h2 className="text-2xl font-bold text-white mb-6 text-center">
-                Select a Server
+                {isEnglish ? 'Step 2: Choose Which Server to Upgrade' : 'Paso 2: Elige Qué Servidor Mejorar'}
               </h2>
+              <p className="text-center text-slate-400 mb-6">
+                {isEnglish ? 'Select the Discord server you want to upgrade to Pro' : 'Selecciona el servidor de Discord que quieres mejorar a Pro'}
+              </p>
               
               {guildsError ? (
                 <div className="text-center py-12">
@@ -505,7 +511,9 @@ export default function PricingPage() {
                         disabled={processingCheckout}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                       >
-                        {processingCheckout ? 'Creating Checkout...' : 'Proceed to Checkout'}
+                        {processingCheckout 
+                          ? (isEnglish ? 'Creating Checkout...' : 'Creando Checkout...') 
+                          : (isEnglish ? 'Step 3: Proceed to Secure Checkout' : 'Paso 3: Ir a Checkout Seguro')}
                       </button>
                     </motion.div>
                   )}

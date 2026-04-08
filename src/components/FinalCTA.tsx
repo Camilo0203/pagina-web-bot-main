@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Zap, BookOpen, LifeBuoy } from 'lucide-react';
+import { ChevronRight, Zap, LifeBuoy, CreditCard } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { config, getDiscordInviteUrl } from '../config';
 import Logo from './Logo';
 import { instantReveal, motionViewport, sectionIntro } from '../lib/motion';
@@ -81,13 +82,11 @@ export default function FinalCTA() {
               </button>
             )}
 
-            {config.docsUrl ? (
-              <a href={config.docsUrl} target="_blank" rel="noopener noreferrer" className="btn-premium-outline group !px-8 !py-5">
-                <BookOpen className="h-4 w-4" />
-                <span>{t('final.docsCta')}</span>
-                <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-              </a>
-            ) : null}
+            <Link to="/pricing" className="btn-premium-outline group !px-8 !py-5">
+              <CreditCard className="h-4 w-4" />
+              <span>{t('nav.docs') === 'Docs' ? 'Buy Pro' : 'Comprar Pro'}</span>
+              <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
 
             {supportHref ? (
               <a
