@@ -1,5 +1,6 @@
 // Guild selector component for choosing which server to upgrade
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Crown, ChevronRight, Loader2 } from 'lucide-react';
 import type { GuildSummary } from '../types';
 
@@ -16,6 +17,8 @@ export function GuildSelector({
   onSelectGuild,
   loading = false 
 }: GuildSelectorProps) {
+  const { t } = useTranslation();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -33,10 +36,10 @@ export function GuildSelector({
           </svg>
         </div>
         <p className="text-white font-semibold mb-2">
-          No eligible servers found
+          {t('billing.serverSelection.noServers.title')}
         </p>
         <p className="text-slate-400 mb-4 max-w-md mx-auto">
-          You need to have <span className="font-semibold text-slate-300">Manage Server</span> permission in at least one Discord server to purchase premium.
+          {t('billing.serverSelection.noServers.description')}
         </p>
         <a
           href="https://discord.com/developers/docs/topics/permissions#permissions"
@@ -44,7 +47,7 @@ export function GuildSelector({
           rel="noopener noreferrer"
           className="text-sm text-indigo-400 hover:text-indigo-300 underline"
         >
-          Learn more about Discord permissions
+          {t('billing.serverSelection.noServers.learnMore')}
         </a>
       </div>
     );
@@ -62,7 +65,7 @@ export function GuildSelector({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span>
-            Select the Discord server you want to upgrade. You can only upgrade servers where you have Manage Server permission.
+            {t('billing.serverSelection.helperText')}
           </span>
         </p>
       </div>
@@ -70,7 +73,7 @@ export function GuildSelector({
       {availableGuilds.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wide">
-            Available Servers ({availableGuilds.length})
+            {t('billing.serverSelection.availableServers')} ({availableGuilds.length})
           </h3>
           <div className="grid gap-3">
             {availableGuilds.map((guild) => (
@@ -109,7 +112,7 @@ export function GuildSelector({
                 {guild.has_premium && (
                   <div className="flex items-center gap-1 bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full text-xs">
                     <Crown className="w-3 h-3" />
-                    <span>Premium</span>
+                    <span>{t('billing.serverSelection.premiumBadge')}</span>
                   </div>
                 )}
               </div>
@@ -117,11 +120,11 @@ export function GuildSelector({
               {guild.has_premium && guild.plan_key && (
                 <p className="text-sm text-slate-400 mt-1">
                   {guild.lifetime 
-                    ? 'Lifetime Access' 
+                    ? t('billing.serverSelection.lifetimeAccess')
                     : `${guild.plan_key.replace('_', ' ')} - ${
                         guild.ends_at 
-                          ? `Expires ${new Date(guild.ends_at).toLocaleDateString()}`
-                          : 'Active'
+                          ? t('billing.serverSelection.expires', { date: new Date(guild.ends_at).toLocaleDateString() })
+                          : t('billing.serverSelection.active')
                       }`
                   }
                 </p>
@@ -142,7 +145,7 @@ export function GuildSelector({
       {premiumGuilds.length > 0 && (
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wide">
-            Already Premium ({premiumGuilds.length})
+            {t('billing.serverSelection.alreadyPremium')} ({premiumGuilds.length})
           </h3>
           <div className="grid gap-3">
             {premiumGuilds.map((guild) => (
@@ -169,18 +172,18 @@ export function GuildSelector({
                     <h4 className="font-semibold text-white">{guild.name}</h4>
                     <div className="flex items-center gap-1 bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full text-xs">
                       <Crown className="w-3 h-3" />
-                      <span>Premium</span>
+                      <span>{t('billing.serverSelection.premiumBadge')}</span>
                     </div>
                   </div>
                   
                   {guild.plan_key && (
                     <p className="text-sm text-slate-400 mt-1">
                       {guild.lifetime 
-                        ? 'Lifetime Access' 
+                        ? t('billing.serverSelection.lifetimeAccess')
                         : `${guild.plan_key.replace('_', ' ')} - ${
                             guild.ends_at 
-                              ? `Expires ${new Date(guild.ends_at).toLocaleDateString()}`
-                              : 'Active'
+                              ? t('billing.serverSelection.expires', { date: new Date(guild.ends_at).toLocaleDateString() })
+                              : t('billing.serverSelection.active')
                           }`
                       }
                     </p>

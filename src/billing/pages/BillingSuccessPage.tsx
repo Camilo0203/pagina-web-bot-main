@@ -1,5 +1,6 @@
 // Success page after completing checkout
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Home } from 'lucide-react';
 import { useEffect } from 'react';
@@ -12,6 +13,7 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 export default function BillingSuccessPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const planKey = searchParams.get('plan_key') || '';
@@ -45,7 +47,7 @@ export default function BillingSuccessPage() {
           transition={{ delay: 0.3 }}
           className="text-4xl md:text-5xl font-bold text-white mb-4"
         >
-          {isDonation ? 'Thank you for your donation!' : 'Payment Successful!'}
+          {isDonation ? t('billing.success.titleDonation') : t('billing.success.titlePayment')}
         </motion.h1>
 
         <motion.p
@@ -55,8 +57,8 @@ export default function BillingSuccessPage() {
           className="text-xl text-slate-300 mb-8"
         >
           {isDonation
-            ? 'Your generous donation helps keep TON618 running. Thank you!'
-            : `Thank you for upgrading to TON618 ${planLabel}! Your server's premium features are being activated.`}
+            ? t('billing.success.descriptionDonation')
+            : t('billing.success.descriptionPayment', { plan: planLabel })}
         </motion.p>
 
         <motion.div
@@ -65,27 +67,27 @@ export default function BillingSuccessPage() {
           transition={{ delay: 0.5 }}
           className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 mb-8"
         >
-          <h2 className="text-lg font-semibold text-white mb-4">What's Next?</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">{t('billing.success.whatsNext')}</h2>
           <ul className="text-left space-y-3 text-slate-300">
             <li className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
               <span>
                 {isDonation
-                  ? 'Your donation has been recorded — thank you!'
-                  : 'Your premium features will be active within a few minutes (up to 5 min for webhook processing)'}
+                  ? t('billing.success.steps.s1Donation')
+                  : t('billing.success.steps.s1')}
               </span>
             </li>
             <li className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-              <span>You'll receive a confirmation email from Lemon Squeezy</span>
+              <span>{t('billing.success.steps.s2')}</span>
             </li>
             <li className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-              <span>Access your server's dashboard to configure premium features</span>
+              <span>{t('billing.success.steps.s3')}</span>
             </li>
             <li className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-              <span>Manage your subscription anytime from the billing portal</span>
+              <span>{t('billing.success.steps.s4')}</span>
             </li>
           </ul>
         </motion.div>
@@ -100,7 +102,7 @@ export default function BillingSuccessPage() {
             onClick={() => navigate('/dashboard')}
             className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
           >
-            Go to Dashboard
+            {t('billing.success.goToDashboard')}
             <ArrowRight className="w-5 h-5" />
           </button>
           
@@ -109,7 +111,7 @@ export default function BillingSuccessPage() {
             className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
           >
             <Home className="w-5 h-5" />
-            Back to Home
+            {t('billing.success.backToHome')}
           </button>
         </motion.div>
 
@@ -119,14 +121,14 @@ export default function BillingSuccessPage() {
           transition={{ delay: 0.7 }}
           className="text-sm text-slate-400 mt-8"
         >
-          Need help? Join our{' '}
+          {t('billing.success.needHelp')}{' '}
           <a
             href={import.meta.env.VITE_SUPPORT_SERVER_URL || 'https://discord.gg/ton618'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-400 hover:text-indigo-300 underline"
           >
-            support server
+            {t('billing.success.supportServer')}
           </a>
         </motion.p>
       </motion.div>

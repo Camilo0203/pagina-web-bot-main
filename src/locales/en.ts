@@ -298,11 +298,16 @@ export const en = {
         },
         pricing: {
             tag: 'Plans & Pricing',
+            eyebrow: 'Simple pricing',
+            headline: 'Three ways to operate',
             title: 'Choose Your',
             titleAccent: 'Ideal Plan',
             description: 'From communities just starting out to enterprise servers with thousands of members.',
             toggle: { monthly: 'Monthly', yearly: 'Yearly' },
             yearlyDiscount: 'Save 20%',
+            free: { name: 'Free', description: 'Install the base' },
+            pro: { name: 'Pro', badge: 'Popular', description: 'For serious operations', cta: 'View plans' },
+            enterprise: { name: 'Enterprise', description: 'Guided rollout' },
             plans: {
                 free: {
                     name: 'Free',
@@ -505,14 +510,14 @@ export const en = {
         },
         final: {
             tag: 'Ready To Launch',
-            title: 'Invite TON618',
-            titleAccent: 'And Pick Your Server Language',
-            description:
-                'Bring the bot into your server, choose English or Spanish during onboarding, then roll out /setup, /ticket and /verify with docs and support nearby.',
+            title: 'Ready to',
+            titleAccent: 'Transform Your Server?',
+            description: 'Join thousands of communities running TON618. Install in seconds, scale forever.',
             cta: 'Invite TON618',
             docsCta: 'Open docs',
             supportCta: 'Join support',
             unavailable: 'The invite URL is disabled until VITE_DISCORD_CLIENT_ID is configured.',
+            subtitle: 'Free forever. Upgrade anytime.',
             nodes: {
                 active: 'ENGLISH + SPANISH',
                 encryption: 'TICKETS + VERIFICATION',
@@ -1429,6 +1434,177 @@ export const en = {
             goSupport: 'Get support',
             errorCode: 'Error 404',
             subtitle: 'Navigation Recovery',
+        },
+        billing: {
+            pageTitle: 'Pricing',
+            loading: {
+                title: 'Loading pricing...',
+                subtitle: 'Checking authentication status',
+            },
+            hero: {
+                eyebrow: 'Premium Upgrade',
+                title: 'Choose Your',
+                titleAccent: 'Operational Plan',
+                description: 'Free gets you started. Pro unlocks the full toolkit. Enterprise includes white-glove onboarding.',
+            },
+            auth: {
+                title: 'Sign in with Discord',
+                subtitle: 'Required to see your servers and complete upgrade',
+                cta: 'Continue with Discord',
+            },
+            toggle: {
+                monthly: 'Monthly',
+                yearly: 'Yearly',
+                discount: '-20%',
+            },
+            plans: {
+                free: {
+                    cta: 'Start free',
+                },
+                pro: {
+                    popular: 'Popular',
+                    cta: 'Upgrade to Pro',
+                    processing: 'Processing...',
+                },
+                enterprise: {
+                    cta: 'Contact sales',
+                },
+            },
+            billingInfo: {
+                monthly: '/mo billed yearly',
+            },
+            steps: {
+                plan: 'Plan',
+                server: 'Server',
+                pay: 'Pay',
+            },
+            serverSelection: {
+                title: 'Select Your Server',
+                subtitle: 'Choose which server to upgrade to Pro',
+                error: 'Failed to load servers',
+                retry: 'Try again',
+                helperText: 'Select the Discord server you want to upgrade. You can only upgrade servers where you have Manage Server permission.',
+                availableServers: 'Available Servers',
+                alreadyPremium: 'Already Premium',
+                noServers: {
+                    title: 'No eligible servers found',
+                    description: 'You need to have Manage Server permission in at least one Discord server to purchase premium.',
+                    learnMore: 'Learn more about Discord permissions',
+                },
+                premiumBadge: 'Premium',
+                lifetimeAccess: 'Lifetime Access',
+                active: 'Active',
+                expires: 'Expires {{date}}',
+            },
+            checkout: {
+                proceed: 'Proceed to Checkout',
+                processing: 'Processing...',
+            },
+            trustSignals: {
+                eyebrow: 'Purchase Protection',
+                poweredBy: 'Powered by Lemon Squeezy',
+                secure: {
+                    title: 'Secure',
+                    description: 'Payments via Lemon Squeezy',
+                },
+                flexible: {
+                    title: 'Flexible',
+                    description: 'Cancel anytime',
+                },
+                protected: {
+                    title: 'Protected',
+                    description: '7-day guarantee',
+                },
+                instant: {
+                    title: 'Instant',
+                    description: 'Activate in minutes',
+                },
+            },
+            faq: {
+                eyebrow: 'Questions & Answers',
+                title: 'Everything you need to know',
+                questions: {
+                    q1: {
+                        question: 'How do I upgrade my server to premium?',
+                        answer: 'Select a plan above, sign in with Discord, choose your server, and complete checkout. Premium features activate within minutes.',
+                    },
+                    q2: {
+                        question: 'Can I cancel my subscription anytime?',
+                        answer: 'Yes. For monthly and yearly subscriptions, cancel anytime. Premium features remain active until the end of your billing period.',
+                    },
+                    q3: {
+                        question: "What's the difference between Lifetime and subscriptions?",
+                        answer: 'Lifetime is one-time payment, no recurring charges, premium forever. Subscriptions require recurring payments but can be cancelled anytime.',
+                    },
+                    q4: {
+                        question: 'Can I upgrade multiple servers?',
+                        answer: 'Yes. Each server requires its own premium subscription. You can purchase premium for as many servers as you manage.',
+                    },
+                    q5: {
+                        question: 'Is my payment information secure?',
+                        answer: 'All payments are processed through Lemon Squeezy, a trusted payment processor. We never store your payment information.',
+                    },
+                    q6: {
+                        question: 'What happens if I cancel my subscription?',
+                        answer: 'Premium features remain active until the end of your current billing period. After that, your server reverts to the free plan.',
+                    },
+                },
+                stillHaveQuestions: 'Still have questions?',
+                getInTouch: 'Get in touch',
+            },
+            success: {
+                metaTitle: 'Payment Successful - TON618',
+                titleDonation: 'Thank you for your donation!',
+                titlePayment: 'Payment Successful!',
+                descriptionDonation: 'Your generous donation helps keep TON618 running. Thank you!',
+                descriptionPayment: 'Thank you for upgrading to TON618 {{plan}}! Your server\'s premium features are being activated.',
+                whatsNext: "What's Next?",
+                steps: {
+                    s1: 'Your premium features will be active within a few minutes (up to 5 min for webhook processing)',
+                    s2: "You'll receive a confirmation email from Lemon Squeezy",
+                    s3: "Access your server's dashboard to configure premium features",
+                    s4: 'Manage your subscription anytime from the billing portal',
+                    s1Donation: 'Your donation has been recorded — thank you!',
+                },
+                goToDashboard: 'Go to Dashboard',
+                backToHome: 'Back to Home',
+                needHelp: 'Need help? Join our',
+                supportServer: 'support server',
+            },
+            cancel: {
+                metaTitle: 'Checkout Cancelled - TON618',
+                title: 'Checkout Cancelled',
+                subtitle: 'No worries! Your checkout was cancelled and no charges were made.',
+                whyUpgrade: 'Why upgrade to TON618 Pro?',
+                features: {
+                    f1: 'Advanced moderation tools to keep your server safe',
+                    f2: 'Custom commands and auto-role configurations',
+                    f3: 'Priority support and early access to new features',
+                    f4: 'Detailed analytics and insights for your server',
+                },
+                tryAgain: 'Try Again',
+                backToHome: 'Back to Home',
+                haveQuestions: 'Have questions?',
+                contactSupport: 'Contact support',
+            },
+            toasts: {
+                selectPlan: 'Plan selected!',
+                selectPlanDesc: 'Now choose which server to upgrade',
+                signInError: 'Failed to sign in with Discord',
+                inviteError: 'Invite URL not configured',
+                contactError: 'Contact URL not configured',
+                pleaseSignIn: 'Please sign in with Discord to continue',
+                needAuthDesc: 'You need to authenticate to purchase Pro',
+                missingInfo: 'Missing information',
+                selectPlanAndServer: 'Please select both a plan and a server',
+                creatingCheckout: 'Creating checkout for {{server}}...',
+                redirecting: 'Redirecting to secure checkout...',
+                checkoutFailed: 'Checkout failed',
+                serverHasPremium: 'Server already has premium',
+                serverHasPremiumDesc: 'This server already has an active premium subscription',
+                permissionDenied: 'Permission denied',
+                needManageServer: 'You need Manage Server permission to upgrade this server',
+            },
         },
     },
 };

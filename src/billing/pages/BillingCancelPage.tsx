@@ -1,9 +1,11 @@
 // Cancel page when user cancels checkout
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export default function BillingCancelPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -29,7 +31,7 @@ export default function BillingCancelPage() {
           transition={{ delay: 0.3 }}
           className="text-4xl md:text-5xl font-bold text-white mb-4"
         >
-          Checkout Cancelled
+          {t('billing.cancel.title')}
         </motion.h1>
 
         <motion.p
@@ -38,7 +40,7 @@ export default function BillingCancelPage() {
           transition={{ delay: 0.4 }}
           className="text-xl text-slate-300 mb-8"
         >
-          No worries! Your checkout was cancelled and no charges were made.
+          {t('billing.cancel.subtitle')}
         </motion.p>
 
         <motion.div
@@ -47,23 +49,23 @@ export default function BillingCancelPage() {
           transition={{ delay: 0.5 }}
           className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 mb-8"
         >
-          <h2 className="text-lg font-semibold text-white mb-4">Why upgrade to TON618 Pro?</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">{t('billing.cancel.whyUpgrade')}</h2>
           <ul className="text-left space-y-3 text-slate-300">
             <li className="flex items-start gap-3">
               <span className="text-indigo-400">✓</span>
-              <span>Advanced moderation tools to keep your server safe</span>
+              <span>{t('billing.cancel.features.f1')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-indigo-400">✓</span>
-              <span>Custom commands and auto-role configurations</span>
+              <span>{t('billing.cancel.features.f2')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-indigo-400">✓</span>
-              <span>Priority support and early access to new features</span>
+              <span>{t('billing.cancel.features.f3')}</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-indigo-400">✓</span>
-              <span>Detailed analytics and insights for your server</span>
+              <span>{t('billing.cancel.features.f4')}</span>
             </li>
           </ul>
         </motion.div>
@@ -79,7 +81,7 @@ export default function BillingCancelPage() {
             className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
           >
             <RefreshCw className="w-5 h-5" />
-            Try Again
+            {t('billing.cancel.tryAgain')}
           </button>
           
           <button
@@ -87,7 +89,7 @@ export default function BillingCancelPage() {
             className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back to Home
+            {t('billing.cancel.backToHome')}
           </button>
         </motion.div>
 
@@ -97,14 +99,14 @@ export default function BillingCancelPage() {
           transition={{ delay: 0.7 }}
           className="text-sm text-slate-400 mt-8"
         >
-          Have questions?{' '}
+          {t('billing.cancel.haveQuestions')}{' '}
           <a
             href={import.meta.env.VITE_SUPPORT_SERVER_URL || 'https://discord.gg/ton618'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-400 hover:text-indigo-300 underline"
           >
-            Contact support
+            {t('billing.cancel.contactSupport')}
           </a>
         </motion.p>
       </motion.div>

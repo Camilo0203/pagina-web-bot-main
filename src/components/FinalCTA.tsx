@@ -11,7 +11,6 @@ export default function FinalCTA() {
   const inviteUrl = getDiscordInviteUrl();
   const canInvite = Boolean(inviteUrl);
   const reveal = shouldReduceMotion ? instantReveal : sectionIntro;
-  const isEnglish = t('nav.docs') === 'Docs';
 
   return (
     <section
@@ -36,16 +35,14 @@ export default function FinalCTA() {
             id="final-cta-heading"
             className="mb-8 text-5xl font-black uppercase leading-[0.92] tracking-tightest text-white sm:text-6xl lg:text-8xl"
           >
-            {isEnglish ? 'Ready to' : 'Listo para'} <br />
+            {t('final.title')} <br />
             <span className="headline-accent headline-accent-solid">
-              {isEnglish ? 'Transform Your Server?' : 'Transformar Tu Servidor?'}
+              {t('final.titleAccent')}
             </span>
           </h2>
 
           <p className="mx-auto mb-12 max-w-2xl text-lg font-medium leading-relaxed text-slate-300 md:text-xl">
-            {isEnglish
-              ? 'Join thousands of communities running TON618. Install in seconds, scale forever.'
-              : 'Únete a miles de comunidades usando TON618. Instala en segundos, escala para siempre.'}
+            {t('final.description')}
           </p>
 
           <div className="flex flex-col items-center justify-center gap-6">
@@ -69,7 +66,7 @@ export default function FinalCTA() {
             )}
 
             <p className="text-sm text-slate-500">
-              {isEnglish ? 'Free forever. Upgrade anytime.' : 'Gratis para siempre. Mejora cuando quieras.'}
+              {t('final.subtitle')}
             </p>
           </div>
         </motion.div>

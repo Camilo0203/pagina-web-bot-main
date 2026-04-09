@@ -18,10 +18,9 @@ import { instantReveal, motionViewport, sectionIntro, withDelay, motionStagger, 
 const planKeys: PricingPlanKey[] = ['free', 'pro', 'enterprise'];
 
 export default function PricingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
-  const isEnglish = t('nav.docs') === 'Docs';
-  const lang = isEnglish ? 'en' : 'es';
+  const lang = i18n.language.startsWith('es') ? 'es' : 'en';
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
@@ -54,7 +53,7 @@ export default function PricingPage() {
       await signInWithDiscord(window.location.href);
     } catch (error) {
       console.error('Sign in error:', error);
-      toast.error('Failed to sign in with Discord');
+      toast.error(t('billing.toasts.signInError'));
     }
   };
 
@@ -63,7 +62,7 @@ export default function PricingPage() {
       if (inviteUrl) {
         window.location.href = inviteUrl;
       } else {
-        toast.error('Invite URL not configured');
+        toast.error(t('billing.toasts.inviteError'));
       }
       return;
     }
@@ -73,22 +72,22 @@ export default function PricingPage() {
       if (contactUrl) {
         window.location.href = contactUrl;
       } else {
-        toast.error('Contact URL not configured');
+        toast.error(t('billing.toasts.contactError'));
       }
       return;
     }
 
     if (!isAuthenticated) {
-      toast.error('Please sign in with Discord to continue', {
-        description: 'You need to authenticate to purchase Pro',
+      toast.error(t('billing.toasts.pleaseSignIn'), {
+        description: t('billing.toasts.needAuthDesc'),
       });
       handleSignIn();
       return;
     }
 
     setSelectedPlan(planKey);
-    toast.success('Plan selected!', {
-      description: 'Now choose which server to upgrade',
+    toast.success(t('billing.toasts.selectPlan'), {
+      description: t('billing.toasts.selectPlanDesc'),
     });
     
     setTimeout(() => {
@@ -102,8 +101,8 @@ export default function PricingPage() {
 
   const handleProceedToCheckout = async () => {
     if (!selectedPlan || !selectedGuildId) {
-      toast.error('Missing information', {
-        description: 'Please select both a plan and a server',
+      toast.error(t('billing.toasts.missingInfo'), {
+        description: t('billing.toasts.selectPlanAndServer'),
       });
       return;
     }
@@ -113,31 +112,31 @@ export default function PricingPage() {
 
     try {
       setProcessingCheckout(true);
-      toast.loading(`Creating checkout for ${selectedGuild?.name || 'your server'}...`, { id: 'checkout' });
+      toast.loading(t('billing.toasts.creatingCheckout', { server: selectedGuild?.name || 'your server' }), { id: 'checkout' });
       
       const response = await createBillingCheckout({
         guild_id: selectedGuildId,
         plan_key: billingPlanKey as any,
       });
 
-      toast.success('Redirecting to secure checkout...', { id: 'checkout' });
+      toast.success(t('billing.toasts.redirecting'), { id: 'checkout' });
       window.location.href = response.checkout_url;
     } catch (error) {
       console.error('Checkout error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout';
+      const errorMessage = error instanceof Error ? error.message : t('billing.toasts.checkoutFailed');
       
       if (errorMessage.includes('already has an active')) {
-        toast.error('Server already has premium', {
+        toast.error(t('billing.toasts.serverHasPremium'), {
           id: 'checkout',
-          description: 'This server already has an active premium subscription',
+          description: t('billing.toasts.serverHasPremiumDesc'),
         });
       } else if (errorMessage.includes('permission')) {
-        toast.error('Permission denied', {
+        toast.error(t('billing.toasts.permissionDenied'), {
           id: 'checkout',
-          description: 'You need Manage Server permission to upgrade this server',
+          description: t('billing.toasts.needManageServer'),
         });
       } else {
-        toast.error('Checkout failed', {
+        toast.error(t('billing.toasts.checkoutFailed'), {
           id: 'checkout',
           description: errorMessage,
         });
@@ -172,8 +171,8 @@ export default function PricingPage() {
               />
             </svg>
           </div>
-          <p className="text-white font-semibold">Loading pricing...</p>
-          <p className="text-slate-400 text-sm mt-2">Checking authentication status</p>
+          <p className="text-white font-semibold">{t('billing.loading.title')}</p>
+          <p className="text-slate-400 text-sm mt-2">{t('billing.loading.subtitle')}</p>
         </div>
       </div>
     );
@@ -217,7 +216,7 @@ export default function PricingPage() {
                 >
                   <Sparkles className="h-3 w-3 text-indigo-400" />
                   <span className="text-[10px] font-bold uppercase tracking-wide-readable text-indigo-300">
-                    {isEnglish ? 'Premium Upgrade' : 'Mejora Premium'}
+                    {t('billing.hero.eyebrow')}
                   </span>
                 </motion.div>
 
@@ -225,9 +224,9 @@ export default function PricingPage() {
                   variants={secondaryReveal}
                   className="text-4xl font-black uppercase tracking-tightest text-white sm:text-5xl lg:text-6xl mb-6"
                 >
-                  {isEnglish ? 'Choose Your' : 'Elige Tu'} <br />
+                  {t('billing.hero.title')} <br />
                   <span className="headline-accent headline-accent-solid">
-                    {isEnglish ? 'Operational Plan' : 'Plan Operativo'}
+                    {t('billing.hero.titleAccent')}
                   </span>
                 </motion.h1>
 
@@ -235,9 +234,7 @@ export default function PricingPage() {
                   variants={secondaryReveal}
                   className="mx-auto max-w-2xl text-lg leading-relaxed text-slate-400"
                 >
-                  {isEnglish
-                    ? 'Free gets you started. Pro unlocks the full toolkit. Enterprise includes white-glove onboarding.'
-                    : 'Free te inicia. Pro desbloquea el toolkit completo. Enterprise incluye onboarding white-glove.'}
+                  {t('billing.hero.description')}
                 </motion.p>
               </motion.div>
             </div>
@@ -258,17 +255,17 @@ export default function PricingPage() {
                     <svg className="h-8 w-8 text-indigo-300" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
                   </div>
                   <h3 className="mb-3 text-xl font-bold text-white">
-                    {isEnglish ? 'Sign in with Discord' : 'Inicia sesión con Discord'}
+                    {t('billing.auth.title')}
                   </h3>
                   <p className="mb-6 text-sm text-slate-400">
-                    {isEnglish ? 'Required to see your servers and complete upgrade' : 'Requerido para ver tus servidores y completar la mejora'}
+                    {t('billing.auth.subtitle')}
                   </p>
                   <button
                     onClick={handleSignIn}
                     className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-indigo-700"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                    <span>{isEnglish ? 'Continue with Discord' : 'Continuar con Discord'}</span>
+                    <span>{t('billing.auth.cta')}</span>
                   </button>
                 </motion.div>
               </div>
@@ -293,7 +290,7 @@ export default function PricingPage() {
                       cycle === 'monthly' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    {isEnglish ? 'Monthly' : 'Mensual'}
+                    {t('billing.toggle.monthly')}
                   </button>
                   <button
                     onClick={() => setCycle('yearly')}
@@ -301,9 +298,9 @@ export default function PricingPage() {
                       cycle === 'yearly' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    {isEnglish ? 'Yearly' : 'Anual'}
+                    {t('billing.toggle.yearly')}
                     <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-                      -20%
+                      {t('billing.toggle.discount')}
                     </span>
                   </button>
                 </div>
@@ -349,7 +346,7 @@ export default function PricingPage() {
                           <div className="absolute right-4 top-4">
                             <span className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                               <Crown className="h-3 w-3" />
-                              {isEnglish ? 'Popular' : 'Popular'}
+                              {t('billing.plans.pro.popular')}
                             </span>
                           </div>
                         )}
@@ -376,7 +373,7 @@ export default function PricingPage() {
                         </div>
                         {effectiveMonthlyDisplay && (
                           <p className="mt-1 text-xs font-medium text-emerald-400">
-                            {effectiveMonthlyDisplay}/mo {isEnglish ? 'billed yearly' : 'facturado anual'}
+                            {effectiveMonthlyDisplay}{t('billing.billingInfo.monthly')}
                           </p>
                         )}
                       </div>
@@ -414,7 +411,7 @@ export default function PricingPage() {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                               </svg>
-                              {isEnglish ? 'Processing...' : 'Procesando...'}
+                              {t('billing.plans.pro.processing')}
                             </span>
                           ) : (
                             <span className="flex items-center justify-center gap-2">
@@ -449,29 +446,29 @@ export default function PricingPage() {
                       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">
                         ✓
                       </div>
-                      <span className="text-xs text-slate-500">{isEnglish ? 'Plan' : 'Plan'}</span>
+                      <span className="text-xs text-slate-500">{t('billing.steps.plan')}</span>
                     </div>
                     <div className="h-px w-6 bg-white/10" />
                     <div className="flex items-center gap-2">
                       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white text-xs font-bold">
                         2
                       </div>
-                      <span className="text-xs font-medium text-white">{isEnglish ? 'Server' : 'Servidor'}</span>
+                      <span className="text-xs font-medium text-white">{t('billing.steps.server')}</span>
                     </div>
                     <div className="h-px w-6 bg-white/10" />
                     <div className="flex items-center gap-2">
                       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-slate-500 text-xs font-bold">
                         3
                       </div>
-                      <span className="text-xs text-slate-500">{isEnglish ? 'Pay' : 'Pago'}</span>
+                      <span className="text-xs text-slate-500">{t('billing.steps.pay')}</span>
                     </div>
                   </div>
 
                   <h2 className="mb-2 text-center text-xl font-bold text-white">
-                    {isEnglish ? 'Select Your Server' : 'Selecciona Tu Servidor'}
+                    {t('billing.serverSelection.title')}
                   </h2>
                   <p className="mb-6 text-center text-sm text-slate-400">
-                    {isEnglish ? 'Choose which server to upgrade to Pro' : 'Elige qué servidor mejorar a Pro'}
+                    {t('billing.serverSelection.subtitle')}
                   </p>
 
                   {guildsError ? (
@@ -481,7 +478,7 @@ export default function PricingPage() {
                         onClick={() => window.location.reload()}
                         className="text-sm text-indigo-400 hover:text-indigo-300"
                       >
-                        {isEnglish ? 'Try again' : 'Intentar de nuevo'}
+                        {t('billing.serverSelection.retry')}
                       </button>
                     </div>
                   ) : (
@@ -510,11 +507,11 @@ export default function PricingPage() {
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                 </svg>
-                                {isEnglish ? 'Processing...' : 'Procesando...'}
+                                {t('billing.checkout.processing')}
                               </>
                             ) : (
                               <>
-                                {isEnglish ? 'Proceed to Checkout' : 'Continuar al Pago'}
+                                {t('billing.checkout.proceed')}
                                 <ArrowRight className="h-4 w-4" />
                               </>
                             )}
@@ -528,10 +525,10 @@ export default function PricingPage() {
             </section>
           )}
 
-          {/* Trust Signals */}
+          {/* Trust Signals - Premium integrated trust band */}
           <TrustSignals />
 
-          {/* FAQ Section */}
+          {/* FAQ Section - Premium accordion */}
           <FAQSection />
         </main>
 

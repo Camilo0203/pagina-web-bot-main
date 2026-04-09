@@ -1,131 +1,120 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-
-interface FAQItem {
-  question: string;
-  answer: string;
-}
+import { ChevronDown, MessageCircle } from 'lucide-react';
+import { motionViewport, sectionIntro, withDelay, motionStagger, accordionTransition } from '../../lib/motion';
 
 export function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { t } = useTranslation();
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const shouldReduceMotion = useReducedMotion();
 
-  const faqItems: FAQItem[] = [
-    {
-      question: 'How do I upgrade my server to premium?',
-      answer: 'Simply select a plan above, sign in with Discord, choose your server, and complete the checkout. Premium features will be activated within minutes.',
-    },
-    {
-      question: 'Can I cancel my subscription anytime?',
-      answer: 'Yes! For monthly and yearly subscriptions, you can cancel anytime. Your premium features will remain active until the end of your billing period.',
-    },
-    {
-      question: "What's the difference between Lifetime and subscriptions?",
-      answer: 'Lifetime is a one-time payment with no recurring charges. You get premium features forever. Subscriptions (monthly/yearly) require recurring payments but can be cancelled anytime.',
-    },
-    {
-      question: 'Can I upgrade multiple servers?',
-      answer: 'Yes! Each server requires its own premium subscription. You can purchase premium for as many servers as you manage.',
-    },
-    {
-      question: 'Do donations activate premium features?',
-      answer: "No, donations are separate from premium subscriptions. They support development but don't activate premium features. To get premium, purchase a Pro plan.",
-    },
-    {
-      question: 'Is my payment information secure?',
-      answer: 'Absolutely! All payments are processed through Lemon Squeezy, a trusted payment processor. We never store your payment information.',
-    },
-    {
-      question: 'What happens if I cancel my subscription?',
-      answer: 'Your premium features will remain active until the end of your current billing period. After that, your server will revert to the free plan.',
-    },
-    {
-      question: 'Can I get a refund?',
-      answer: "Yes! We offer a 7-day money-back guarantee on all purchases. Contact support if you're not satisfied.",
-    },
-  ];
+  const motionReveal = shouldReduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : sectionIntro;
+  const secondaryReveal = shouldReduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : withDelay(sectionIntro, motionStagger.tight);
+
+  const faqKeys = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'] as const;
 
   const toggleItem = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section className="py-20 px-4 bg-slate-900">
-      <div className="mx-auto max-w-3xl">
+    <section className="relative overflow-hidden bg-black py-16 sm:py-20">
+      {/* Top divider */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+      <div className="relative z-10 mx-auto max-w-3xl px-6">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          variants={motionReveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={motionViewport}
+          className="mb-10 text-center"
         >
-          <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Frequently Asked Questions
-          </h2>
-          <p className="mt-4 text-lg text-slate-400">
-            Everything you need to know about TON618 Pro
+          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-indigo-400">
+            {t('billing.faq.eyebrow')}
           </p>
+          <h2 className="text-2xl font-bold text-white sm:text-3xl">
+            {t('billing.faq.title')}
+          </h2>
         </motion.div>
 
-        <div className="space-y-4">
-          {faqItems.map((item, index) => (
+        {/* FAQ Items - Premium accordion */}
+        <div className="space-y-3">
+          {faqKeys.map((key, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
+              variants={secondaryReveal}
+              initial="hidden"
+              whileInView="show"
+              viewport={motionViewport}
             >
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-800/50 p-6 text-left transition-all duration-200 hover:border-slate-600 hover:bg-slate-800"
+                className={`group w-full rounded-xl border p-4 text-left transition-all duration-200 sm:p-5 ${
+                  openIndex === index
+                    ? 'border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-purple-500/5'
+                    : 'border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent hover:border-white/20 hover:bg-white/[0.04]'
+                }`}
               >
                 <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-semibold text-white pr-8">
-                    {item.question}
+                  <h3 className={`text-sm font-semibold pr-8 sm:text-base ${
+                    openIndex === index ? 'text-white' : 'text-slate-300 group-hover:text-white'
+                  }`}>
+                    {t(`billing.faq.questions.${key}.question`)}
                   </h3>
-                  <ChevronDown
-                    className={`h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-200 ${
-                      openIndex === index ? 'rotate-180' : ''
-                    }`}
-                  />
+                  <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 ${
+                    openIndex === index ? 'bg-indigo-500/20' : 'bg-white/5 group-hover:bg-white/10'
+                  }`}>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        openIndex === index ? 'rotate-180 text-indigo-400' : 'text-slate-500'
+                      }`}
+                    />
+                  </div>
                 </div>
-                
-                <motion.div
-                  initial={false}
-                  animate={{
-                    height: openIndex === index ? 'auto' : 0,
-                    opacity: openIndex === index ? 1 : 0,
-                  }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <p className="mt-4 text-slate-300 leading-relaxed">
-                    {item.answer}
-                  </p>
-                </motion.div>
+
+                <AnimatePresence initial={false}>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={accordionTransition}
+                      className="overflow-hidden"
+                    >
+                      <p className="border-t border-white/10 pt-3 mt-3 text-sm leading-relaxed text-slate-400">
+                        {t(`billing.faq.questions.${key}.answer`)}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </button>
             </motion.div>
           ))}
         </div>
 
-        {/* Contact support */}
+        {/* Contact support - elegant footer */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-12 text-center"
+          variants={secondaryReveal}
+          initial="hidden"
+          whileInView="show"
+          viewport={motionViewport}
+          className="mt-10 flex items-center justify-center gap-2 text-center"
         >
-          <p className="text-slate-400">
-            Still have questions?{' '}
-            <a
-              href="#"
-              className="font-semibold text-indigo-400 hover:text-indigo-300 underline"
-            >
-              Contact support
-            </a>
-          </p>
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-4 py-2">
+            <MessageCircle className="h-4 w-4 text-indigo-400" />
+            <p className="text-sm text-slate-400">
+              {t('billing.faq.stillHaveQuestions')}{' '}
+              <a
+                href="mailto:support@ton618.io"
+                className="font-medium text-white transition-colors hover:text-indigo-400"
+              >
+                {t('billing.faq.getInTouch')}
+              </a>
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>
