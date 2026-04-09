@@ -21,7 +21,10 @@ export default function BillingSuccessPage() {
   const isDonation = planKey === 'donate';
 
   useEffect(() => {
-    console.log('Billing checkout successful', { plan_key: planKey });
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log('Billing checkout successful', { plan_key: planKey });
+    }
   }, [planKey]);
 
   return (

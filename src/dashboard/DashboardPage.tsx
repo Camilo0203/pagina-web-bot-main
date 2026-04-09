@@ -243,8 +243,10 @@ function DashboardLivePage({
   );
 
   const isAccessFresh = checkIsAccessFresh(syncStatus?.updatedAt ?? null);
-  const handleTicketAction = async (action: string, payload: any) => {
-    console.log('Ticket action:', action, payload);
+  const handleTicketAction = async (action: string, _payload: unknown) => {
+    // TODO: Implement actual ticket action handling via dashboard API
+    // This requires implementing the dashboard ticket action RPC
+    throw new Error(`Ticket action "${action}" not yet implemented. Please use Discord for ticket operations.`);
   };
 
   function renderEntryStage(stage: ReactNode, maxWidthClass = 'max-w-[76rem]') {

@@ -726,6 +726,7 @@ export async function fetchGuildDashboardSnapshot(guildId: string): Promise<Guil
 
     const failure = buildPartialFailure(id, result.reason);
     if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
       console.warn('[dashboard-snapshot] optional-dataset-failed', {
         dataset: id,
         message: failure.message,

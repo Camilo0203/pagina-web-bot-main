@@ -40,6 +40,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
     });
 
     if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
       console.error('[ErrorBoundary] Capturo un error en el renderizado del modulo:', error, errorInfo);
     }
   }

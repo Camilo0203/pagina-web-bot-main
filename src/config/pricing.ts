@@ -125,10 +125,24 @@ export function getPlanPriceDisplay(planKey: PricingPlanKey, cycle: BillingCycle
   return PRICING_CONFIG[planKey].price[cycle].display;
 }
 
+type PlanConfig = typeof PRICING_CONFIG[PricingPlanKey];
+type PeriodConfig = { monthly: Record<string, string>; yearly: Record<string, string> };
+
+function hasPeriod(config: PlanConfig): config is PlanConfig & { period: PeriodConfig } {
+  return 'period' in config && 
+    typeof config.period === 'object' && 
+    config.period !== null &&
+    'monthly' in config.period &&
+    'yearly' in config.period;
+}
+
 export function getPlanPeriod(planKey: PricingPlanKey, cycle: BillingCycle, lang: 'en' | 'es'): string {
   const planConfig = PRICING_CONFIG[planKey];
-  if ('period' in planConfig && typeof planConfig.period === 'object' && cycle in planConfig.period) {
-    return (planConfig.period as any)[cycle][lang];
+  if (hasPeriod(planConfig) && cycle in planConfig.period) {
+    const cyclePeriod = planConfig.period[cycle];
+    if (typeof cyclePeriod === 'object' && lang in cyclePeriod) {
+      return cyclePeriod[lang];
+    }
   }
   return '';
 }

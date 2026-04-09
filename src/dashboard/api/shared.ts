@@ -449,9 +449,7 @@ export function debugAuthLog(event: string, payload?: Record<string, unknown>, l
   if (!import.meta.env.DEV) {
     return;
   }
-  if (level === 'error') {
-    console.error(`[dashboard-auth] ${event}`, payload);
-  } else {
-    console.log(`[dashboard-auth] ${event}`, payload);
-  }
+  // eslint-disable-next-line no-console
+  const logFn = level === 'error' ? console.error : console.log;
+  logFn(`[dashboard-auth] ${event}`, payload);
 }

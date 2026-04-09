@@ -23,6 +23,7 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchGuilds();
@@ -39,7 +40,13 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
 
       setGuilds(data.guilds || []);
     } catch (error) {
-      console.error('Error fetching guilds:', error);
+      // Log error but don't expose details to UI
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error('Error fetching guilds:', error);
+      }
+      setError(error instanceof Error ? error.message : 'Failed to load guilds');
+      setGuilds([]);
     } finally {
       setLoading(false);
     }
@@ -65,7 +72,12 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
         window.location.href = data.checkout_url;
       }
     } catch (error) {
-      console.error('Error creating checkout:', error);
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error('Error creating checkout:', error);
+      }
+      setError(error instanceof Error ? error.message : 'Failed to start checkout');
+      // Show error to user
       alert('Failed to start checkout. Please try again.');
     } finally {
       setCheckoutLoading(false);
@@ -103,6 +115,20 @@ export function BillingDashboard({ selectedGuildId, onSelectGuild }: BillingDash
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex items-center gap-4">
+          <AlertCircle className="w-8 h-8 text-red-400" />
+          <div>
+            <h3 className="text-lg font-semibold text-red-400">Error loading billing data</h3>
+            <p className="text-gray-400">{error}</p>
+          </div>
+        </div>
       </div>
     );
   }

@@ -131,7 +131,9 @@ export default function InboxTicketDetail(props: InboxTicketDetailProps) {
       {props.syncStatus?.bridgeStatus === 'degraded' || props.syncStatus?.bridgeStatus === 'error' ? (
         <div className="dashboard-action-note mt-5">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-          <p className="text-sm leading-6" dangerouslySetInnerHTML={{ __html: props.t('dashboard.inbox.detail.bridgeWarning', { status: props.syncStatus.bridgeStatus }) }} />
+          <p className="text-sm leading-6">
+            {props.t('dashboard.inbox.detail.bridgeWarning', { status: props.syncStatus.bridgeStatus })}
+          </p>
         </div>
       ) : null}
 

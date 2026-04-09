@@ -55,7 +55,7 @@ interface OverviewModuleProps {
   quickActions: DashboardQuickAction[];
   partialFailures: DashboardPartialFailure[];
   isGuildAccessFresh: boolean;
-  onTicketAction: (action: any, payload: any) => Promise<void>;
+  onTicketAction: (action: string, payload: unknown) => Promise<void>;
 }
 
 function getStatusClasses(status: DashboardSectionState['status']) {

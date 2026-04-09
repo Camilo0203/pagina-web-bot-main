@@ -67,7 +67,7 @@ interface DashboardModuleViewportProps {
   requestBackupActionPending: boolean;
   onSectionChange: (section: DashboardSectionId) => void;
   onConfigSave: (section: ConfigMutationSectionId, payload: unknown) => Promise<void>;
-  onTicketAction: (action: any, payload: any) => Promise<void>;
+  onTicketAction: (action: string, payload: unknown) => Promise<void>;
   onCreateBackup: () => Promise<void>;
   onRestoreBackup: (backupId: string) => Promise<void>;
 }
