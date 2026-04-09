@@ -525,11 +525,31 @@ export default function PricingPage() {
             </section>
           )}
 
-          {/* Trust Signals - Premium integrated trust band */}
-          <TrustSignals />
+          {/* Lower Section - Unified Trust & FAQ - Cinematic continuity */}
+          <section className="relative overflow-hidden bg-black py-20 sm:py-28">
+            {/* Continuous background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-indigo-950/[0.03] to-black" />
+            
+            {/* Atmospheric glows */}
+            <div className="absolute left-0 top-1/4 h-[500px] w-[500px] rounded-full bg-indigo-500/[0.015] blur-[150px]" />
+            <div className="absolute right-0 bottom-1/3 h-[400px] w-[400px] rounded-full bg-cyan-500/[0.015] blur-[120px]" />
 
-          {/* FAQ Section - Premium accordion */}
-          <FAQSection />
+            {/* Top subtle line */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+
+            <div className="relative z-10">
+              {/* Trust Signals Band */}
+              <div className="mb-20 sm:mb-28">
+                <TrustSignals />
+              </div>
+
+              {/* FAQ Section */}
+              <FAQSection />
+            </div>
+
+            {/* Bottom subtle line */}
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+          </section>
         </main>
 
         <Footer />

@@ -19,29 +19,36 @@ export function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-black py-16 sm:py-20">
-      {/* Top divider */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    <section className="relative">
+      {/* Ambient background glow */}
+      <div className="absolute left-1/4 top-1/3 h-[400px] w-[400px] rounded-full bg-indigo-500/[0.02] blur-[120px]" />
+      <div className="absolute right-1/4 bottom-1/4 h-[300px] w-[300px] rounded-full bg-cyan-500/[0.02] blur-[100px]" />
 
-      <div className="relative z-10 mx-auto max-w-3xl px-6">
-        {/* Header */}
+      <div className="relative z-10 mx-auto max-w-4xl px-6">
+        {/* Editorial Header - cinematic style */}
         <motion.div
           variants={motionReveal}
           initial="hidden"
           whileInView="show"
           viewport={motionViewport}
-          className="mb-10 text-center"
+          className="mb-12 text-center"
         >
-          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-indigo-400">
+          <motion.p 
+            variants={secondaryReveal}
+            className="mb-4 text-xs font-bold uppercase tracking-wide-readable text-indigo-400"
+          >
             {t('billing.faq.eyebrow')}
-          </p>
-          <h2 className="text-2xl font-bold text-white sm:text-3xl">
+          </motion.p>
+          <motion.h2 
+            variants={secondaryReveal}
+            className="text-3xl font-black uppercase leading-[0.92] tracking-tightest text-white sm:text-4xl"
+          >
             {t('billing.faq.title')}
-          </h2>
+          </motion.h2>
         </motion.div>
 
-        {/* FAQ Items - Premium accordion */}
-        <div className="space-y-3">
+        {/* FAQ Items - Editorial tech-card style */}
+        <div className="space-y-4">
           {faqKeys.map((key, index) => (
             <motion.div
               key={index}
@@ -52,24 +59,38 @@ export function FAQSection() {
             >
               <button
                 onClick={() => toggleItem(index)}
-                className={`group w-full rounded-xl border p-4 text-left transition-all duration-200 sm:p-5 ${
-                  openIndex === index
-                    ? 'border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-purple-500/5'
-                    : 'border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent hover:border-white/20 hover:bg-white/[0.04]'
+                className={`group w-full text-left transition-all duration-300 ${
+                  openIndex === index ? 'tech-card' : 'tech-card opacity-70 hover:opacity-100'
                 }`}
               >
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className={`text-sm font-semibold pr-8 sm:text-base ${
-                    openIndex === index ? 'text-white' : 'text-slate-300 group-hover:text-white'
-                  }`}>
-                    {t(`billing.faq.questions.${key}.question`)}
-                  </h3>
-                  <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 ${
-                    openIndex === index ? 'bg-indigo-500/20' : 'bg-white/5 group-hover:bg-white/10'
+                <div className="flex items-start justify-between gap-4 p-6">
+                  {/* Question number indicator */}
+                  <div className="flex items-start gap-4">
+                    <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
+                      openIndex === index 
+                        ? 'bg-indigo-500/20 text-indigo-300' 
+                        : 'bg-white/5 text-slate-500 group-hover:bg-white/10'
+                    }`}>
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h3 className={`text-base font-semibold leading-snug transition-colors duration-300 ${
+                      openIndex === index ? 'text-white' : 'text-slate-300 group-hover:text-white'
+                    }`}>
+                      {t(`billing.faq.questions.${key}.question`)}
+                    </h3>
+                  </div>
+
+                  {/* Chevron with premium treatment */}
+                  <div className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+                    openIndex === index 
+                      ? 'bg-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]' 
+                      : 'bg-white/5 group-hover:bg-white/10'
                   }`}>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        openIndex === index ? 'rotate-180 text-indigo-400' : 'text-slate-500'
+                      className={`h-4 w-4 transition-all duration-300 ${
+                        openIndex === index 
+                          ? 'rotate-180 text-indigo-400' 
+                          : 'text-slate-500 group-hover:text-slate-400'
                       }`}
                     />
                   </div>
@@ -84,9 +105,17 @@ export function FAQSection() {
                       transition={accordionTransition}
                       className="overflow-hidden"
                     >
-                      <p className="border-t border-white/10 pt-3 mt-3 text-sm leading-relaxed text-slate-400">
-                        {t(`billing.faq.questions.${key}.answer`)}
-                      </p>
+                      <div className="border-t border-white/10 px-6 pb-6 pt-4">
+                        <div className="flex gap-4">
+                          {/* Indentation line */}
+                          <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center">
+                            <div className="h-full w-px bg-gradient-to-b from-indigo-500/30 to-transparent" />
+                          </div>
+                          <p className="text-sm leading-relaxed text-slate-400">
+                            {t(`billing.faq.questions.${key}.answer`)}
+                          </p>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -95,21 +124,23 @@ export function FAQSection() {
           ))}
         </div>
 
-        {/* Contact support - elegant footer */}
+        {/* Contact support - premium pill style */}
         <motion.div
           variants={secondaryReveal}
           initial="hidden"
           whileInView="show"
           viewport={motionViewport}
-          className="mt-10 flex items-center justify-center gap-2 text-center"
+          className="mt-12 flex items-center justify-center"
         >
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-4 py-2">
-            <MessageCircle className="h-4 w-4 text-indigo-400" />
+          <div className="premium-pill flex items-center gap-3 px-6 py-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/10">
+              <MessageCircle className="h-4 w-4 text-indigo-400" />
+            </div>
             <p className="text-sm text-slate-400">
               {t('billing.faq.stillHaveQuestions')}{' '}
               <a
                 href="mailto:support@ton618.io"
-                className="font-medium text-white transition-colors hover:text-indigo-400"
+                className="font-medium text-white transition-colors hover:text-indigo-300"
               >
                 {t('billing.faq.getInTouch')}
               </a>

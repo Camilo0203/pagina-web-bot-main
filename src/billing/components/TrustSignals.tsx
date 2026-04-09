@@ -33,58 +33,78 @@ export function TrustSignals() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-black py-12 sm:py-16">
-      {/* Top divider */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    <section className="relative">
+      {/* Ambient glow */}
+      <div className="absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/[0.03] blur-[100px]" />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6">
-        {/* Editorial trust band - compact and elegant */}
-        <motion.div
-          variants={motionReveal}
-          initial="hidden"
-          whileInView="show"
-          viewport={motionViewport}
-          className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-6 backdrop-blur-xl sm:p-8"
-        >
-          {/* Header */}
-          <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              {t('billing.trustSignals.eyebrow')}
-            </p>
-            <div className="flex items-center gap-2">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFC233" />
-                <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="#FFC233" />
-              </svg>
-              <span className="text-xs font-medium text-slate-400">
-                {t('billing.trustSignals.poweredBy')}
-              </span>
+      <motion.div
+        variants={motionReveal}
+        initial="hidden"
+        whileInView="show"
+        viewport={motionViewport}
+        className="relative z-10 mx-auto max-w-6xl px-6"
+      >
+        {/* Premium trust band - horizontal cinematic layout */}
+        <div className="tech-card relative overflow-hidden">
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/[0.02] via-transparent to-cyan-500/[0.02]" />
+
+          <div className="relative flex flex-col items-center gap-8 py-8 sm:flex-row sm:justify-between sm:gap-12 sm:py-10">
+            {/* Left: Trust indicators - horizontal flow */}
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:flex-nowrap sm:justify-start">
+              {signals.map((signal, index) => (
+                <motion.div
+                  key={index}
+                  variants={secondaryReveal}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={motionViewport}
+                  className="group flex items-center gap-3"
+                >
+                  <div className="premium-icon-tile h-10 w-10">
+                    <signal.icon className="h-4 w-4 text-indigo-300" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-white transition-colors group-hover:text-indigo-200">
+                      {t(signal.titleKey)}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      {t(signal.descriptionKey)}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
+
+            {/* Center/Right: Lemon Squeezy seal - integrated elegantly */}
+            <motion.div
+              variants={secondaryReveal}
+              initial="hidden"
+              whileInView="show"
+              viewport={motionViewport}
+              className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 backdrop-blur-sm"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-400/20 to-yellow-500/10">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFC233" />
+                  <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="#FFC233" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                  {t('billing.trustSignals.eyebrow')}
+                </p>
+                <p className="text-xs font-medium text-slate-300">
+                  {t('billing.trustSignals.poweredBy')}
+                </p>
+              </div>
+            </motion.div>
           </div>
 
-          {/* Signals - compact row on desktop, 2x2 on mobile */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {signals.map((signal, index) => (
-              <motion.div
-                key={index}
-                variants={secondaryReveal}
-                initial="hidden"
-                whileInView="show"
-                viewport={motionViewport}
-                className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-all duration-200 hover:border-white/10 hover:bg-white/[0.04]"
-              >
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-500/10">
-                  <signal.icon className="h-4 w-4 text-indigo-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{t(signal.titleKey)}</p>
-                  <p className="text-xs text-slate-500">{t(signal.descriptionKey)}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+          {/* Bottom accent line */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
+        </div>
+      </motion.div>
     </section>
   );
 }
