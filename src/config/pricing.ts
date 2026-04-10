@@ -76,12 +76,12 @@ export const PRICING_CONFIG = {
     popular: true,
     popularLabel: { en: 'Core plan', es: 'Plan core' },
   },
-  enterprise: {
-    key: 'enterprise',
-    name: { en: 'Enterprise rollout', es: 'Enterprise rollout' },
+  donation: {
+    key: 'donation',
+    name: { en: 'Donate', es: 'Donación' },
     description: {
-      en: 'For staged launches, multiple servers and white-glove onboarding.',
-      es: 'Para betas cuidadas, multi-servidor y onboarding white-glove.',
+      en: 'Support TON618 development and operating costs.',
+      es: 'Apoya el desarrollo y los costos operativos de TON618.',
     },
     price: {
       monthly: { amount: null, display: 'Custom' },
@@ -93,21 +93,19 @@ export const PRICING_CONFIG = {
     },
     features: {
       en: [
-        'Everything in Pro',
-        'Guided onboarding',
-        'Multi-server rollout',
-        'Priority support',
-        'Custom operating defaults',
+        'Support development',
+        'Help cover server costs',
+        'Supporter recognition',
+        'Priority appreciation',
       ],
       es: [
-        'Todo en Pro',
-        'Onboarding guiado',
-        'Rollout multi-servidor',
-        'Soporte prioritario',
-        'Defaults operativos a medida',
+        'Apoya el desarrollo',
+        'Ayuda a cubrir costos del servidor',
+        'Reconocimiento supporter',
+        'Agradecimiento prioritario',
       ],
     },
-    cta: { en: 'Contact sales', es: 'Contactar ventas' },
+    cta: { en: 'Donate', es: 'Donar' },
     ctaType: 'contact' as const,
     popular: false,
   },

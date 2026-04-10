@@ -307,7 +307,6 @@ export const en = {
             yearlyDiscount: 'Save 20%',
             free: { name: 'Free', description: 'Install the base' },
             pro: { name: 'Pro', badge: 'Popular', description: 'For serious operations', cta: 'View plans' },
-            enterprise: { name: 'Enterprise', description: 'Guided rollout' },
             plans: {
                 free: {
                     name: 'Free',
@@ -326,13 +325,13 @@ export const en = {
                     popular: 'Most popular',
                     features: ['Everything in Free', 'Unlimited flows', 'Live analytics', 'Ticket system', 'Expanded setup tooling', 'Priority support'],
                 },
-                enterprise: {
-                    name: 'Enterprise',
-                    price: { monthly: '$29', yearly: '$23' },
-                    period: '/mo',
-                    desc: 'For large-scale servers.',
-                    cta: 'Contact sales',
-                    features: ['Everything in Pro', 'Dedicated API', 'Guaranteed SLA', 'Guided onboarding', 'Multi-server', '24/7 support'],
+                donation: {
+                    name: 'Donate',
+                    price: { monthly: 'Custom', yearly: 'Custom' },
+                    period: '',
+                    desc: 'Support TON618 development.',
+                    cta: 'Donate',
+                    features: ['Support development', 'Help cover server costs', 'Supporter recognition', 'Priority appreciation'],
                 },
             },
             donation: {
@@ -1483,8 +1482,8 @@ export const en = {
                     cta: 'Upgrade to Pro',
                     processing: 'Processing...',
                 },
-                enterprise: {
-                    cta: 'Contact sales',
+                donation: {
+                    cta: 'Donate',
                 },
             },
             billingInfo: {

@@ -1190,8 +1190,8 @@ export const es = {
                     cta: 'Mejorar a Pro',
                     processing: 'Procesando...',
                 },
-                enterprise: {
-                    cta: 'Contactar ventas',
+                donation: {
+                    cta: 'Donar',
                 },
             },
             billingInfo: {

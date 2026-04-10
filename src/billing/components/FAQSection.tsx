@@ -143,7 +143,7 @@ export function FAQSection() {
               <HelpCircle className="h-4 w-4 text-indigo-400" />
             </div>
             <p className="mt-4 text-sm text-slate-400">
-              {t('billing.faq.contactUs')}{' '}
+              {t('billing.faq.stillHaveQuestions')}{' '}
               <a
                 href={getContactUrl()}
                 className="font-medium text-white transition-colors hover:text-indigo-300"

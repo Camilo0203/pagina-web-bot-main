@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Check, Zap, Crown, Users, ArrowRight, Sparkles, MessageCircle } from 'lucide-react';
+import { Check, Zap, Crown, Heart, ArrowRight, Sparkles, MessageCircle } from 'lucide-react';
 import { TrustSignals } from '../components/TrustSignals';
 import { FAQSection } from '../components/FAQSection';
 import { PRICING_CONFIG, getPlanPeriod, type BillingCycle, type PricingPlanKey } from '../../config/pricing';
@@ -12,7 +12,7 @@ import Footer from '../../components/Footer';
 import { instantReveal, motionViewport, sectionIntro, withDelay, motionStagger, cardStagger, revealUp } from '../../lib/motion';
 
 
-const planKeys: PricingPlanKey[] = ['free', 'pro', 'enterprise'];
+const planKeys: PricingPlanKey[] = ['free', 'pro', 'donation'];
 
 // Helper to get the manual purchase/contact URL
 function getManualPurchaseUrl(): string {
@@ -36,7 +36,7 @@ export default function PricingPage() {
       return;
     }
 
-    // Pro and Enterprise both use manual Discord-first activation
+    // Pro and Donation both use manual Discord-first activation
     const contactUrl = getManualPurchaseUrl();
     if (contactUrl) {
       window.location.href = contactUrl;
@@ -185,7 +185,7 @@ export default function PricingPage() {
                 {planKeys.map((planKey) => {
                   const planConfig = PRICING_CONFIG[planKey];
                   const isPro = planKey === 'pro';
-                  const isEnterprise = planKey === 'enterprise';
+                  const isDonation = planKey === 'donation';
                   const name = planConfig.name[lang];
                   const desc = planConfig.description[lang];
                   const features = planConfig.features[lang];
@@ -222,8 +222,8 @@ export default function PricingPage() {
                         <div className={`mb-3 inline-flex rounded-xl ${isPro ? 'bg-indigo-500/20' : 'bg-white/5'} p-2.5`}>
                           {isPro ? (
                             <Crown className="h-5 w-5 text-indigo-300" />
-                          ) : isEnterprise ? (
-                            <Users className="h-5 w-5 text-slate-400" />
+                          ) : isDonation ? (
+                            <Heart className="h-5 w-5 text-pink-400" />
                           ) : (
                             <Zap className="h-5 w-5 text-slate-400" />
                           )}
