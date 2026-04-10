@@ -80,6 +80,15 @@ export const es = {
                     ctaExternal: 'Abrir soporte',
                     ctaFallback: 'Ir a soporte',
                 },
+                donation: {
+                    title: 'Apoya a TON618',
+                    description: 'Tus donaciones ayudan a mantener TON618 funcionando y mejorando para comunidades de Discord en todo el mundo.',
+                    cta: 'Donar',
+                    disclaimer: 'Las donaciones son voluntarias y apoyan el desarrollo. No activan funciones premium.',
+                    info1: 'Las donaciones apoyan el desarrollo y los costos del servidor',
+                    info2: 'Contactanos a través del servidor de soporte para organizar una donación',
+                    info3: 'Recibirás una confirmación de agradecimiento después de donar',
+                },
             },
         },
         features: {
@@ -1154,6 +1163,14 @@ export const es = {
                 titleAccent: 'Plan Operativo',
                 description: 'Free te inicia. Pro desbloquea el toolkit completo. Enterprise incluye onboarding white-glove.',
             },
+            manual: {
+                title: 'Activacion Manual en Discord',
+                description: 'TON618 V1 usa activacion manual. Despues del pago, abre un ticket de soporte con tu server ID y comprobante.',
+                stepsTitle: 'Como obtener Pro:',
+                step1: 'Haz clic en el plan para abrir el servidor de soporte',
+                step2: 'Paga manualmente via los metodos disponibles en Discord',
+                step3: 'Abre un ticket con tu server ID y comprobante para activacion',
+            },
             auth: {
                 title: 'Inicia sesion con Discord',
                 subtitle: 'Requerido para ver tus servidores y completar la mejora',
@@ -1209,10 +1226,10 @@ export const es = {
             },
             trustSignals: {
                 eyebrow: 'Proteccion de Compra',
-                poweredBy: 'Procesado por Lemon Squeezy',
-                secure: {
-                    title: 'Seguro',
-                    description: 'Pagos via Lemon Squeezy',
+                poweredBy: 'V1 Activacion Manual',
+                manual: {
+                    title: 'Manual',
+                    description: 'Activado por el owner en Discord',
                 },
                 flexible: {
                     title: 'Flexible',
@@ -1222,9 +1239,9 @@ export const es = {
                     title: 'Protegido',
                     description: 'Garantia de 7 dias',
                 },
-                instant: {
-                    title: 'Instantaneo',
-                    description: 'Activa en minutos',
+                support: {
+                    title: 'Soporte',
+                    description: 'Asistencia Discord-first',
                 },
             },
             faq: {
@@ -1233,11 +1250,11 @@ export const es = {
                 questions: {
                     q1: {
                         question: '¿Como mejoro mi servidor a premium?',
-                        answer: 'Selecciona un plan arriba, inicia sesion con Discord, elige tu servidor y completa el pago. Las caracteristicas premium se activan en minutos.',
+                        answer: 'Haz clic en el plan Pro o Enterprise para unirte al servidor de soporte. Paga manualmente, luego abre un ticket con tu server ID y comprobante. El owner activara premium manualmente.',
                     },
                     q2: {
                         question: '¿Puedo cancelar mi suscripcion en cualquier momento?',
-                        answer: 'Si. Para suscripciones mensuales y anuales, cancela cuando quieras. Las caracteristicas premium permanecen activas hasta el final de tu periodo de facturacion.',
+                        answer: 'Si. Para suscripciones mensuales y anuales, cancela cuando quieras contactando soporte. Las caracteristicas premium permanecen activas hasta el final de tu periodo de facturacion.',
                     },
                     q3: {
                         question: '¿Cual es la diferencia entre Acceso de por vida y suscripciones?',
@@ -1245,11 +1262,11 @@ export const es = {
                     },
                     q4: {
                         question: '¿Puedo mejorar multiples servidores?',
-                        answer: 'Si. Cada servidor requiere su propia suscripcion premium. Puedes comprar premium para todos los servidores que administres.',
+                        answer: 'Si. Cada servidor requiere su propia suscripcion premium. Puedes comprar premium para todos los servidores que administres a traves del proceso manual.',
                     },
                     q5: {
                         question: '¿Mi informacion de pago es segura?',
-                        answer: 'Todos los pagos se procesan a traves de Lemon Squeezy, un procesador de pagos confiable. Nosotros nunca almacenamos tu informacion de pago.',
+                        answer: 'Los metodos de pago se manejan a traves de procesadores de pago establecidos. Nosotros nunca almacenamos tu informacion de pago en nuestros servidores.',
                     },
                     q6: {
                         question: '¿Que pasa si cancelo mi suscripcion?',
@@ -1267,10 +1284,10 @@ export const es = {
                 descriptionPayment: '¡Gracias por mejorar a TON618 {{plan}}! Las caracteristicas premium de tu servidor se estan activando.',
                 whatsNext: '¿Que sigue?',
                 steps: {
-                    s1: 'Tus caracteristicas premium estaran activas en unos minutos (hasta 5 min para procesar)',
-                    s2: 'Recibiras un correo de confirmacion de Lemon Squeezy',
+                    s1: 'Tus caracteristicas premium se activaran manualmente despues de la verificacion del pago (usualmente dentro de 24 horas)',
+                    s2: 'Recibiras un mensaje de confirmacion en el servidor de soporte',
                     s3: 'Accede al panel de tu servidor para configurar caracteristicas premium',
-                    s4: 'Administra tu suscripcion en cualquier momento desde el portal de facturacion',
+                    s4: 'Administra tu suscripcion contactando soporte',
                     s1Donation: 'Tu donacion ha sido registrada — ¡gracias!',
                 },
                 goToDashboard: 'Ir al Dashboard',
@@ -1279,9 +1296,9 @@ export const es = {
                 supportServer: 'servidor de soporte',
             },
             cancel: {
-                metaTitle: 'Pago Cancelado - TON618',
-                title: 'Pago Cancelado',
-                subtitle: '¡No hay problema! Tu pago fue cancelado y no se realizo ningun cargo.',
+                metaTitle: 'Cancelado - TON618',
+                title: 'Compra Cancelada',
+                subtitle: '¡No hay problema! Vuelve cuando estes listo para mejorar.',
                 whyUpgrade: '¿Por que mejorar a TON618 Pro?',
                 features: {
                     f1: 'Herramientas avanzadas de moderacion para mantener tu servidor seguro',
@@ -1296,17 +1313,17 @@ export const es = {
             },
             toasts: {
                 selectPlan: '¡Plan seleccionado!',
-                selectPlanDesc: 'Ahora elige que servidor mejorar',
+                selectPlanDesc: 'Abriendo servidor de soporte...',
                 signInError: 'Error al iniciar sesion con Discord',
                 inviteError: 'URL de invitacion no configurada',
                 contactError: 'URL de contacto no configurada',
-                pleaseSignIn: 'Por favor inicia sesion con Discord para continuar',
-                needAuthDesc: 'Necesitas autenticarte para comprar Pro',
+                pleaseSignIn: 'Inicio de sesion no requerido para compra manual',
+                needAuthDesc: 'Haz clic en el boton del plan para abrir el servidor de soporte',
                 missingInfo: 'Informacion incompleta',
-                selectPlanAndServer: 'Por favor selecciona un plan y un servidor',
-                creatingCheckout: 'Creando pago para {{server}}...',
-                redirecting: 'Redirigiendo a pago seguro...',
-                checkoutFailed: 'Error en el pago',
+                selectPlanAndServer: 'Por favor selecciona un plan para continuar',
+                creatingCheckout: 'Abriendo servidor de soporte...',
+                redirecting: 'Redirigiendo al servidor de soporte...',
+                checkoutFailed: 'No se pudo abrir el servidor de soporte',
                 serverHasPremium: 'El servidor ya tiene premium',
                 serverHasPremiumDesc: 'Este servidor ya tiene una suscripcion premium activa',
                 permissionDenied: 'Permiso denegado',

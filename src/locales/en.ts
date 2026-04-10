@@ -335,6 +335,15 @@ export const en = {
                     features: ['Everything in Pro', 'Dedicated API', 'Guaranteed SLA', 'Guided onboarding', 'Multi-server', '24/7 support'],
                 },
             },
+            donation: {
+                title: 'Support TON618',
+                description: 'Your donations help keep TON618 running and improving for Discord communities worldwide.',
+                cta: 'Donate',
+                disclaimer: 'Donations are voluntary and support development. They do not activate premium features.',
+                info1: 'Donations support development and server costs',
+                info2: 'Contact us through the support server to arrange a donation',
+                info3: 'You will receive a thank-you confirmation after donating',
+            },
         },
         changelog: {
             tag: 'Latest Updates',
@@ -1447,6 +1456,14 @@ export const en = {
                 titleAccent: 'Operational Plan',
                 description: 'Free gets you started. Pro unlocks the full toolkit. Enterprise includes white-glove onboarding.',
             },
+            manual: {
+                title: 'Manual Activation in Discord',
+                description: 'TON618 V1 uses manual activation. After payment, open a support ticket with your server ID and receipt.',
+                stepsTitle: 'How to get Pro:',
+                step1: 'Click the plan below to open the support server',
+                step2: 'Pay manually via the available methods in Discord',
+                step3: 'Open a ticket with your server ID and receipt for activation',
+            },
             auth: {
                 title: 'Sign in with Discord',
                 subtitle: 'Required to see your servers and complete upgrade',
@@ -1502,10 +1519,10 @@ export const en = {
             },
             trustSignals: {
                 eyebrow: 'Purchase Protection',
-                poweredBy: 'Powered by Lemon Squeezy',
-                secure: {
-                    title: 'Secure',
-                    description: 'Payments via Lemon Squeezy',
+                poweredBy: 'V1 Manual Activation',
+                manual: {
+                    title: 'Manual',
+                    description: 'Activated by owner in Discord',
                 },
                 flexible: {
                     title: 'Flexible',
@@ -1515,9 +1532,9 @@ export const en = {
                     title: 'Protected',
                     description: '7-day guarantee',
                 },
-                instant: {
-                    title: 'Instant',
-                    description: 'Activate in minutes',
+                support: {
+                    title: 'Support',
+                    description: 'Discord-first assistance',
                 },
             },
             faq: {
@@ -1526,11 +1543,11 @@ export const en = {
                 questions: {
                     q1: {
                         question: 'How do I upgrade my server to premium?',
-                        answer: 'Select a plan above, sign in with Discord, choose your server, and complete checkout. Premium features activate within minutes.',
+                        answer: 'Click the Pro or Enterprise plan to join the support server. Pay manually, then open a ticket with your server ID and receipt. The owner will activate premium manually.',
                     },
                     q2: {
                         question: 'Can I cancel my subscription anytime?',
-                        answer: 'Yes. For monthly and yearly subscriptions, cancel anytime. Premium features remain active until the end of your billing period.',
+                        answer: 'Yes. For monthly and yearly subscriptions, cancel anytime by contacting support. Premium features remain active until the end of your billing period.',
                     },
                     q3: {
                         question: "What's the difference between Lifetime and subscriptions?",
@@ -1538,11 +1555,11 @@ export const en = {
                     },
                     q4: {
                         question: 'Can I upgrade multiple servers?',
-                        answer: 'Yes. Each server requires its own premium subscription. You can purchase premium for as many servers as you manage.',
+                        answer: 'Yes. Each server requires its own premium subscription. You can purchase premium for as many servers as you manage through the manual process.',
                     },
                     q5: {
                         question: 'Is my payment information secure?',
-                        answer: 'All payments are processed through Lemon Squeezy, a trusted payment processor. We never store your payment information.',
+                        answer: 'Payment methods are handled through established payment processors. We never store your payment information on our servers.',
                     },
                     q6: {
                         question: 'What happens if I cancel my subscription?',
@@ -1560,10 +1577,10 @@ export const en = {
                 descriptionPayment: 'Thank you for upgrading to TON618 {{plan}}! Your server\'s premium features are being activated.',
                 whatsNext: "What's Next?",
                 steps: {
-                    s1: 'Your premium features will be active within a few minutes (up to 5 min for webhook processing)',
-                    s2: "You'll receive a confirmation email from Lemon Squeezy",
+                    s1: 'Your premium features will be activated manually after payment verification (usually within 24 hours)',
+                    s2: 'You will receive a confirmation message in the support server',
                     s3: "Access your server's dashboard to configure premium features",
-                    s4: 'Manage your subscription anytime from the billing portal',
+                    s4: 'Manage your subscription by contacting support',
                     s1Donation: 'Your donation has been recorded — thank you!',
                 },
                 goToDashboard: 'Go to Dashboard',
@@ -1572,9 +1589,9 @@ export const en = {
                 supportServer: 'support server',
             },
             cancel: {
-                metaTitle: 'Checkout Cancelled - TON618',
-                title: 'Checkout Cancelled',
-                subtitle: 'No worries! Your checkout was cancelled and no charges were made.',
+                metaTitle: 'Cancelled - TON618',
+                title: 'Purchase Cancelled',
+                subtitle: 'No worries! Come back when you are ready to upgrade.',
                 whyUpgrade: 'Why upgrade to TON618 Pro?',
                 features: {
                     f1: 'Advanced moderation tools to keep your server safe',
@@ -1589,17 +1606,17 @@ export const en = {
             },
             toasts: {
                 selectPlan: 'Plan selected!',
-                selectPlanDesc: 'Now choose which server to upgrade',
+                selectPlanDesc: 'Opening support server...',
                 signInError: 'Failed to sign in with Discord',
                 inviteError: 'Invite URL not configured',
                 contactError: 'Contact URL not configured',
-                pleaseSignIn: 'Please sign in with Discord to continue',
-                needAuthDesc: 'You need to authenticate to purchase Pro',
+                pleaseSignIn: 'Sign in not required for manual purchase',
+                needAuthDesc: 'Click the plan button to open the support server',
                 missingInfo: 'Missing information',
-                selectPlanAndServer: 'Please select both a plan and a server',
-                creatingCheckout: 'Creating checkout for {{server}}...',
-                redirecting: 'Redirecting to secure checkout...',
-                checkoutFailed: 'Checkout failed',
+                selectPlanAndServer: 'Please select a plan to continue',
+                creatingCheckout: 'Opening support server...',
+                redirecting: 'Redirecting to support server...',
+                checkoutFailed: 'Could not open support server',
                 serverHasPremium: 'Server already has premium',
                 serverHasPremiumDesc: 'This server already has an active premium subscription',
                 permissionDenied: 'Permission denied',

@@ -49,6 +49,7 @@ export const config = {
   githubUrl: import.meta.env.VITE_GITHUB_URL || '',
   twitterUrl: import.meta.env.VITE_TWITTER_URL || '',
   contactEmail: import.meta.env.VITE_CONTACT_EMAIL || '',
+  donationUrl: import.meta.env.VITE_DONATION_URL || '',
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   billingBetaMode: parseBooleanEnv(import.meta.env.VITE_BILLING_BETA_MODE, false),

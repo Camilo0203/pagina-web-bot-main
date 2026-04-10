@@ -1,8 +1,14 @@
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { ChevronDown, MessageCircle } from 'lucide-react';
+import { ChevronDown, HelpCircle } from 'lucide-react';
+import { config } from '../../config';
 import { motionViewport, sectionIntro, withDelay, motionStagger, accordionTransition } from '../../lib/motion';
+
+function getContactUrl(): string {
+  // Priority: support server -> contact email
+  return config.supportServerUrl || (config.contactEmail ? `mailto:${config.contactEmail}` : '#');
+}
 
 export function FAQSection() {
   const { t } = useTranslation();
@@ -134,12 +140,12 @@ export function FAQSection() {
         >
           <div className="premium-pill flex items-center gap-3 px-6 py-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/10">
-              <MessageCircle className="h-4 w-4 text-indigo-400" />
+              <HelpCircle className="h-4 w-4 text-indigo-400" />
             </div>
-            <p className="text-sm text-slate-400">
-              {t('billing.faq.stillHaveQuestions')}{' '}
+            <p className="mt-4 text-sm text-slate-400">
+              {t('billing.faq.contactUs')}{' '}
               <a
-                href="mailto:support@ton618.io"
+                href={getContactUrl()}
                 className="font-medium text-white transition-colors hover:text-indigo-300"
               >
                 {t('billing.faq.getInTouch')}

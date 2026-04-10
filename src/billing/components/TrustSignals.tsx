@@ -12,8 +12,8 @@ export function TrustSignals() {
   const signals = [
     {
       icon: Shield,
-      titleKey: 'billing.trustSignals.secure.title',
-      descriptionKey: 'billing.trustSignals.secure.description',
+      titleKey: 'billing.trustSignals.manual.title',
+      descriptionKey: 'billing.trustSignals.manual.description',
     },
     {
       icon: RefreshCw,
@@ -27,8 +27,8 @@ export function TrustSignals() {
     },
     {
       icon: Zap,
-      titleKey: 'billing.trustSignals.instant.title',
-      descriptionKey: 'billing.trustSignals.instant.description',
+      titleKey: 'billing.trustSignals.support.title',
+      descriptionKey: 'billing.trustSignals.support.description',
     },
   ];
 
@@ -76,18 +76,17 @@ export function TrustSignals() {
               ))}
             </div>
 
-            {/* Center/Right: Lemon Squeezy seal - integrated elegantly */}
+            {/* Center/Right: V1 Manual Activation notice */}
             <motion.div
               variants={secondaryReveal}
               initial="hidden"
               whileInView="show"
               viewport={motionViewport}
-              className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 backdrop-blur-sm"
+              className="flex items-center gap-3 rounded-full border border-indigo-500/20 bg-indigo-500/5 px-4 py-2 backdrop-blur-sm"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-400/20 to-yellow-500/10">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFC233" />
-                  <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="#FFC233" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/20">
+                <svg className="h-4 w-4 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
               <div className="text-left">
