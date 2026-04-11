@@ -5,12 +5,14 @@ import { motion } from 'framer-motion';
 import { Toaster } from 'sonner';
 import Logo from './components/Logo';
 import RouteScrollManager from './components/RouteScrollManager';
+import SecurityHeaders from './components/SecurityHeaders';
 import LandingPage from './pages/LandingPage';
 import { LEGAL_DOCUMENT_TYPES } from './lib/legalDocuments';
 
 const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const DocsPage = lazy(() => import('./pages/DocsPage'));
 const PricingPage = lazy(() => import('./billing/pages/PricingPage'));
 const BillingSuccessPage = lazy(() => import('./billing/pages/BillingSuccessPage'));
 const BillingCancelPage = lazy(() => import('./billing/pages/BillingCancelPage'));
@@ -61,6 +63,7 @@ function AppLoadingFallback() {
 export default function App() {
   return (
     <>
+      <SecurityHeaders />
       <Toaster theme="dark" position="bottom-right" richColors />
       <RouteScrollManager />
       <Suspense fallback={<AppLoadingFallback />}>
@@ -69,6 +72,7 @@ export default function App() {
           {LEGAL_DOCUMENT_TYPES.map((type) => (
             <Route key={type} path={`/${type}`} element={<LegalPage type={type} />} />
           ))}
+          <Route path="/docs" element={<DocsPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/billing/success" element={<BillingSuccessPage />} />
           <Route path="/billing/cancel" element={<BillingCancelPage />} />

@@ -142,7 +142,7 @@ export function FAQSection() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/10">
               <HelpCircle className="h-4 w-4 text-indigo-400" />
             </div>
-            <p className="mt-4 text-sm text-slate-400">
+            <p className="text-sm text-slate-400">
               {t('billing.faq.stillHaveQuestions')}{' '}
               <a
                 href={getContactUrl()}

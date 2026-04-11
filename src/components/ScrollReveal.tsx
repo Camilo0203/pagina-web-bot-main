@@ -18,7 +18,7 @@ export default function ScrollReveal({ children, delay = 0, className = '' }: Sc
       whileInView="show"
       viewport={motionViewport}
       variants={variants}
-      className={className}
+      className={`relative ${className}`}
     >
       {children}
     </motion.div>

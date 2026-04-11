@@ -227,21 +227,41 @@ export const es = {
                     role: 'Admin',
                     title: 'Invita el bot',
                     description: 'Añade TON618 desde Discord para que los slash commands y los permisos base queden disponibles antes de empezar el setup.',
+                    outputs: [
+                        'Slash commands registrados en el servidor',
+                        'Permisos base asignados al bot',
+                        'Acceso a /setup y flujos de onboarding',
+                    ],
                 },
                 language: {
                     role: 'Admin',
                     title: 'Elige el idioma del servidor',
                     description: 'Define English o Español durante el onboarding. Ese idioma queda fijado antes de que staff o miembros vean el flujo en vivo, y los admins pueden cambiarlo después con /setup language.',
+                    outputs: [
+                        'Idioma del servidor configurado',
+                        'Respuestas del bot localizadas',
+                        'Base para tickets y verificación lista',
+                    ],
                 },
                 setup: {
                     role: 'Admin',
                     title: 'Configura la operación con /setup',
                     description: 'Usa /setup para preparar canales, roles, permisos y la configuración base antes de publicar cualquier flujo visible para miembros.',
+                    outputs: [
+                        'Canales de operación creados',
+                        'Roles de staff y sistema asignados',
+                        'Permisos y defaults configurados',
+                    ],
                 },
                 launch: {
                     role: 'Admin',
                     title: 'Activa /ticket y /verify',
                     description: 'Enciende soporte y protección de acceso solo cuando el setup ya está listo, para que routing, ownership y reglas de entrada arranquen bien.',
+                    outputs: [
+                        'Panel de tickets publicado',
+                        'Flujo de verificación activo',
+                        'Routing de soporte configurado',
+                    ],
                 },
                 operate: {
                     role: 'Staff + Admin / Owner',
@@ -1165,11 +1185,11 @@ export const es = {
             },
             manual: {
                 title: 'Activacion Manual en Discord',
-                description: 'TON618 V1 usa activacion manual. Despues del pago, abre un ticket de soporte con tu server ID y comprobante.',
+                description: 'TON618 V1 usa activacion manual. Despues de verificar el pago, recibiras un codigo de activacion por DM.',
                 stepsTitle: 'Como obtener Pro:',
                 step1: 'Haz clic en el plan para abrir el servidor de soporte',
-                step2: 'Paga manualmente via los metodos disponibles en Discord',
-                step3: 'Abre un ticket con tu server ID y comprobante para activacion',
+                step2: 'Paga manualmente y abre un ticket con tu server ID y comprobante',
+                step3: 'Recibe el codigo por DM, luego ejecuta /pro redeem <codigo> en tu servidor',
             },
             auth: {
                 title: 'Inicia sesion con Discord',
@@ -1187,7 +1207,7 @@ export const es = {
                 },
                 pro: {
                     popular: 'Popular',
-                    cta: 'Mejorar a Pro',
+                    cta: 'Contactar para Pro',
                     processing: 'Procesando...',
                 },
                 donation: {
@@ -1225,11 +1245,11 @@ export const es = {
                 processing: 'Procesando...',
             },
             trustSignals: {
-                eyebrow: 'Proteccion de Compra',
-                poweredBy: 'V1 Activacion Manual',
+                eyebrow: 'Proteccion',
+                poweredBy: 'V1 Manual',
                 manual: {
                     title: 'Manual',
-                    description: 'Activado por el owner en Discord',
+                    description: 'Owner activa',
                 },
                 flexible: {
                     title: 'Flexible',
@@ -1237,11 +1257,11 @@ export const es = {
                 },
                 protected: {
                     title: 'Protegido',
-                    description: 'Garantia de 7 dias',
+                    description: '7 dias garantia',
                 },
                 support: {
                     title: 'Soporte',
-                    description: 'Asistencia Discord-first',
+                    description: 'Discord ayuda',
                 },
             },
             faq: {
@@ -1250,7 +1270,7 @@ export const es = {
                 questions: {
                     q1: {
                         question: '¿Como mejoro mi servidor a premium?',
-                        answer: 'Haz clic en el plan Pro o Enterprise para unirte al servidor de soporte. Paga manualmente, luego abre un ticket con tu server ID y comprobante. El owner activara premium manualmente.',
+                        answer: 'Haz clic en el plan Pro o Enterprise para unirte al servidor de soporte. Paga manualmente y abre un ticket con tu server ID y comprobante. El owner te enviara un codigo de activacion por DM. Luego ejecuta /pro redeem <codigo> en tu servidor como owner.',
                     },
                     q2: {
                         question: '¿Puedo cancelar mi suscripcion en cualquier momento?',

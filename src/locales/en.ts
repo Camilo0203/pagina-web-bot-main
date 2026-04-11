@@ -321,7 +321,7 @@ export const en = {
                     price: { monthly: '$9', yearly: '$7' },
                     period: '/mo',
                     desc: 'For teams that need more.',
-                    cta: 'Upgrade to Pro',
+                    cta: 'Contact for Pro',
                     popular: 'Most popular',
                     features: ['Everything in Free', 'Unlimited flows', 'Live analytics', 'Ticket system', 'Expanded setup tooling', 'Priority support'],
                 },
@@ -399,21 +399,41 @@ export const en = {
                     role: 'Admin',
                     title: 'Invite the bot',
                     description: 'Add TON618 through Discord so slash commands and the required base permissions are available before setup starts.',
+                    outputs: [
+                        'Slash commands registered in server',
+                        'Base bot permissions assigned',
+                        'Access to /setup and onboarding flows',
+                    ],
                 },
                 language: {
                     role: 'Admin',
                     title: 'Choose the server language',
                     description: 'Pick English or Español during onboarding. That server language is defined before staff or members see the live flow, and admins can change it later with /setup language.',
+                    outputs: [
+                        'Server language configured',
+                        'Bot responses localized',
+                        'Base for tickets and verification ready',
+                    ],
                 },
                 setup: {
                     role: 'Admin',
                     title: 'Configure operations with /setup',
                     description: 'Use /setup to prepare channels, roles, permissions and the baseline configuration before you publish anything member-facing.',
+                    outputs: [
+                        'Operation channels created',
+                        'Staff and system roles assigned',
+                        'Permissions and defaults configured',
+                    ],
                 },
                 launch: {
                     role: 'Admin',
                     title: 'Enable /ticket and /verify',
                     description: 'Turn on support and access protection only after setup is ready, so routing, ownership and entry rules start clean.',
+                    outputs: [
+                        'Ticket panel published',
+                        'Verification flow active',
+                        'Support routing configured',
+                    ],
                 },
                 operate: {
                     role: 'Staff + Admin / Owner',
@@ -1457,11 +1477,11 @@ export const en = {
             },
             manual: {
                 title: 'Manual Activation in Discord',
-                description: 'TON618 V1 uses manual activation. After payment, open a support ticket with your server ID and receipt.',
+                description: 'TON618 V1 uses manual activation. After payment verification, you\'ll receive an activation code via DM.',
                 stepsTitle: 'How to get Pro:',
                 step1: 'Click the plan below to open the support server',
-                step2: 'Pay manually via the available methods in Discord',
-                step3: 'Open a ticket with your server ID and receipt for activation',
+                step2: 'Pay manually and open a ticket with your server ID and receipt',
+                step3: 'Receive activation code via DM, then run /pro redeem <code> in your server',
             },
             auth: {
                 title: 'Sign in with Discord',
@@ -1479,7 +1499,7 @@ export const en = {
                 },
                 pro: {
                     popular: 'Popular',
-                    cta: 'Upgrade to Pro',
+                    cta: 'Contact for Pro',
                     processing: 'Processing...',
                 },
                 donation: {
@@ -1521,7 +1541,7 @@ export const en = {
                 poweredBy: 'V1 Manual Activation',
                 manual: {
                     title: 'Manual',
-                    description: 'Activated by owner in Discord',
+                    description: 'Owner-activated',
                 },
                 flexible: {
                     title: 'Flexible',
@@ -1533,7 +1553,7 @@ export const en = {
                 },
                 support: {
                     title: 'Support',
-                    description: 'Discord-first assistance',
+                    description: 'Discord support',
                 },
             },
             faq: {
@@ -1542,7 +1562,7 @@ export const en = {
                 questions: {
                     q1: {
                         question: 'How do I upgrade my server to premium?',
-                        answer: 'Click the Pro or Enterprise plan to join the support server. Pay manually, then open a ticket with your server ID and receipt. The owner will activate premium manually.',
+                        answer: 'Click the Pro or Enterprise plan to join the support server. Pay manually and open a ticket with your server ID and receipt. The owner will send you an activation code via DM. Then run /pro redeem <code> in your server as the owner.',
                     },
                     q2: {
                         question: 'Can I cancel my subscription anytime?',

@@ -113,6 +113,17 @@ export default function Hero() {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Reset typing state when phrases change
+  useEffect(() => {
+    if (!typingPhrases?.length) {
+      setDisplayedText('');
+      return;
+    }
+    setTypingIndex(0);
+    setIsDeleting(false);
+    setDisplayedText('');
+  }, [typingPhrases]);
+
   useEffect(() => {
     if (shouldReduceMotion || !typingPhrases?.length) {
       setDisplayedText(typingPhrases?.[0] || '');
@@ -135,7 +146,13 @@ export default function Hero() {
     }
 
     const timer = setTimeout(() => {
-      setDisplayedText(isDeleting ? phrase.slice(0, displayedText.length - 1) : phrase.slice(0, displayedText.length + 1));
+      setDisplayedText((prev) => {
+        const currentPhrase = typingPhrases[typingIndex % typingPhrases.length];
+        if (isDeleting) {
+          return prev.slice(0, -1);
+        }
+        return currentPhrase.slice(0, prev.length + 1);
+      });
     }, speed);
 
     return () => clearTimeout(timer);

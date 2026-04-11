@@ -64,12 +64,15 @@ export default function Footer() {
     config.contactEmail ? { href: `mailto:${config.contactEmail}`, label: config.contactEmail } : null,
   ].filter(Boolean) as { href: string; label: string }[];
 
+  const isValidUrl = (url: string | null | undefined): url is string =>
+    Boolean(url) && url !== '#' && !url?.startsWith('#');
+
   const socialLinks = [
     { url: config.twitterUrl, Icon: Twitter, label: 'Twitter' },
     { url: config.githubUrl, Icon: Github, label: 'GitHub' },
     { url: config.supportServerUrl, Icon: MessageCircle, label: 'Discord' },
     { url: config.contactEmail ? `mailto:${config.contactEmail}` : null, Icon: Mail, label: 'Email' },
-  ].filter((item) => item.url);
+  ].filter((item) => isValidUrl(item.url));
 
   return (
     <footer className="relative overflow-hidden border-t border-white/5 bg-black pb-16 pt-24" aria-label="Footer">
@@ -80,7 +83,7 @@ export default function Footer() {
         <div className="mb-16 grid gap-12 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))]">
           <div>
             <div className="mb-8 flex items-center gap-4">
-              <Logo size="xl" subtitle="TON618" frameClassName="h-24 w-24 md:h-28 md:w-28" imageClassName="scale-[1.06]" />
+              <Logo size="xl" withText={false} frameClassName="h-24 w-24 md:h-28 md:w-28" imageClassName="scale-[1.06]" />
             </div>
 
             <p className="mb-8 max-w-md text-base font-medium leading-relaxed text-slate-400">

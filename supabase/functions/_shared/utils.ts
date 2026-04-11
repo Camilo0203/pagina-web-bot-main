@@ -1,23 +1,54 @@
 // Common utilities for Edge Functions
 
-export const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-signature',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-};
+// Allowed origins - configure via environment variable or explicitly list
+const ALLOWED_ORIGINS = [
+  'https://ton618.app',
+  'https://www.ton618.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+].filter(Boolean);
 
-export function jsonResponse(data: unknown, status = 200): Response {
+// Add origin from env if available
+const envOrigin = Deno.env.get('SITE_URL');
+if (envOrigin && !ALLOWED_ORIGINS.includes(envOrigin)) {
+  ALLOWED_ORIGINS.push(envOrigin);
+}
+
+/**
+ * Get CORS headers for a specific request origin
+ * @param requestOrigin - Origin from request headers
+ * @returns CORS headers object
+ */
+export function getCorsHeaders(requestOrigin?: string | null): Record<string, string> {
+  // Only allow specific origins, never use wildcard '*' in production
+  const allowedOrigin = requestOrigin && ALLOWED_ORIGINS.includes(requestOrigin)
+    ? requestOrigin
+    : ALLOWED_ORIGINS[0] || 'https://ton618.app';
+
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-signature',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
+  };
+}
+
+// Legacy export for backward compatibility - prefer getCorsHeaders()
+export const corsHeaders = getCorsHeaders();
+
+export function jsonResponse(data: unknown, status = 200, requestOrigin?: string | null): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      ...corsHeaders,
+      ...getCorsHeaders(requestOrigin),
       'Content-Type': 'application/json',
     },
   });
 }
 
-export function errorResponse(message: string, status = 400): Response {
-  return jsonResponse({ error: message }, status);
+export function errorResponse(message: string, status = 400, requestOrigin?: string | null): Response {
+  return jsonResponse({ error: message }, status, requestOrigin);
 }
 
 export function requireEnv(name: string): string {

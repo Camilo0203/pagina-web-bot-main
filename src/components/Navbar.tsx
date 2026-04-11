@@ -64,24 +64,37 @@ function Navbar() {
   ];
 
   const utilityLinks = [
-    { href: config.docsUrl || '#docs', label: t('nav.docs') },
-    config.statusUrl ? { href: config.statusUrl, label: t('nav.status') } : null,
-    config.supportServerUrl ? { href: config.supportServerUrl, label: t('nav.support') } : null,
-  ].filter(Boolean) as { href: string; label: string }[];
+    config.docsUrl ? { href: config.docsUrl, label: t('nav.docs'), external: true } : { href: '/docs', label: t('nav.docs'), external: false },
+    config.statusUrl ? { href: config.statusUrl, label: t('nav.status'), external: true } : null,
+    config.supportServerUrl ? { href: config.supportServerUrl, label: t('nav.support'), external: true } : null,
+  ].filter(Boolean) as { href: string; label: string; external: boolean }[];
 
-  function renderUtilityLink(link: { href: string; label: string }) {
-    const isHash = link.href.startsWith('#');
-
+  function renderUtilityLink(link: { href: string; label: string; external: boolean }) {
+    const isInternal = link.href.startsWith('/');
+    const className = "inline-flex items-center gap-1 text-sm font-bold uppercase tracking-tight-readable text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950";
+    
+    if (isInternal) {
+      return (
+        <Link
+          key={link.label}
+          to={link.href}
+          className={className}
+        >
+          <span>{link.label}</span>
+        </Link>
+      );
+    }
+    
     return (
       <a
         key={link.label}
         href={link.href}
-        target={isHash ? undefined : '_blank'}
-        rel={isHash ? undefined : 'noopener noreferrer'}
-        className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-tight-readable text-slate-400 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+        target={link.external ? '_blank' : undefined}
+        rel={link.external ? 'noopener noreferrer' : undefined}
+        className={className}
       >
         <span>{link.label}</span>
-        {!isHash ? <ExternalLink className="h-3 w-3" /> : null}
+        {link.external ? <ExternalLink className="h-3 w-3" /> : null}
       </a>
     );
   }
@@ -94,9 +107,8 @@ function Navbar() {
             <Link to="/" className="flex min-w-0 items-center gap-3 group" aria-label={t('nav.homeAria')}>
               <Logo
                 size="lg"
-                subtitle="TON618"
+                withText={false}
                 className="transition-transform duration-300 group-hover:scale-[1.01]"
-                textClassName="transition-colors duration-300 group-hover:text-indigo-200"
                 frameClassName="h-[4.7rem] w-[4.7rem] md:h-[5.1rem] md:w-[5.1rem]"
                 imageClassName="transition-transform duration-300 group-hover:scale-[1.82]"
               />
@@ -107,7 +119,7 @@ function Navbar() {
                 <a
                   key={link.name}
                   href={link.href}
-                  className="relative text-[10px] font-bold uppercase tracking-tight-readable text-slate-400 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  className="relative text-sm font-bold uppercase tracking-tight-readable text-slate-400 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   {link.name}
                   <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-indigo-500 transition-[width] duration-300 hover:w-full"></span>
@@ -143,7 +155,7 @@ function Navbar() {
             )}
           </div>
 
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex items-center gap-4 lg:hidden">
             <LanguageSelector mode="mobile" />
 
             <button

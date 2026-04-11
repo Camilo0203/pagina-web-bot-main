@@ -445,11 +445,50 @@ export function ensureGuildId(guildId: string, context: string): string {
   return normalizedGuildId;
 }
 
+const SENSITIVE_KEYS = [
+  'access_token',
+  'provider_token',
+  'refresh_token',
+  'id_token',
+  'token',
+  'password',
+  'secret',
+  'api_key',
+  'apikey',
+  'key',
+  'authorization',
+  'x-bot-api-key',
+  'supabase_anon_key',
+  'service_role_key',
+];
+
+function sanitizeLogPayload(payload: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  if (!payload || typeof payload !== 'object') return payload;
+
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(payload)) {
+    const lowerKey = key.toLowerCase();
+    if (SENSITIVE_KEYS.some(sk => lowerKey.includes(sk))) {
+      sanitized[key] = typeof value === 'string' && value.length > 8
+        ? `${value.substring(0, 4)}...${value.substring(value.length - 4)}`
+        : '[REDACTED]';
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = Array.isArray(value)
+        ? value.map(item => typeof item === 'object' ? sanitizeLogPayload(item as Record<string, unknown>) : item)
+        : sanitizeLogPayload(value as Record<string, unknown>);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+
 export function debugAuthLog(event: string, payload?: Record<string, unknown>, level: 'info' | 'error' = 'info'): void {
   if (!import.meta.env.DEV) {
     return;
   }
   // eslint-disable-next-line no-console
   const logFn = level === 'error' ? console.error : console.log;
-  logFn(`[dashboard-auth] ${event}`, payload);
+  const sanitizedPayload = sanitizeLogPayload(payload);
+  logFn(`[dashboard-auth] ${event}`, sanitizedPayload);
 }

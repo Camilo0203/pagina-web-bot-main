@@ -203,10 +203,9 @@ export default function CommandPreview() {
         >
           {workflowSteps.map((step) => {
             const Icon = step.icon;
-            const isOperateStep = step.id === 'operate';
 
             return (
-              <motion.li key={step.id} variants={stepReveal} className={`list-none ${isOperateStep ? 'md:col-span-2 xl:col-span-3' : ''}`}>
+              <motion.li key={step.id} variants={stepReveal} className="list-none">
                 <article className="tech-card flex h-full flex-col overflow-hidden">
                   <div className="mb-6 flex items-start justify-between gap-4">
                     <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-mono text-sm font-bold text-white">
@@ -221,6 +220,18 @@ export default function CommandPreview() {
                   <h3 className="text-xl font-bold tracking-tight text-white">{t(`commandPreview.steps.${step.id}.title`)}</h3>
                   <p className="mt-4 flex-1 text-sm font-medium leading-relaxed text-slate-400">{t(`commandPreview.steps.${step.id}.description`)}</p>
 
+                  {/* Outputs list for visual balance */}
+                  {step.id !== 'operate' ? (
+                    <ul className="mt-4 space-y-1.5">
+                      {[0, 1, 2].map((i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs font-medium text-slate-300">
+                          <span aria-hidden="true" className="mt-1.5 h-1 w-1 rounded-full bg-cyan-400/60" />
+                          <span>{t(`commandPreview.steps.${step.id}.outputs.${i}`)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
                   {step.commands.length > 0 ? (
                     <div className="mt-6 border-t border-white/8 pt-5">
                       <p className="text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
@@ -232,36 +243,26 @@ export default function CommandPreview() {
                     </div>
                   ) : null}
 
-                  {isOperateStep ? (
-                    <div className="mt-6 grid gap-4 border-t border-white/8 pt-5 md:grid-cols-2">
+                  {step.id === 'operate' ? (
+                    <div className="mt-6 space-y-4 border-t border-white/8 pt-5">
                       {operationsLanes.map((lane) => {
                         const LaneIcon = lane.icon;
 
                         return (
-                          <div key={lane.id} className="rounded-[1.5rem] border border-white/8 bg-white/[0.02] p-5">
-                            <div className="flex items-start justify-between gap-4">
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wide-readable text-cyan-200">
-                                  {t(`commandPreview.steps.operate.lanes.${lane.id}.label`)}
-                                </p>
-                                <h4 className="mt-2 text-base font-bold tracking-tight text-white">
-                                  {t(`commandPreview.steps.operate.lanes.${lane.id}.title`)}
-                                </h4>
-                              </div>
-                              <div className="premium-icon-tile h-10 w-10 shrink-0">
-                                <LaneIcon className="h-4 w-4 text-slate-100" />
-                              </div>
+                          <div key={lane.id}>
+                            <div className="flex items-center gap-2">
+                              <LaneIcon className="h-4 w-4 text-cyan-300" />
+                              <p className="text-[10px] font-bold uppercase tracking-wide-readable text-cyan-200">
+                                {t(`commandPreview.steps.operate.lanes.${lane.id}.label`)}
+                              </p>
                             </div>
-
-                            <p className="mt-3 text-sm font-medium leading-relaxed text-slate-400">
+                            <p className="mt-1 text-sm font-medium leading-relaxed text-slate-400">
                               {t(`commandPreview.steps.operate.lanes.${lane.id}.description`)}
                             </p>
-
-                            <p className="mt-4 text-[10px] font-bold uppercase tracking-wide-readable text-slate-500">{t('commandPreview.commandsLabel')}</p>
                             <CommandChipList
                               commands={lane.commands}
                               label={t('commandPreview.commandsAria', { context: t(`commandPreview.steps.operate.lanes.${lane.id}.title`) })}
-                              className="mt-3"
+                              className="mt-2"
                             />
                           </div>
                         );

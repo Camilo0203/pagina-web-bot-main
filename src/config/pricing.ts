@@ -71,7 +71,7 @@ export const PRICING_CONFIG = {
         'Analitica operativa y backups',
       ],
     },
-    cta: { en: 'Upgrade to Pro', es: 'Subir a Pro' },
+    cta: { en: 'Contact for Pro', es: 'Contactar para Pro' },
     ctaType: 'pricing' as const,
     popular: true,
     popularLabel: { en: 'Core plan', es: 'Plan core' },
