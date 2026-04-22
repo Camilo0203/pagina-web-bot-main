@@ -323,7 +323,9 @@ $$ LANGUAGE plpgsql;
 -- ============================================
 
 DROP VIEW IF EXISTS public.active_guild_subscriptions;
-CREATE OR REPLACE VIEW public.active_guild_subscriptions AS
+CREATE OR REPLACE VIEW public.active_guild_subscriptions
+  WITH (security_invoker = true)
+AS
 SELECT
   gs.id,
   gs.guild_id,
@@ -352,7 +354,9 @@ WHERE gs.premium_enabled = true
   AND (gs.ends_at IS NULL OR gs.ends_at > NOW());
 
 DROP VIEW IF EXISTS public.revenue_summary;
-CREATE OR REPLACE VIEW public.revenue_summary AS
+CREATE OR REPLACE VIEW public.revenue_summary
+  WITH (security_invoker = true)
+AS
 SELECT
   plan_key,
   kind,
@@ -384,7 +388,9 @@ GROUP BY
 ORDER BY total_revenue_cents DESC;
 
 DROP VIEW IF EXISTS public.donation_summary;
-CREATE OR REPLACE VIEW public.donation_summary AS
+CREATE OR REPLACE VIEW public.donation_summary
+  WITH (security_invoker = true)
+AS
 SELECT
   COUNT(*) AS total_donations,
   COUNT(DISTINCT discord_user_id) AS unique_donors,
@@ -411,7 +417,7 @@ DROP POLICY IF EXISTS users_select_own ON public.users;
 CREATE POLICY users_select_own
   ON public.users
   FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (discord_user_id = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Service role can manage users" ON public.users;
 DROP POLICY IF EXISTS users_service_role ON public.users;
@@ -426,7 +432,7 @@ DROP POLICY IF EXISTS guild_subs_select_own ON public.guild_subscriptions;
 CREATE POLICY guild_subs_select_own
   ON public.guild_subscriptions
   FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (discord_user_id = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Service role can manage subscriptions" ON public.guild_subscriptions;
 DROP POLICY IF EXISTS guild_subs_service_role ON public.guild_subscriptions;
@@ -441,7 +447,7 @@ DROP POLICY IF EXISTS purchases_select_own ON public.purchases;
 CREATE POLICY purchases_select_own
   ON public.purchases
   FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (discord_user_id = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Service role can manage purchases" ON public.purchases;
 DROP POLICY IF EXISTS purchases_service_role ON public.purchases;
@@ -458,7 +464,7 @@ CREATE POLICY donations_select_own
   FOR SELECT
   USING (
     discord_user_id IS NULL OR
-    discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id')
+    discord_user_id = auth.uid()::text
   );
 
 DROP POLICY IF EXISTS "Service role can manage donations" ON public.donations;

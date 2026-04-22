@@ -13,7 +13,7 @@ BEGIN
     CREATE POLICY "Users can view their own subscriptions"
       ON public.subscriptions
       FOR SELECT
-      USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+      USING (discord_user_id = auth.uid()::text);
 
     DROP POLICY IF EXISTS "Service role can manage all subscriptions" ON public.subscriptions;
     CREATE POLICY "Service role can manage all subscriptions"
@@ -28,7 +28,7 @@ BEGIN
     CREATE POLICY "Users can view their own purchases"
       ON public.purchases
       FOR SELECT
-      USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+      USING (discord_user_id = auth.uid()::text);
 
     DROP POLICY IF EXISTS "Service role can manage all purchases" ON public.purchases;
     CREATE POLICY "Service role can manage all purchases"
@@ -60,7 +60,7 @@ BEGIN
       FOR SELECT
       USING (
         discord_user_id IS NULL OR
-        discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id')
+        discord_user_id = auth.uid()::text
       );
 
     DROP POLICY IF EXISTS "Service role can manage all donations" ON public.donations;

@@ -349,7 +349,9 @@ CREATE TRIGGER update_guild_subscriptions_updated_at
 -- VIEWS
 -- ============================================
 
-CREATE OR REPLACE VIEW public.active_guild_subscriptions AS
+CREATE OR REPLACE VIEW public.active_guild_subscriptions
+  WITH (security_invoker = true)
+AS
 SELECT
   gs.*,
   u.username,
@@ -364,7 +366,9 @@ WHERE gs.premium_enabled = true
   )
   AND (gs.ends_at IS NULL OR gs.ends_at > NOW());
 
-CREATE OR REPLACE VIEW public.revenue_summary AS
+CREATE OR REPLACE VIEW public.revenue_summary
+  WITH (security_invoker = true)
+AS
 SELECT
   DATE_TRUNC('day', created_at) AS date,
   kind,
@@ -391,7 +395,7 @@ DROP POLICY IF EXISTS "Users can read own data" ON public.users;
 CREATE POLICY "Users can read own data"
   ON public.users
   FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (discord_user_id = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Service role can manage users" ON public.users;
 CREATE POLICY "Service role can manage users"
@@ -404,7 +408,7 @@ DROP POLICY IF EXISTS "Users can read own subscriptions" ON public.guild_subscri
 CREATE POLICY "Users can read own subscriptions"
   ON public.guild_subscriptions
   FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (discord_user_id = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Service role can manage subscriptions" ON public.guild_subscriptions;
 CREATE POLICY "Service role can manage subscriptions"
@@ -417,7 +421,7 @@ DROP POLICY IF EXISTS "Users can read own purchases" ON public.purchases;
 CREATE POLICY "Users can read own purchases"
   ON public.purchases
   FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (discord_user_id = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Service role can manage purchases" ON public.purchases;
 CREATE POLICY "Service role can manage purchases"
@@ -432,7 +436,7 @@ CREATE POLICY "Users can read own donations"
   FOR SELECT
   USING (
     discord_user_id IS NULL OR
-    discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id')
+    discord_user_id = auth.uid()::text
   );
 
 DROP POLICY IF EXISTS "Service role can manage donations" ON public.donations;
