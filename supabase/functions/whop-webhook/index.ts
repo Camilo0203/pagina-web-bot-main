@@ -45,6 +45,7 @@ function mapWhopPlanToPlanKey(planId: string): 'pro_monthly' | 'pro_yearly' | 'l
   return planMap[planId] ?? 'pro_monthly';
 }
 
+// @ts-ignore: Deno is available in the Supabase Edge Runtime
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -71,7 +72,8 @@ Deno.serve(async (req: Request) => {
 
     const event = JSON.parse(rawBody) as Record<string, unknown>;
     const eventType = String(event.action ?? '');
-    const eventId = String((event as Record<string, Record<string, unknown>>).data?.id ?? crypto.randomUUID());
+    const eventData = event.data as Record<string, unknown> | undefined;
+    const eventId = String(eventData?.id ?? crypto.randomUUID());
     const eventHash = await sha256(rawBody);
 
     const supabase = createSupabaseClient();
