@@ -94,7 +94,7 @@ export default function PricingPage() {
           </div>
         </div>
       )}
-      <main className="mx-auto max-w-6xl px-4 py-12">
+      <main className="mx-auto max-w-6xl px-4 pt-28 pb-12 md:pt-32 lg:pt-36">
         <section className="mb-10 text-center">
           <h1 className="text-4xl font-black">{t('billing.hero.title')} <span className="text-indigo-400">{t('billing.hero.titleAccent')}</span></h1>
           <p className="mt-3 text-slate-300">{t('billing.hero.description')}</p>
