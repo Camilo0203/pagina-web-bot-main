@@ -7,6 +7,7 @@ import { TrustSignals } from '../components/TrustSignals';
 import { FAQSection } from '../components/FAQSection';
 import { GuildSelector } from '../components/GuildSelector';
 import { SocialProof } from '../components/SocialProof';
+import { PricingHero } from '../components/PricingHero';
 import { PRICING_CONFIG, getPlanPeriod, type BillingCycle, type PricingPlanKey } from '../../config/pricing';
 import { fetchBillingGuilds } from '../api';
 import { supabase } from '../../lib/supabaseClient';
@@ -94,11 +95,8 @@ export default function PricingPage() {
           </div>
         </div>
       )}
-      <main className="mx-auto max-w-6xl px-4 pt-28 pb-12 md:pt-32 lg:pt-36">
-        <section className="mb-10 text-center">
-          <h1 className="text-4xl font-black">{t('billing.hero.title')} <span className="text-indigo-400">{t('billing.hero.titleAccent')}</span></h1>
-          <p className="mt-3 text-slate-300">{t('billing.hero.description')}</p>
-        </section>
+      <PricingHero />
+      <main className="mx-auto max-w-6xl px-4 py-12">
 
         <div className="mb-10 flex justify-center">
           <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
