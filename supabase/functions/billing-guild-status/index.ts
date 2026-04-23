@@ -2,7 +2,7 @@
 // Public endpoint for bot to check premium status (requires API key)
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv, isValidDiscordId } from '../_shared/utils.ts';
+import { getCorsHeaders, jsonResponse, errorResponse, handleError, requireEnv, isValidDiscordId } from '../_shared/utils.ts';
 import { createSupabaseClient, BillingDatabase } from '../_shared/database.ts';
 
 async function timingSafeEquals(a: string, b: string): Promise<boolean> {
@@ -23,7 +23,7 @@ async function timingSafeEquals(a: string, b: string): Promise<boolean> {
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) });
   }
 
   if (req.method !== 'GET') {

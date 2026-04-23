@@ -1,10 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from '../_shared/utils.ts';
 
 const DISCORD_ADMINISTRATOR = 8n;
 const DISCORD_MANAGE_GUILD = 32n;
@@ -182,6 +178,9 @@ async function resolveManageableGuildsWithBotToken(
 }
 
 Deno.serve(async (request: Request) => {
+  const requestOrigin = request.headers.get('origin');
+  const corsHeaders = getCorsHeaders(requestOrigin);
+
   if (request.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }

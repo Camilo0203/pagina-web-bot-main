@@ -156,7 +156,9 @@ export function handleError(error: unknown): Response {
     if (error.message === 'DUPLICATE_EVENT') {
       return jsonResponse({ message: 'Event already processed' }, 200);
     }
-    return errorResponse(error.message, 500);
+    // Never leak internal error details to the caller in 500 responses.
+    // The full error is already logged above via console.error.
+    return errorResponse('Internal server error', 500);
   }
 
   return errorResponse('An unexpected error occurred', 500);

@@ -1,5 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv } from '../_shared/utils.ts';
+import { getCorsHeaders, jsonResponse, errorResponse, handleError, requireEnv, isValidDiscordId } from '../_shared/utils.ts';
 import { createSupabaseClient, BillingDatabase } from '../_shared/database.ts';
 
 async function verifyWhopSignature(rawBody: string, signatureHeader: string, secret: string): Promise<boolean> {
@@ -48,7 +48,7 @@ function mapWhopPlanToPlanKey(planId: string): 'pro_monthly' | 'pro_yearly' | 'l
 // @ts-ignore: Deno is available in the Supabase Edge Runtime
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) });
   }
 
   if (req.method !== 'POST') {
@@ -131,6 +131,14 @@ async function handleMembershipWentActive(db: BillingDatabase, event: Record<str
 
   if (!guildId) {
     throw new Error(`[whop-webhook] membership.went_active missing pass_guild_id — membershipId=${membershipId}`);
+  }
+
+  if (!isValidDiscordId(guildId)) {
+    throw new Error(`[whop-webhook] membership.went_active invalid pass_guild_id format: ${guildId}`);
+  }
+
+  if (discordUserId && discordUserId !== 'whop_unknown' && !isValidDiscordId(discordUserId)) {
+    throw new Error(`[whop-webhook] membership.went_active invalid discord_user_id format: ${discordUserId}`);
   }
 
   const planKey = mapWhopPlanToPlanKey(planId);

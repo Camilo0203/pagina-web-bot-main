@@ -1,5 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { corsHeaders, jsonResponse, errorResponse, handleError, requireEnv } from '../_shared/utils.ts';
+import { getCorsHeaders, jsonResponse, errorResponse, handleError, requireEnv, isValidDiscordId } from '../_shared/utils.ts';
 import { createSupabaseClient, BillingDatabase } from '../_shared/database.ts';
 
 function getStripeSignature(req: Request): string | null {
@@ -41,7 +41,7 @@ async function sha256(input: string): Promise<string> {
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) });
   }
 
   if (req.method !== 'POST') {
@@ -121,6 +121,14 @@ async function handleCheckoutSessionCompleted(db: BillingDatabase, session: Reco
 
   if (!planKey || !discordUserId || (planKey !== 'donate' && !guildId)) {
     throw new Error('Missing metadata in checkout.session.completed');
+  }
+
+  if (guildId && !isValidDiscordId(guildId)) {
+    throw new Error(`Invalid guild_id format in checkout.session.completed: ${guildId}`);
+  }
+
+  if (!isValidDiscordId(discordUserId)) {
+    throw new Error(`Invalid discord_user_id format in checkout.session.completed: ${discordUserId}`);
   }
 
   const amount = Number(session.amount_total || 0);
